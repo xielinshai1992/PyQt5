@@ -1,2 +1,2 @@
 # PyQt5
-PyQt5程序demo&amp;项目
+PyQt5demo&amp;项目
