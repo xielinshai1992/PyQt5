@@ -20,7 +20,7 @@ class Geography_Analysis():
         dlon = lng2-lng1
         dlat = lat2-lat1
         a = sin(dlat/2)**2+cos(lat1)*cos(lat2)*sin(dlon/2)**2
-        c = 2* asin(sqrt(a))* self.R_Earth # 地球平均半径，6371km
+        c = 2* asin(sqrt(a))* self.R_earth # 地球平均半径，6371km
         distance = round(c , 3)
         return distance
 
