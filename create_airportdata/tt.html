@@ -20,6 +20,15 @@
 <body>
 <div id="container"></div>
 <script type="text/javascript">
+    function fullname(value) {
+            alert("<" + value +">");
+            new_point = new AMap.LngLat(116.598333,40.073333);
+            marker1.moveTo(new_point,1800);
+        }
+    function freshMarker_own(lng,lat) {
+            alert(lng);
+            alert(lat);
+    }
     var map = new AMap.Map("container", {
         center: [103.948333,	30.580000],
         zoom: 14

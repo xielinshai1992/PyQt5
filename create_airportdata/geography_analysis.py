@@ -86,5 +86,5 @@ class Geography_Analysis():
         '''
         return  x * 180 / pi
 
-ga = Geography_Analysis()
-print(ga.get_lngAndlat(106.063333, 31.358, 29, 123.954))
+# ga = Geography_Analysis()
+# print(ga.get_lngAndlat(106.063333, 31.358, 29, 123.954))

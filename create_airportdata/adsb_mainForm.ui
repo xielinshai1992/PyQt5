@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1540</width>
+    <width>1550</width>
     <height>880</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>pic/airport.png</normaloff>pic/airport.png</iconset>
+    <normaloff>C:/Users/Administrator/.designer/backup/pic/airport.png</normaloff>C:/Users/Administrator/.designer/backup/pic/airport.png</iconset>
   </property>
   <property name="toolTipDuration">
    <number>0</number>
@@ -50,7 +50,7 @@
       <rect>
        <x>10</x>
        <y>25</y>
-       <width>601</width>
+       <width>591</width>
        <height>461</height>
       </rect>
      </property>
@@ -79,51 +79,38 @@
        <widget class="QGroupBox" name="groupBox_5">
         <property name="geometry">
          <rect>
-          <x>300</x>
+          <x>310</x>
           <y>50</y>
-          <width>281</width>
+          <width>271</width>
           <height>361</height>
          </rect>
         </property>
         <property name="title">
          <string>TCAS</string>
         </property>
+        <widget class="QPushButton" name="btn_stopsend_tcas_target1">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>318</y>
+           <width>251</width>
+           <height>28</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>停止发送TCAS数据</string>
+         </property>
+        </widget>
         <widget class="QWidget" name="">
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>31</y>
-           <width>261</width>
-           <height>351</height>
+           <y>40</y>
+           <width>251</width>
+           <height>261</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_21">
-            <property name="text">
-             <string>相对本机距离：</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="txt_Relative_Distance_target1">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_27">
             <property name="text">
@@ -137,18 +124,8 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_26">
-            <property name="text">
-             <string>压强高度：</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="txt_Relative_Direction_target1">
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="txt_Track_ID_target1">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -160,6 +137,16 @@
             </property>
             <property name="text">
              <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_26">
+            <property name="text">
+             <string>压强高度(m)：</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -189,8 +176,8 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="txt_Track_ID_target1">
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="txt_Relative_Direction_target1">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -205,10 +192,29 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="QPushButton" name="btn_stopsend_tcas_target1">
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_21">
             <property name="text">
-             <string>停止发送TCAS数据</string>
+             <string>相对本机距离：</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="txt_Relative_Distance_target1">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>150</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>
@@ -233,96 +239,41 @@
          <rect>
           <x>10</x>
           <y>50</y>
-          <width>281</width>
+          <width>291</width>
           <height>361</height>
          </rect>
         </property>
         <property name="title">
          <string>ADS-B</string>
         </property>
-        <widget class="QWidget" name="layoutWidget">
+        <widget class="QWidget" name="">
          <property name="geometry">
           <rect>
-           <x>0</x>
-           <y>30</y>
+           <x>9</x>
+           <y>34</y>
            <width>271</width>
            <height>318</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="12" column="2">
-           <widget class="QLineEdit" name="txt_GroundSpeed_target1">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_4">
             <property name="maximumSize">
              <size>
-              <width>150</width>
+              <width>144</width>
               <height>16777215</height>
              </size>
             </property>
             <property name="text">
-             <string/>
+             <string>压强高度(m)：</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="13" column="1" colspan="2">
-           <widget class="QPushButton" name="btn_stopsend_adsb_target1">
-            <property name="text">
-             <string>停止发送ADS-B数据</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QLineEdit" name="txt_FlightID_target1">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="2">
-           <widget class="QLineEdit" name="txt_Latitude_target1">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="2">
-           <widget class="QLineEdit" name="txt_Longitude_target1">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2">
-           <widget class="QLineEdit" name="txt_V_EW_target1">
+          <item row="7" column="1">
+           <widget class="QLineEdit" name="txt_Heading_Track_Angle_target1">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -338,48 +289,54 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLabel" name="label_14">
+           <widget class="QLineEdit" name="txt_FlightID_target1">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximumSize">
              <size>
-              <width>90</width>
+              <width>150</width>
               <height>16777215</height>
              </size>
             </property>
             <property name="text">
-             <string>航班号：</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             <string/>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="label_4">
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="txt_V_EW_target1">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximumSize">
              <size>
-              <width>90</width>
+              <width>150</width>
               <height>16777215</height>
              </size>
             </property>
             <property name="text">
-             <string>压强高度：</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             <string/>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="label_12">
+          <item row="5" column="1">
+           <widget class="QLineEdit" name="txt_Latitude_target1">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>150</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
-             <string>南北速度：</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             <string/>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="0">
            <widget class="QLabel" name="label_11">
             <property name="maximumSize">
              <size>
@@ -398,7 +355,23 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_12">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777214</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>南北速度(km/h)：</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
            <widget class="QLineEdit" name="txt_V_SN_target1">
             <property name="enabled">
              <bool>false</bool>
@@ -414,38 +387,34 @@
             </property>
            </widget>
           </item>
-          <item row="7" column="1">
-           <widget class="QLabel" name="label_16">
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_15">
             <property name="text">
-             <string>经度:</string>
+             <string>东西速度(km/h):</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="8" column="1">
-           <widget class="QLabel" name="label_18">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_14">
+            <property name="maximumSize">
+             <size>
+              <width>90</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
-             <string>航向角:</string>
+             <string>航班号：</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QLabel" name="label_13">
-            <property name="text">
-             <string>纬度:</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLineEdit" name="txt_Altitude_target1">
+          <item row="6" column="1">
+           <widget class="QLineEdit" name="txt_Longitude_target1">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -460,7 +429,37 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
+          <item row="8" column="0">
+           <widget class="QLabel" name="label_17">
+            <property name="text">
+             <string>地速(km/h)：</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_18">
+            <property name="text">
+             <string>航向角(deg)：</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>纬度(deg):</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
            <widget class="QLineEdit" name="txt_ICAO_target1">
             <property name="enabled">
              <bool>false</bool>
@@ -476,18 +475,8 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
-           <widget class="QLabel" name="label_15">
-            <property name="text">
-             <string>东西速度:</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="2">
-           <widget class="QLineEdit" name="txt_Heading_Track_Angle_target1">
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="txt_Altitude_target1">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -502,13 +491,36 @@
             </property>
            </widget>
           </item>
-          <item row="12" column="1">
-           <widget class="QLabel" name="label_17">
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_16">
             <property name="text">
-             <string>地速:</string>
+             <string>经度(deg)：</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <widget class="QLineEdit" name="txt_GroundSpeed_target1">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>150</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0" colspan="2">
+           <widget class="QPushButton" name="btn_stopsend_adsb_target1">
+            <property name="text">
+             <string>停止发送ADS-B数据</string>
             </property>
            </widget>
           </item>
@@ -564,6 +576,19 @@
      </property>
      <property name="text">
       <string>停止</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btn_test">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>240</y>
+       <width>201</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>test</string>
      </property>
     </widget>
    </widget>
@@ -681,7 +706,7 @@
       <item row="6" column="1">
        <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>纬度:</string>
+         <string>纬度(deg):</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -707,7 +732,7 @@
       <item row="9" column="1">
        <widget class="QLabel" name="label_9">
         <property name="text">
-         <string>航向角:</string>
+         <string>航向角(deg):</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -717,7 +742,7 @@
       <item row="3" column="1">
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>压强高度：</string>
+         <string>压强高度(m)：</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -727,7 +752,7 @@
       <item row="5" column="1">
        <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>东西速度:</string>
+         <string>东西速度(km/h):</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -753,7 +778,7 @@
       <item row="8" column="1">
        <widget class="QLabel" name="label_8">
         <property name="text">
-         <string>经度:</string>
+         <string>经度(deg):</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -808,7 +833,7 @@
       <item row="4" column="1">
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>南北速度：</string>
+         <string>南北速度(km/h)：</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -818,7 +843,7 @@
       <item row="13" column="1">
        <widget class="QLabel" name="label_10">
         <property name="text">
-         <string>地速:</string>
+         <string>地速(km/h):</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -862,7 +887,7 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_3"/>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -873,7 +898,7 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout"/>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -884,7 +909,7 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2"/>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -895,7 +920,7 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout"/>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>0</x>

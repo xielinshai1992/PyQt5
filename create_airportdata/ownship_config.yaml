@@ -121,5 +121,5 @@ basic:
   NACp: 0    #位置不确定度 默认为0
  
 extra:
-  delay_time: 3000         #起飞延迟 单位ms
+  delay_time: 1            #起飞延迟 单位s
   fre_transmit_data: 1     #本机数据发送频率 单位s

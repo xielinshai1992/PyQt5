@@ -159,9 +159,9 @@ basic:
   Range: 0                     #相对本机距离 单位km
   Warning_Status: 1  # 1 or 0
 extra:
-  delay_time: 1000         #起飞延时 单位ms
-  fre_transmit_adsb: 0.5   #ads-b数据发送频率 单位s
+  delay_time: 1        #起飞延时 单位s
+  fre_transmit_adsb: 1   #ads-b数据发送频率 单位s
   TCAS:
     enable: 1                #是否有Tcas数据 有为1 无为0
     distance_to_own: 300     #目标机向本机发送Tcas数据的距离阈值 单位km
-    fre_transmit_tcas: 0.5   #Tcas数据发送频率 单位ms
+    fre_transmit_tcas: 0.5   #Tcas数据发送频率 单位s

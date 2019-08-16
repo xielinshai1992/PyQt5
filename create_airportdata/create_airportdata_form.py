@@ -2,8 +2,11 @@ import sys
 import os
 import datetime
 import traceback
+from ctypes import *
+import threading
 import yaml
 import time
+import logging
 import adsb_mainForm
 from math import *
 from PyQt5.QtWidgets import *
@@ -12,6 +15,8 @@ from PyQt5.QtGui import *
 from PyQt5.QtWebEngineWidgets import *
 from math import radians, cos, sin, asin, sqrt
 from geography_analysis import Geography_Analysis
+from c_api import init_ownship_data_struct
+
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -70,6 +75,26 @@ class MainWindow(QMainWindow):
         self.lng_target_all = []                   # 经度序列        嵌套序列
         self.lat_target_all = []                   # 纬度序列        嵌套序列
         self.lngandlat_target_all= []              # 经纬度序列      嵌套序列
+
+        self.ui.btn_test.clicked.connect(self.test)
+
+
+    def test(self):
+        try:
+            value = 'hello world'
+            #self.browser.page().runJavaScript('fullname("' + value + '");')
+            self.browser.page().runJavaScript('freshMarker_own("aaa","qqqq");')
+            pass
+            # dll = cdll.LoadLibrary("data_interface_pro.dll")
+            # ownship_data_struct= init_ownship_data_struct(icao=self.ui.txt_ICAO_own.text(),flight_id=self.ui.txt_FlightID_own.text(),filght_24bit_addr=0,altitude=12500, \
+            #                          radio_altitude=0,north_south_veloctity=0,east_west_velocity=0, \
+            #                          vertical_speed = 0,latitude=0,longitude=0,heading_track_angle=0, \
+            #                          ground_speed= 900,flight_length=0,flight_width=0,seconds=1,mintes=1,hours=1,NACV=1,NACp=6)
+            # c = c_char()
+            # print(dll.Pack_TCAS_data(byref(ownship_data_struct), 1, byref(c), 1024 * 4))
+            # print(byref(c))
+        except:
+            traceback.print_exc()
 
     # 本机信息区域
     def import_info_own(self):
@@ -152,7 +177,7 @@ class MainWindow(QMainWindow):
                     self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(current_targetship_index)).setText(str(data_targetship['basic']['Bearing']))
                     self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(current_targetship_index)).setText(str(data_targetship['basic']['Range']))
                     fre_transmit_targetship = data_targetship['extra']['fre_transmit_adsb']
-                    self.fre_transmit_targetship_all.append(fre_transmit_targetship)
+                    self.fre_transmit_adsb_targetship_all.append(fre_transmit_targetship)
                     self.delay_takeoff_targetship_all.append(data_targetship['extra']['delay_time'])
                     groundspeed_targetship = data_targetship['basic']['Ground_Speed']
                     self.groundspeed_targetship_all.append(groundspeed_targetship)
@@ -208,9 +233,9 @@ class MainWindow(QMainWindow):
             # ADS-B布局
             groupBox_adsb = QGroupBox(frame_copy)
             groupBox_adsb.setTitle('ADS-B')
-            groupBox_adsb.setGeometry(QRect(10, 50, 281, 361))
+            groupBox_adsb.setGeometry(QRect(10, 50, 291, 361))
             layout_adsb = QWidget(groupBox_adsb)
-            layout_adsb.setGeometry(QRect(0, 30, 271, 318))
+            layout_adsb.setGeometry(QRect(9, 34, 271, 318))
             gridLayout_adsb = QGridLayout(layout_adsb)
             gridLayout_adsb.setContentsMargins(0, 0, 0, 0)
             # ICAO码
@@ -234,7 +259,7 @@ class MainWindow(QMainWindow):
             lineEdit_Flight_No.setObjectName("txt_FlightID_target"+str(target_plane_index))
             gridLayout_adsb.addWidget(lineEdit_Flight_No, 1, 2, 1, 1)
             #压强高度
-            label_Press_Height = QLabel('压强高度：',layout_adsb)
+            label_Press_Height = QLabel('压强高度(m)：',layout_adsb)
             label_Press_Height.setMaximumSize(QSize(90, 16777215))
             label_Press_Height.setAlignment(Qt.AlignLeading |Qt.AlignLeft | Qt.AlignVCenter)
             gridLayout_adsb.addWidget(label_Press_Height, 2, 1, 1, 1)
@@ -244,8 +269,8 @@ class MainWindow(QMainWindow):
             lineEdit_Press_Height.setObjectName("txt_Altitude_target"+str(target_plane_index))
             gridLayout_adsb.addWidget(lineEdit_Press_Height, 2, 2, 1, 1)
             #南北速度
-            label_V_SN= QLabel('南北速度：',layout_adsb)
-            label_V_SN.setMaximumSize(QSize(90, 16777215))
+            label_V_SN= QLabel('南北速度(km/h)：',layout_adsb)
+            label_V_SN.setMaximumSize(QSize(16777215, 16777214))
             label_V_SN.setAlignment(Qt.AlignLeading |Qt.AlignLeft | Qt.AlignVCenter)
             gridLayout_adsb.addWidget(label_V_SN, 3, 1, 1, 1)
             lineEdit_V_SN = QLineEdit(layout_adsb)
@@ -254,8 +279,8 @@ class MainWindow(QMainWindow):
             lineEdit_V_SN.setObjectName("txt_V_SN_target"+str(target_plane_index))
             gridLayout_adsb.addWidget(lineEdit_V_SN, 3, 2, 1, 1)
             #东西速度
-            label_V_EW= QLabel('东西速度：',layout_adsb)
-            label_V_EW.setMaximumSize(QSize(90, 16777215))
+            label_V_EW= QLabel('东西速度(km/h)：',layout_adsb)
+            label_V_EW.setMaximumSize(QSize(16777215, 16777214))
             label_V_EW.setAlignment(Qt.AlignLeading |Qt.AlignLeft | Qt.AlignVCenter)
             gridLayout_adsb.addWidget(label_V_EW, 4, 1, 1, 1)
             lineEdit_V_EW = QLineEdit(layout_adsb)
@@ -264,7 +289,7 @@ class MainWindow(QMainWindow):
             lineEdit_V_EW.setObjectName("txt_V_EW_target"+str(target_plane_index))
             gridLayout_adsb.addWidget(lineEdit_V_EW, 4, 2, 1, 1)
             #纬度
-            label_Latitude= QLabel('纬度：',layout_adsb)
+            label_Latitude= QLabel('纬度(deg)：',layout_adsb)
             label_Latitude.setMaximumSize(QSize(90, 16777215))
             label_Latitude.setAlignment(Qt.AlignLeading |Qt.AlignLeft | Qt.AlignVCenter)
             gridLayout_adsb.addWidget(label_Latitude, 5, 1, 1, 1)
@@ -274,7 +299,7 @@ class MainWindow(QMainWindow):
             lineEdit_Latitude.setObjectName("txt_Latitude_target"+str(target_plane_index))
             gridLayout_adsb.addWidget(lineEdit_Latitude, 5, 2, 1, 1)
             #经度
-            label_Longitude= QLabel('经度：',layout_adsb)
+            label_Longitude= QLabel('经度(deg)：',layout_adsb)
             label_Longitude.setMaximumSize(QSize(90, 16777215))
             label_Longitude.setAlignment(Qt.AlignLeading |Qt.AlignLeft | Qt.AlignVCenter)
             gridLayout_adsb.addWidget(label_Longitude, 6, 1, 1, 1)
@@ -284,7 +309,7 @@ class MainWindow(QMainWindow):
             lineEdit_Longitude.setObjectName("txt_Longitude_target"+str(target_plane_index))
             gridLayout_adsb.addWidget(lineEdit_Longitude, 6, 2, 1, 1)
             #航向角
-            label_Heading_Track_Angle= QLabel('航向角：',layout_adsb)
+            label_Heading_Track_Angle= QLabel('航向角(deg)：',layout_adsb)
             label_Heading_Track_Angle.setMaximumSize(QSize(90, 16777215))
             label_Heading_Track_Angle.setAlignment(Qt.AlignLeading |Qt.AlignLeft | Qt.AlignVCenter)
             gridLayout_adsb.addWidget(label_Heading_Track_Angle, 7, 1, 1, 1)
@@ -294,7 +319,7 @@ class MainWindow(QMainWindow):
             lineEdit_Heading_Track_Angle.setObjectName("txt_Heading_Track_Angle_target"+str(target_plane_index))
             gridLayout_adsb.addWidget(lineEdit_Heading_Track_Angle, 7, 2, 1, 1)
             #地速
-            label_Ground_Speed= QLabel('地速：',layout_adsb)
+            label_Ground_Speed= QLabel('地速(km/h)：',layout_adsb)
             label_Ground_Speed.setMaximumSize(QSize(90, 16777215))
             label_Ground_Speed.setAlignment(Qt.AlignLeading |Qt.AlignLeft | Qt.AlignVCenter)
             gridLayout_adsb.addWidget(label_Ground_Speed, 8, 1, 1, 1)
@@ -310,9 +335,9 @@ class MainWindow(QMainWindow):
             # T-CAS布局
             groupBox_tcas = QGroupBox(frame_copy)
             groupBox_tcas.setTitle('TCAS')
-            groupBox_tcas.setGeometry(QRect(300, 50, 281, 361))
+            groupBox_tcas.setGeometry(QRect(310, 50, 271, 361))
             layout_tcas = QWidget(groupBox_tcas)
-            layout_tcas.setGeometry(QRect(10, 31, 261, 351))
+            layout_tcas.setGeometry(QRect(10, 40, 251, 261))
             gridLayout_tcas = QGridLayout(layout_tcas)
             gridLayout_tcas.setContentsMargins(0, 0, 0, 0)
             #Track_ID
@@ -323,7 +348,7 @@ class MainWindow(QMainWindow):
             lineEdit_Track_ID.setObjectName("txt_Track_ID_target"+str(target_plane_index))
             gridLayout_tcas.addWidget(lineEdit_Track_ID, 0, 2, 1, 1)
             #压强高度
-            label_Press_Height_TCAS = QLabel('压强高度：',layout_tcas)
+            label_Press_Height_TCAS = QLabel('压强高度(m)：',layout_tcas)
             gridLayout_tcas.addWidget(label_Press_Height_TCAS, 1, 1, 1, 1)
             lineEdit_Press_Height_TCAS = QLineEdit(layout_tcas)
             lineEdit_Press_Height_TCAS.setEnabled(False)
@@ -331,6 +356,7 @@ class MainWindow(QMainWindow):
             gridLayout_tcas.addWidget(lineEdit_Press_Height_TCAS, 1, 2, 1, 1)
             #相对本机方位
             label_Relative_Direction = QLabel('相对本机方位：',layout_tcas)
+            label_Relative_Direction.setMaximumSize(QSize(16777215, 16777214))
             gridLayout_tcas.addWidget(label_Relative_Direction, 2, 1, 1, 1)
             lineEdit_Relative_Direction = QLineEdit(layout_tcas)
             lineEdit_Relative_Direction.setEnabled(False)
@@ -338,14 +364,16 @@ class MainWindow(QMainWindow):
             gridLayout_tcas.addWidget(lineEdit_Relative_Direction, 2, 2, 1, 1)
             #相对本机距离
             label_Relative_Distance = QLabel('相对本机距离：',layout_tcas)
+            label_Relative_Distance.setMaximumSize(QSize(16777215, 16777214))
             gridLayout_tcas.addWidget(label_Relative_Distance, 3, 1, 1, 1)
             lineEdit_Relative_Distance = QLineEdit(layout_tcas)
             lineEdit_Relative_Distance.setEnabled(False)
             lineEdit_Relative_Distance.setObjectName("txt_Relative_Distance_target"+str(target_plane_index))
             gridLayout_tcas.addWidget(lineEdit_Relative_Distance, 3, 2, 1, 1)
             #"停止发送TCAS数据"button
-            btn_stop_sending_tcas = QPushButton('停止发送TCAS数据',layout_tcas)
-            gridLayout_tcas.addWidget(btn_stop_sending_tcas,4,1,1,2)
+            btn_stop_sending_tcas = QPushButton('停止发送TCAS数据',groupBox_tcas)
+            #gridLayout_tcas.addWidget(btn_stop_sending_tcas,4,1,1,2)
+            btn_stop_sending_tcas.setGeometry(QRect(10, 318, 251, 28))
             btn_stop_sending_tcas.setObjectName("btn_stopsend_tcas_target"+str(target_plane_index))
             i = self.ui.tabWidget.addTab(frame_copy,  str(target_plane_index)+'号目标机')
             self.ui.tabWidget.setCurrentIndex(i)
@@ -369,25 +397,36 @@ class MainWindow(QMainWindow):
         try:
             #TODO：界面检查,确定目标机数量
             if len(self.data_targetship) == self.ui.tabWidget.count() and self.data_ownship:
-                self.num_targetship = self.ui.tabWidget.count()
+                self.ui.btn_start.setEnabled(False)
+                self.ui.btn_stop.setEnabled(True)
+                self.ui.btn_import_info_own.setEnabled(False)
+                #本机准备起飞，发送数据
+                #time.sleep(self.delay_takeoff_ownship)  #起飞延迟设置
+                print('本机起飞,开始发送数据...')
+                logging.info('本机起飞,开始发送数据...')
+                print('本机数据发送周期：'+str(self.fre_transmit_ownship)+'s')
+                logging.info('本机数据发送周期：'+str(self.fre_transmit_ownship)+'s')
                 own_timer = QTimer(self)
                 own_timer.setObjectName('own_timer')
                 own_timer.timeout.connect(self.show_own_info)
                 own_timer.start(self.fre_transmit_ownship *1000)
-                print('本机数据发送周期：'+str(self.fre_transmit_ownship)+'s')
-                self.ui.btn_start.setEnabled(False)
-                self.ui.btn_stop.setEnabled(True)
-                self.ui.btn_import_info_own.setEnabled(False)
+
+                #目标机准备起飞，发送数据
+                print('目标机起飞,开始发送数据...')
+                logging.info('目标机起飞,开始发送数据...')
+                self.num_targetship = self.ui.tabWidget.count()
                 print('目标机数量： '+str(self.num_targetship))
+                logging.info('目标机数量： '+str(self.num_targetship))
                 # TODO:定时更新地图、经纬度等参数;打包数据，调用C接口
-                for i in range(len(self.fre_transmit_targetship_all)):
+                for i in range(len(self.fre_transmit_adsb_targetship_all)):
                     self.findChild(QPushButton,'btn_import_info_target'+str(i+1)).setEnabled(False)
                     target_timer = QTimer(self)
                     target_timer.setObjectName('target_timer'+str(i+1))
                     target_timer.setProperty('target_num',i+1)
                     target_timer.timeout.connect(self.show_target_info)
-                    target_timer.start(self.fre_transmit_targetship_all[i]*1000)
-                    print(str(i+1)+'号目标机，TCAS数据发送周期：'+str(self.fre_transmit_targetship_all[i])+'s')
+                    target_timer.start(self.fre_transmit_adsb_targetship_all[i]*1000)
+                    print(str(i+1)+'号目标机，TCAS数据发送周期：'+str(self.fre_transmit_adsb_targetship_all[i])+'s')
+                    logging.info(str(i+1)+'号目标机，TCAS数据发送周期：'+str(self.fre_transmit_adsb_targetship_all[i])+'s')
             else:
                 QMessageBox.information(self, '提示', '请检查界面参数是否齐全!', QMessageBox.Ok)
         except:
@@ -414,12 +453,20 @@ class MainWindow(QMainWindow):
     def show_own_info(self):
         '''显示本机信息'''
         try:
+            lock = threading.Lock()
             self.ui.txt_Heading_Track_Angle_own.setText(str(self.Heading_Track_Angle_own_list[self.count_own]))
             self.ui.txt_Longitude_own.setText(str(self.lng_own_list[self.count_own]))
             self.ui.txt_Latitude_own.setText(str(self.lat_own_list[self.count_own]))
             self.ui.txt_V_EW_own.setText(str(self.V_EW_own_list[self.count_own]))
             self.ui.txt_V_SN_own.setText(str(self.V_SN_own_list[self.count_own]))
             self.count_own+=1
+            lock.acquire()
+            logging.info("本机当前经度："   + str(self.lng_own_list[self.count_own]))
+            logging.info("本机当前纬度："   + str(self.lat_own_list[self.count_own]))
+            logging.info("本机南北速度：" + str(self.V_SN_own_list[self.count_own]))
+            logging.info("本机东西速度：" + str(self.V_EW_own_list[self.count_own]))
+            logging.info("本机航向角：" + str(self.Heading_Track_Angle_own_list[self.count_own]))
+            lock.release()
         except:
             traceback.print_exc()
 
@@ -437,6 +484,14 @@ class MainWindow(QMainWindow):
             self.findChild(QLineEdit, "txt_V_EW_target" + str(target_num)).setText(str(self.V_EW_target_all[target_num - 1][self.count_target]))
             self.findChild(QLineEdit, "txt_V_SN_target" + str(target_num)).setText(str(self.V_SN_target_all[target_num - 1][self.count_target]))
             self.count_target+=1
+            lock = threading.Lock()
+            lock.acquire()
+            logging.info(str(target_num)+"号目标机当前经度："   + str(self.lng_target_all[target_num - 1][self.count_target]))
+            logging.info(str(target_num)+"号目标机当前纬度："   + str(self.lat_target_all[target_num - 1][self.count_target]))
+            logging.info(str(target_num)+"号目标机南北速度：" + str(self.V_SN_target_all[target_num - 1][self.count_target]))
+            logging.info(str(target_num)+"号目标机东西速度：" + str(self.V_EW_target_all[target_num - 1][self.count_target]))
+            logging.info(str(target_num)+"号目标机航向角：" + str(self.Heading_Track_Angle_target_all[target_num-1][self.count_target]))
+            lock.release()
         except:
             traceback.print_exc()
 
@@ -447,6 +502,7 @@ class MainWindow(QMainWindow):
 
 if __name__=='__main__':
     app = QApplication(sys.argv)
+    logging.basicConfig(filename='own_data.log', format='%(asctime)s %(message)s',datefmt='%Y-%m-%d %H:%M:%S',level=logging.INFO)
     win = MainWindow()
     win.show()
     sys.exit(app.exec_())
