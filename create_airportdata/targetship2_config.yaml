@@ -1,0 +1,77 @@
+#目标机信息配置文件#
+basic:
+  ICAO: 2410qa           #ICAO码
+  Flight_ID: '56UC23'      #航班号
+  Flight_24bit_addr: 0   #24位地址 默认为0
+  Aircraft_Category: 0   #飞机类别 默认为0
+  Altitude: 12500        #压强高度 单位m,默认为12500
+  Radio_Altitude: 0      #几何高度 默认为0
+  North_South_Velocity: 0     #南北速度 单位km/h 初始化0
+  East_West_Velocity: 0       #东西速度 单位km/h 初始化0
+  Vertical_Speed: 0     #垂直速度 默认为0
+  Way_Point:            #所有航路点信息
+    point1:
+      - ZUCK         #航路点名称
+      - 106.640000   #Longitude经度  单位deg
+      - 29.72      #Latitude纬度   单位deg
+      - 0            #Heading_Track_Angle航向角  单位deg
+    point2:
+      - AKMAT
+      - 108.646667
+      - 30.035000
+      - 9
+    point3:
+      - JTA
+      - 109.435
+      - 30.248333
+      - 155
+    point4:
+      - YHD
+      - 109.601667
+      - 30.291667
+      - 57
+    point5:
+      - MIMOK
+      - 111.476667
+      - 30.563333
+      - 98
+    point6:
+      - LUVES
+      - 112.273333
+      - 30.290000
+      - 97
+    point7:
+      - APOGO
+      - 113.1850
+      - 30.216667
+      - 96
+    point8:
+      - OMKAK
+      - 114.206667
+      - 30.785000
+      - 96
+  Ground_Speed: 900      #地速 单位km/h
+  Flight_Length: 38.9    #飞机长度 单位m
+  Flight_Width: 35.8     #飞机宽度 单位m
+  NACV: 6    #速度不确定度 默认为6
+  NACp: 0    #位置不确定度 默认为0
+  NIC: 0     # 1 OR 0
+  SIL: 0     # 1 OR 0
+  SDA: 1
+  emergency_priority_sta: 0
+  data_link_version: 2
+  # TCAS信息
+  Track_ID: 1
+  Flight_24bit_addr_TCAS: 0    #24位地址
+  Altitude_TCAS: 12500         #压强高度 单位m
+  Vertical_Speed_TCAS: 0       #垂直速度
+  Bearing: 0                   #相对本机方位 单位deg
+  Range: 0                     #相对本机距离 单位km
+  Warning_Status: 1  # 1 or 0
+extra:
+  delay_time: 1        #起飞延时 单位s
+  fre_transmit_adsb: 1   #ads-b数据发送频率 单位s
+  TCAS:
+    enable: 1                #是否有Tcas数据 有为1 无为0
+    distance_to_own: 300     #目标机向本机发送Tcas数据的距离阈值 单位km
+    fre_transmit_tcas: 1   #Tcas数据发送频率 单位s

@@ -14,7 +14,7 @@ class Geography_Analysis():
         :param lat1: 1号点纬度
         :param lng2: 2号点经度
         :param lat2: 2号点纬度
-        :return: 两点的地理距离
+        :return: 两点的地理距离 单位km
         '''
         lng1,lat1,lng2,lat2 = map(radians,[float(lng1), float(lat1), float(lng2), float(lat2)])# 经纬度转换成弧度
         dlon = lng2-lng1
@@ -23,6 +23,9 @@ class Geography_Analysis():
         c = 2* asin(sqrt(a))* self.R_earth # 地球平均半径，6371km
         distance = round(c , 3)
         return distance
+
+    def geodistance_with_height(self,lng1,lat1,h1,lng2,lat2,h2):
+        return sqrt(self.geodistance(lng1,lat1,lng2,lat2)**2 + (h1-h2)**2)
 
     def get_lngAndlat(self,lng1,lat1,angle,distance):
         '''
@@ -87,4 +90,6 @@ class Geography_Analysis():
         return  x * 180 / pi
 
 # ga = Geography_Analysis()
-# print(ga.get_lngAndlat(106.063333, 31.358, 29, 123.954))
+# print(ga.geodistance(103.94833, 30.58, 105.005, 30.851667))
+# print(ga.geodistance_with_height(103.94833, 30.58, 13,105.005, 30.851667,12.5))
+

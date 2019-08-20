@@ -1,7 +1,7 @@
 #本机信息配置文件#
 basic:
   ICAO: 5843be           #ICAO码
-  Flight_ID: 3U8894      #航班号
+  Flight_ID: '3U8894'     #航班号
   Flight_24bit_addr: 0   #24位地址 默认为0
   Altitude: 12500        #压强高度 单位m,默认为12500
   Radio_Altitude: 0      #几何高度 默认为0

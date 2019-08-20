@@ -1,7 +1,7 @@
 #目标机信息配置文件#
 basic:
   ICAO: 9543c1           #ICAO码
-  Flight_ID: 9C6187      #航班号
+  Flight_ID: '9C6187'      #航班号
   Flight_24bit_addr: 0   #24位地址 默认为0
   Aircraft_Category: 0   #飞机类别 默认为0
   Altitude: 12500        #压强高度 单位m,默认为12500
@@ -164,4 +164,4 @@ extra:
   TCAS:
     enable: 1                #是否有Tcas数据 有为1 无为0
     distance_to_own: 300     #目标机向本机发送Tcas数据的距离阈值 单位km
-    fre_transmit_tcas: 0.5   #Tcas数据发送频率 单位s
+    fre_transmit_tcas: 1   #Tcas数据发送频率 单位s

@@ -67,32 +67,46 @@ class MainWindow(QMainWindow):
         self.num_targetship = 0     #目标机数量
         self.data_targetship = {}   #目标机携带的所有信息 嵌套字典的字典
         self.groundspeed_targetship_all  = []            # 目标机地速
-        self.fre_transmit_adsb_targetship_all  = []           # ADS-B数据发送频率 单位s
+        self.fre_transmit_adsb_targetship_all  = []      # ADS-B数据发送频率 单位s
         self.delay_takeoff_targetship_all  = []          # 起飞延迟 单位ms
         self.Heading_Track_Angle_target_all = []  # 航向角序列  嵌套序列
         self.V_SN_target_all= []                   # 南北速度序列    嵌套序列
         self.V_EW_target_all = []                  # 东西速度序列    嵌套序列
         self.lng_target_all = []                   # 经度序列        嵌套序列
         self.lat_target_all = []                   # 纬度序列        嵌套序列
-        self.lngandlat_target_all= []              # 经纬度序列      嵌套序列
+        self.lngandlat_target_all = []              # 经纬度序列      嵌套序列
+        #TCAS数据
+        self.tcas_enable_target_all = []            # TCAS使能序列   嵌套序列
+        self.tcas_fre_transmit_target_all = []      # TCAS数据发送频率 嵌套序列
 
-        self.ui.btn_test.clicked.connect(self.test)
+        self.ui.btn_test.clicked.connect(self.refresh_map)
 
 
-    def test(self):
+    def refresh_map(self,flag):
         try:
-            value = 'hello world'
-            #self.browser.page().runJavaScript('fullname("' + value + '");')
-            self.browser.page().runJavaScript('freshMarker_own("aaa","qqqq");')
-            pass
-            # dll = cdll.LoadLibrary("data_interface_pro.dll")
-            # ownship_data_struct= init_ownship_data_struct(icao=self.ui.txt_ICAO_own.text(),flight_id=self.ui.txt_FlightID_own.text(),filght_24bit_addr=0,altitude=12500, \
-            #                          radio_altitude=0,north_south_veloctity=0,east_west_velocity=0, \
-            #                          vertical_speed = 0,latitude=0,longitude=0,heading_track_angle=0, \
-            #                          ground_speed= 900,flight_length=0,flight_width=0,seconds=1,mintes=1,hours=1,NACV=1,NACp=6)
-            # c = c_char()
-            # print(dll.Pack_TCAS_data(byref(ownship_data_struct), 1, byref(c), 1024 * 4))
-            # print(byref(c))
+            if self.data_ownship['basic']['Way_Point']:
+                hanglu_own = self.data_ownship['basic']['Way_Point']
+                speed_own = self.data_ownship['basic']['Ground_Speed']
+                hanglu_own_list = [] #本机航路序列
+                for i in range(1,len(hanglu_own)+1):
+                    lng = hanglu_own['point'+str(i)][1]
+                    lat = hanglu_own['point'+str(i)][2]
+                    hanglu_own_list.append([lng,lat])
+                js_string_own_init = '''init_ownship(%f,%f,'%s',%s,%d);'''%(hanglu_own['point1'][1],hanglu_own['point1'][2],self.data_ownship['basic']['Flight_ID'],hanglu_own_list,speed_own*100)
+                print(js_string_own_init)
+                self.browser.page().runJavaScript(js_string_own_init) #初始化本机位置、标注、航线、移动
+
+            for target_index, info in self.data_targetship.items():
+                hanglu_target = info['basic']['Way_Point']
+                speed_target = info['basic']['Ground_Speed']
+                hanglu_target_list = []  # 单个target机航路序列
+                for i in range(1, len(hanglu_target) + 1):
+                    lng = hanglu_target['point' + str(i)][1]
+                    lat = hanglu_target['point' + str(i)][2]
+                    hanglu_target_list.append([lng, lat])
+                js_string_target_init = '''init_target(%f,%f,'%s',%s,%d);''' % (hanglu_target['point1'][1], hanglu_target['point1'][2], info['basic']['Flight_ID'], hanglu_target_list, speed_target*100)
+                print(js_string_target_init)
+                self.browser.page().runJavaScript(js_string_target_init)
         except:
             traceback.print_exc()
 
@@ -181,6 +195,8 @@ class MainWindow(QMainWindow):
                     self.delay_takeoff_targetship_all.append(data_targetship['extra']['delay_time'])
                     groundspeed_targetship = data_targetship['basic']['Ground_Speed']
                     self.groundspeed_targetship_all.append(groundspeed_targetship)
+                    tcas_enable = data_targetship['extra']['TCAS']['enable']
+                    tcas_transmit_fre = data_targetship['extra']['TCAS']['fre_transmit_tcas']
 
                     voyage_distance_targetship_list = [] #单个目标机航程距离序列
                     voyage_time_targetship_list = []   #单个目标机航程时间序列
@@ -217,6 +233,9 @@ class MainWindow(QMainWindow):
                     self.lngandlat_target_all.append(lngandlat_own_list)
                     self.lng_target_all.append(lng_own_list)
                     self.lat_target_all.append(lat_own_list)
+                    self.tcas_enable_target_all.append(tcas_enable)
+                    self.tcas_fre_transmit_target_all.append(tcas_transmit_fre)
+
         except:
             traceback.print_exc()
 
@@ -388,6 +407,7 @@ class MainWindow(QMainWindow):
             if self.ui.tabWidget.count() == int+1:  #仅在用户点击最后一个标签页时关闭
                 self.ui.tabWidget.removeTab(int)
                 self.findChild(QFrame, 'frame_target' + str(int + 1)).deleteLater()
+                del self.data_targetship[self.ui.tabWidget.count()]
             else:
                 QMessageBox.information(self, '提示', '请先关闭高序列目标机!', QMessageBox.Ok)
         except:
@@ -402,6 +422,7 @@ class MainWindow(QMainWindow):
                 self.ui.btn_import_info_own.setEnabled(False)
                 #本机准备起飞，发送数据
                 #time.sleep(self.delay_takeoff_ownship)  #起飞延迟设置
+
                 print('本机起飞,开始发送数据...')
                 logging.info('本机起飞,开始发送数据...')
                 print('本机数据发送周期：'+str(self.fre_transmit_ownship)+'s')
@@ -435,6 +456,7 @@ class MainWindow(QMainWindow):
     def stop_transmitInfo(self):
         try:
             #关闭所有定时器, button使能复原
+
             self.count_own = 0  # 本机定时器计数
             self.count_target = 0  # 目标机定时器计数
             self.findChild(QTimer,'own_timer').stop()
