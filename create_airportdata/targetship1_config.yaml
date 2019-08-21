@@ -1,4 +1,7 @@
-#目标机信息配置文件#
+#1号目标机 配置文件#
+#模拟航路：兰州-南京
+#tacs与ads-b关联且为最佳源
+
 basic:
   ICAO: 9543c1           #ICAO码
   Flight_ID: '9C6187'      #航班号
@@ -146,7 +149,7 @@ basic:
   NACV: 6    #速度不确定度 默认为6
   NACp: 0    #位置不确定度 默认为0
   NIC: 0     # 1 OR 0
-  SIL: 0     # 1 OR 0
+  SIL: 1     # 1 OR 0
   SDA: 1
   emergency_priority_sta: 0
   data_link_version: 2
@@ -159,9 +162,9 @@ basic:
   Range: 0                     #相对本机距离 单位km
   Warning_Status: 1  # 1 or 0
 extra:
-  delay_time: 1        #起飞延时 单位s
+  delay_time: 0        #起飞延时 单位s
   fre_transmit_adsb: 1   #ads-b数据发送频率 单位s
   TCAS:
     enable: 1                #是否有Tcas数据 有为1 无为0
-    distance_to_own: 300     #目标机向本机发送Tcas数据的距离阈值 单位km
+    distance_to_own: 18.52     #目标机向本机发送Tcas数据的距离阈值 单位km 默认为10nm
     fre_transmit_tcas: 1   #Tcas数据发送频率 单位s

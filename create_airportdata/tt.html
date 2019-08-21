@@ -27,12 +27,20 @@
     // 构造官方卫星、路网图层
     var layer1 = new AMap.TileLayer.Satellite();
     var layer2 =  new AMap.TileLayer.RoadNet();
-    var layers = [layer1,layer2]// 添加到地图上
+    var layers = [layer1,layer2 ]// 添加到地图上
     map.add(layers);
+
+    var markers = []
+    var polylines = []
+    function removeMarkers() {
+        map.remove(markers)
+        map.remove(polylines)
+    }
 
 	/// 配置本机
 	function init_ownship(first_lng,first_lat,flight_id,path,speed){
-        var marker_ownship = new AMap.Marker({
+        var marker_ownship = new AMap.Marker(
+            {
             position: new AMap.LngLat(first_lng, first_lat),
             offset: new AMap.Pixel(-10, -10),
             icon: 'pic/airport.png', // 添加 Icon 图标 URL
@@ -43,6 +51,7 @@
                 content: flight_id, //设置本机航班号
                 direction: 'bottom' //设置文本标注方位
             });
+        markers.push(marker_ownship)
         map.add(marker_ownship)
          // 设置本机航路
         var polyline_own = new AMap.Polyline({
@@ -64,6 +73,7 @@
         polyline_own.setPath(path_own);
         polyline_own.setMap(map);
         map.setFitView([polyline_own]);
+        polylines.push(polyline_own)
         marker_ownship.moveAlong(path_own,speed)
 
     }
@@ -79,6 +89,7 @@
                 content: flight_id, //设置目标机航班号
                 direction: 'bottom' //设置文本标注方位
             });
+        markers.push(marker_target)
         map.add(marker_target);
         // 设置本机航路
         var polyline = new AMap.Polyline({
@@ -100,6 +111,7 @@
         polyline.setPath(path_target);
         polyline.setMap(map);
         map.setFitView([polyline]);
+        polylines.push(polyline)
         marker_target.moveAlong(path_target,speed)
     }
 

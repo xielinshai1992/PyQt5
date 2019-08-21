@@ -25,6 +25,16 @@ class Geography_Analysis():
         return distance
 
     def geodistance_with_height(self,lng1,lat1,h1,lng2,lat2,h2):
+        '''
+
+        :param lng1:
+        :param lat1:
+        :param h1: 单位km
+        :param lng2:
+        :param lat2:
+        :param h2:
+        :return:
+        '''
         return sqrt(self.geodistance(lng1,lat1,lng2,lat2)**2 + (h1-h2)**2)
 
     def get_lngAndlat(self,lng1,lat1,angle,distance):

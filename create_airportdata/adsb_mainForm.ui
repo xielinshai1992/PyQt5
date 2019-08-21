@@ -101,7 +101,7 @@
           <string>停止发送TCAS数据</string>
          </property>
         </widget>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -169,7 +169,7 @@
           <item row="2" column="0">
            <widget class="QLabel" name="label_23">
             <property name="text">
-             <string>相对本机方位：</string>
+             <string>相对本机方位(deg)：</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -195,7 +195,7 @@
           <item row="3" column="0">
            <widget class="QLabel" name="label_21">
             <property name="text">
-             <string>相对本机距离：</string>
+             <string>相对本机距离(km)：</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -246,7 +246,7 @@
         <property name="title">
          <string>ADS-B</string>
         </property>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>9</x>
