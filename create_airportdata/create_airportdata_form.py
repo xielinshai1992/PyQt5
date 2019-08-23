@@ -15,9 +15,15 @@ from PyQt5.QtGui import *
 from PyQt5.QtWebEngineWidgets import *
 from math import radians, cos, sin, asin, sqrt
 from geography_analysis import Geography_Analysis
-from c_api import init_ownship_data_struct
+from c_api import Ownship_Data_Struct
 
 class MainWindow(QMainWindow):
+
+    own_takeoff_signal = pyqtSignal()
+    target_takeoff_signal = pyqtSignal(int)
+    dll = cdll.LoadLibrary("data_interface_pro.dll")
+    own_example = Ownship_Data_Struct()
+
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.ui = adsb_mainForm.Ui_MainWindow()
@@ -43,8 +49,8 @@ class MainWindow(QMainWindow):
         timer_a.start()
         self.ui.btn_import_info_own.clicked.connect(self.import_info_own)
         self.ui.btn_import_info_target1.clicked.connect(self.import_info_target)
-        self.ui.btn_start.clicked.connect(self.start_takeoff)
-        self.ui.btn_stop.clicked.connect(self.stop_transmitInfo)
+        self.ui.btn_start.clicked.connect(self.start)
+        self.ui.btn_stop.clicked.connect(self.stop)
         self.count_own = 0    # 本机定时器计数
         self.count_target = 0  # 目标机定时器计数
         self.ga = Geography_Analysis()
@@ -55,7 +61,7 @@ class MainWindow(QMainWindow):
         self.voyage_time_ownship_list = []      # 本机航路时间列表
         self.groundspeed_ownship = 0            # 本机地速
         self.fre_transmit_ownship = 0           # 数据发送频率 单位s
-        self.delay_takeoff_ownship = 0          # 起飞延迟 单位ms
+        self.delay_takeoff_ownship = 0          # 起飞延迟 单位s
         self.Heading_Track_Angle_own_list = []  # 本机航向角序列
         self.V_SN_own_list = []                 # 南北速度序列
         self.V_EW_own_list = []                 # 东西速度序列
@@ -82,6 +88,10 @@ class MainWindow(QMainWindow):
 
         self.ui.btn_test.clicked.connect(self.refresh_map)
 
+        #全局
+        self.own_takeoff_signal.connect(self.own_takeoff)
+        self.target_takeoff_signal.connect(self.target_takeoff)
+
 
     def refresh_map(self):
         try:
@@ -96,16 +106,15 @@ class MainWindow(QMainWindow):
                 js_string_own_init = '''init_ownship(%f,%f,'%s',%s,%d);'''%(hanglu_own['point1'][1],hanglu_own['point1'][2],self.data_ownship['basic']['Flight_ID'],hanglu_own_list,speed_own)
                 print(js_string_own_init)
                 self.browser.page().runJavaScript(js_string_own_init) #初始化本机位置、标注、航线、移动
-
             for target_index, info in self.data_targetship.items():
-                hanglu_target = info['basic']['Way_Point']
-                speed_target = info['basic']['Ground_Speed']
+                hanglu_target = info['ADS-B']['Way_Point']
+                speed_target = info['ADS-B']['Ground_Speed']
                 hanglu_target_list = []  # 单个target机航路序列
                 for i in range(1, len(hanglu_target) + 1):
                     lng = hanglu_target['point' + str(i)][1]
                     lat = hanglu_target['point' + str(i)][2]
                     hanglu_target_list.append([lng, lat])
-                js_string_target_init = '''init_target(%f,%f,'%s',%s,%d);''' % (hanglu_target['point1'][1], hanglu_target['point1'][2], info['basic']['Flight_ID'], hanglu_target_list, speed_target)
+                js_string_target_init = '''init_target(%f,%f,'%s',%s,%d);''' % (hanglu_target['point1'][1], hanglu_target['point1'][2], info['ADS-B']['Flight_ID'], hanglu_target_list, speed_target)
                 print(js_string_target_init)
                 self.browser.page().runJavaScript(js_string_target_init)
         except:
@@ -114,7 +123,7 @@ class MainWindow(QMainWindow):
     # 本机信息区域
     def import_info_own(self):
         '''
-        导入本机配置文件信息并解析
+        导入本机配置文件并解析
         :return:
         '''
         try:
@@ -159,16 +168,21 @@ class MainWindow(QMainWindow):
             # print(self.voyage_distance_ownship_list)
             # print(self.voyage_time_ownship_list)  #单位s
             # print(self.Heading_Track_Angle_own_list)
-            # print(len(self.Heading_Track_Angle_own_list))
+            print("本机数据量："+ str(len(self.Heading_Track_Angle_own_list)))
             # print(len(self.V_EW_own_list))
             # print(len(self.V_SN_own_list))
             # print(len(self.lngandlat_own_list))
             # print(len(self.lng_own_list))
+
         except:
             traceback.print_exc()
 
     # 目标机信息区域
     def import_info_target(self):
+        '''
+        导入目标机配置文件并解析
+        :return:
+        '''
         current_targetship_index = self.ui.tabWidget.currentIndex()+1
         try:
             filename,_type = QFileDialog.getOpenFileName(self, '导入目标机信息', '','yaml(*.yaml)')
@@ -178,29 +192,29 @@ class MainWindow(QMainWindow):
                     data_targetship = yaml.load(file_data)
                 if data_targetship:
                     self.data_targetship[current_targetship_index] = data_targetship
-                    self.findChild(QLineEdit, "txt_ICAO_target"+str(current_targetship_index)).setText(data_targetship['basic']['ICAO'])
-                    self.findChild(QLineEdit, "txt_FlightID_target" + str(current_targetship_index)).setText(data_targetship['basic']['Flight_ID'])
-                    self.findChild(QLineEdit, "txt_Altitude_target" + str(current_targetship_index)).setText(str(data_targetship['basic']['Altitude']))
-                    self.findChild(QLineEdit, "txt_V_SN_target" + str(current_targetship_index)).setText(str(data_targetship['basic']['North_South_Velocity']))
-                    self.findChild(QLineEdit, "txt_V_EW_target"+ str(current_targetship_index)).setText(str(data_targetship['basic']['East_West_Velocity']))
-                    self.findChild(QLineEdit, "txt_Latitude_target" + str(current_targetship_index)).setText(str(data_targetship['basic']['Way_Point']['point1'][2]))
-                    self.findChild(QLineEdit, "txt_Longitude_target" + str(current_targetship_index)).setText(str(data_targetship['basic']['Way_Point']['point1'][1]))
-                    self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(current_targetship_index)).setText(str(data_targetship['basic']['Way_Point']['point1'][3]))
-                    self.findChild(QLineEdit, "txt_GroundSpeed_target" + str(current_targetship_index)).setText(str(data_targetship['basic']['Ground_Speed']))
-                    self.findChild(QLineEdit, "txt_Track_ID_target" + str(current_targetship_index)).setText(str(data_targetship['basic']['Track_ID']))
-                    self.findChild(QLineEdit, "txt_Tcas_Altitude_target" + str(current_targetship_index)).setText(str(data_targetship['basic']['Altitude_TCAS']))
-                    self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(current_targetship_index)).setText(str(data_targetship['basic']['Bearing']))
-                    self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(current_targetship_index)).setText(str(data_targetship['basic']['Range']))
-                    fre_transmit_targetship = data_targetship['extra']['fre_transmit_adsb']
+                    self.findChild(QLineEdit, "txt_ICAO_target"+str(current_targetship_index)).setText(data_targetship['ADS-B']['ICAO'])
+                    self.findChild(QLineEdit, "txt_FlightID_target" + str(current_targetship_index)).setText(data_targetship['ADS-B']['Flight_ID'])
+                    self.findChild(QLineEdit, "txt_Altitude_target" + str(current_targetship_index)).setText(str(data_targetship['ADS-B']['Altitude']))
+                    self.findChild(QLineEdit, "txt_V_SN_target" + str(current_targetship_index)).setText(str(data_targetship['ADS-B']['North_South_Velocity']))
+                    self.findChild(QLineEdit, "txt_V_EW_target"+ str(current_targetship_index)).setText(str(data_targetship['ADS-B']['East_West_Velocity']))
+                    self.findChild(QLineEdit, "txt_Latitude_target" + str(current_targetship_index)).setText(str(data_targetship['ADS-B']['Way_Point']['point1'][2]))
+                    self.findChild(QLineEdit, "txt_Longitude_target" + str(current_targetship_index)).setText(str(data_targetship['ADS-B']['Way_Point']['point1'][1]))
+                    self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(current_targetship_index)).setText(str(data_targetship['ADS-B']['Way_Point']['point1'][3]))
+                    self.findChild(QLineEdit, "txt_GroundSpeed_target" + str(current_targetship_index)).setText(str(data_targetship['ADS-B']['Ground_Speed']))
+                    self.findChild(QLineEdit, "txt_Track_ID_target" + str(current_targetship_index)).setText(str(data_targetship['TCAS']['Track_ID']))
+                    self.findChild(QLineEdit, "txt_Tcas_Altitude_target" + str(current_targetship_index)).setText(str(data_targetship['TCAS']['Altitude_TCAS']))
+                    self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(current_targetship_index)).setText(str(data_targetship['TCAS']['Bearing']))
+                    self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(current_targetship_index)).setText(str(data_targetship['TCAS']['Range']))
+                    fre_transmit_targetship = data_targetship['ADS-B']['fre_transmit_adsb']
                     self.fre_transmit_adsb_targetship_all.append(fre_transmit_targetship)
                     self.delay_takeoff_targetship_all.append(data_targetship['extra']['delay_time'])
-                    groundspeed_targetship = data_targetship['basic']['Ground_Speed']
+                    groundspeed_targetship = data_targetship['ADS-B']['Ground_Speed']
                     self.groundspeed_targetship_all.append(groundspeed_targetship)
-                    altitude_target =  data_targetship['basic']['Altitude']
+                    altitude_target =  data_targetship['ADS-B']['Altitude']
                     self.Altitude_targetship_all.append(altitude_target)
 
-                    tcas_enable = data_targetship['extra']['TCAS']['enable']
-                    tcas_transmit_fre = data_targetship['extra']['TCAS']['fre_transmit_tcas']
+                    tcas_enable = data_targetship['TCAS']['enable']
+                    tcas_transmit_fre = data_targetship['TCAS']['fre_transmit_tcas']
 
                     voyage_distance_targetship_list = [] #单个目标机航程距离序列
                     voyage_time_targetship_list = []   #单个目标机航程时间序列
@@ -211,12 +225,12 @@ class MainWindow(QMainWindow):
                     lng_own_list = []                  #单个目标机经度系列
                     lat_own_list =[]                   #单个目标机纬度系列
 
-                    for i in range(1, len(data_targetship['basic']['Way_Point'])):
-                        lng1 = data_targetship['basic']['Way_Point']['point'+str(i)][1]
-                        lat1 = data_targetship['basic']['Way_Point']['point'+str(i)][2]
-                        lng2 = data_targetship['basic']['Way_Point']['point'+str(i+1)][1]
-                        lat2 = data_targetship['basic']['Way_Point']['point'+str(i+1)][2]
-                        Heading_Track_Angle2 = data_targetship['basic']['Way_Point']['point'+str(i+1)][3]
+                    for i in range(1, len(data_targetship['ADS-B']['Way_Point'])):
+                        lng1 = data_targetship['ADS-B']['Way_Point']['point'+str(i)][1]
+                        lat1 = data_targetship['ADS-B']['Way_Point']['point'+str(i)][2]
+                        lng2 = data_targetship['ADS-B']['Way_Point']['point'+str(i+1)][1]
+                        lat2 = data_targetship['ADS-B']['Way_Point']['point'+str(i+1)][2]
+                        Heading_Track_Angle2 = data_targetship['ADS-B']['Way_Point']['point'+str(i+1)][3]
                         voyage_distance = self.ga.geodistance(lng1,lat1,lng2,lat2)
                         voyage_distance_targetship_list.append(voyage_distance)
                         voyage_time_targetship_list.append(int(voyage_distance/groundspeed_targetship * 3600))
@@ -231,6 +245,7 @@ class MainWindow(QMainWindow):
                     for item in lngandlat_own_list:
                         lng_own_list.append(item[0])
                         lat_own_list.append(item[1])
+                    print("目标机数据量：" + str(len(lng_own_list)))
                     self.Heading_Track_Angle_target_all.append(Heading_Track_Angle_own_list)
                     self.V_SN_target_all.append(V_SN_own_list)
                     self.V_EW_target_all.append(V_EW_own_list)
@@ -244,6 +259,10 @@ class MainWindow(QMainWindow):
             traceback.print_exc()
 
     def add_new_tab(self):
+        '''
+        创建新的目标机标签页
+        :return:
+        '''
         try:
             target_plane_index = self.ui.tabWidget.count()+1
             frame_copy = QFrame()
@@ -404,6 +423,11 @@ class MainWindow(QMainWindow):
             traceback.print_exc()
 
     def close_current_tab(self,int):
+        '''
+        删除当前目标机标签页
+        :param int:
+        :return:
+        '''
         try:
             if self.ui.tabWidget.count() == 1:  #如果当前标签页只剩下一个则不关闭
                 QMessageBox.information(self, '提示', '请保留至少一个目标机!', QMessageBox.Ok)
@@ -417,49 +441,103 @@ class MainWindow(QMainWindow):
                 QMessageBox.information(self, '提示', '请先关闭高序列目标机!', QMessageBox.Ok)
         except:
             traceback.print_exc()
+
     # 控制台区域
-    def start_takeoff(self):
+    def start(self):
         try:
             #TODO：界面检查,确定目标机数量
             if len(self.data_targetship) == self.ui.tabWidget.count() and self.data_ownship:
+                # 界面btn使能
                 self.ui.btn_start.setEnabled(False)
                 self.ui.btn_stop.setEnabled(True)
                 self.ui.btn_import_info_own.setEnabled(False)
-                #本机准备起飞，发送数据
-                #time.sleep(self.delay_takeoff_ownship)  #起飞延迟设置
-
-                print('本机起飞,开始发送数据...')
-                logging.info('本机起飞,开始发送数据...')
-                print('本机数据发送周期：'+str(self.fre_transmit_ownship)+'s')
-                logging.info('本机数据发送周期：'+str(self.fre_transmit_ownship)+'s')
-                self.refresh_map()
-                own_timer = QTimer(self)
-                own_timer.setObjectName('own_timer')
-                own_timer.timeout.connect(self.show_own_info)
-                own_timer.start(self.fre_transmit_ownship *1000)
-
-                #目标机准备起飞，发送数据
-                print('目标机起飞,开始发送数据...')
-                logging.info('目标机起飞,开始发送数据...')
+                # 本机起飞延时
+                print("本机起飞延时"+str(self.delay_takeoff_ownship)+'s')
+                timer_own = threading.Timer(self.delay_takeoff_ownship,self.own_takeoff_signal.emit)
+                timer_own.start()
+                # 确定目标机数量
                 self.num_targetship = self.ui.tabWidget.count()
-                print('目标机数量： '+str(self.num_targetship))
+                print('目标机数量： ' + str(self.num_targetship))
                 logging.info('目标机数量： '+str(self.num_targetship))
-                # TODO:定时更新地图、经纬度等参数;打包数据，调用C接口
-                for i in range(len(self.fre_transmit_adsb_targetship_all)):
-                    self.findChild(QPushButton,'btn_import_info_target'+str(i+1)).setEnabled(False)
-                    target_timer = QTimer(self)
-                    target_timer.setObjectName('target_timer'+str(i+1))
-                    target_timer.setProperty('target_num',i+1)
-                    target_timer.timeout.connect(self.show_target_info)
-                    target_timer.start(self.fre_transmit_adsb_targetship_all[i]*1000)
-                    print(str(i+1)+'号目标机，TCAS数据发送周期：'+str(self.fre_transmit_adsb_targetship_all[i])+'s')
-                    logging.info(str(i+1)+'号目标机，TCAS数据发送周期：'+str(self.fre_transmit_adsb_targetship_all[i])+'s')
+                for i in range(self.num_targetship):
+                    self.findChild(QPushButton, 'btn_import_info_target' + str(i + 1)).setEnabled(False)
+                    print(str(i+1)+"号目标机起飞延时" + str(self.delay_takeoff_targetship_all[i]) + 's')
+                    def emit_signal():
+                        self.target_takeoff_signal.emit(i+1)
+                    timer_target = threading.Timer(self.delay_takeoff_targetship_all[i],emit_signal)
+                    timer_target.start()
+                # 目标机地图显示
+                for target_index, info in self.data_targetship.items():
+                    hanglu_target = info['ADS-B']['Way_Point']
+                    speed_target = info['ADS-B']['Ground_Speed']
+                    hanglu_target_list = []  # 单个target机航路序列
+                    for i in range(1, len(hanglu_target) + 1):
+                        lng = hanglu_target['point' + str(i)][1]
+                        lat = hanglu_target['point' + str(i)][2]
+                        hanglu_target_list.append([lng, lat])
+                    js_string_target_init = '''init_target(%f,%f,'%s',%s,%d);''' % (
+                        hanglu_target['point1'][1], hanglu_target['point1'][2], info['ADS-B']['Flight_ID'],
+                        hanglu_target_list,
+                        speed_target)
+                    print(js_string_target_init)
+                    self.browser.page().runJavaScript(js_string_target_init)
             else:
                 QMessageBox.information(self, '提示', '请检查界面参数是否齐全!', QMessageBox.Ok)
         except:
             traceback.print_exc()
 
-    def stop_transmitInfo(self):
+
+    def own_takeoff(self):
+        '''
+        模拟本机起飞过程,动态刷新地图、界面
+        :return:
+        '''
+        try:
+            # 本机准备起飞
+            print('本机起飞,开始发送数据...')
+            logging.info('本机起飞,开始发送数据...')
+            print('本机数据发送周期：' + str(self.fre_transmit_ownship) + 's')
+            logging.info('本机数据发送周期：' + str(self.fre_transmit_ownship) + 's')
+            own_timer = QTimer(self)
+            own_timer.setObjectName('own_timer')
+            own_timer.timeout.connect(self.show_own_info)
+            own_timer.start(self.fre_transmit_ownship * 1000)
+            if self.data_ownship['basic']['Way_Point']:
+                hanglu_own = self.data_ownship['basic']['Way_Point']
+                speed_own = self.data_ownship['basic']['Ground_Speed']
+                hanglu_own_list = []  # 本机航路序列
+                for i in range(1, len(hanglu_own) + 1):
+                    lng = hanglu_own['point' + str(i)][1]
+                    lat = hanglu_own['point' + str(i)][2]
+                    hanglu_own_list.append([lng, lat])
+                js_string_own_init = '''init_ownship(%f,%f,'%s',%s,%d);''' % (
+                hanglu_own['point1'][1], hanglu_own['point1'][2], self.data_ownship['basic']['Flight_ID'], hanglu_own_list,
+                speed_own)
+                print(js_string_own_init)
+                self.browser.page().runJavaScript(js_string_own_init)  # 初始化本机位置、标注、航线、移动
+        except:
+            traceback.print_exc()
+
+    def target_takeoff(self,target_index):
+        '''
+        模拟目标机起飞过程，动态刷新地图、界面
+        :param target_index:目标机编号
+        :return:
+        '''
+        try:
+            print(str(target_index)+'号目标机起飞,开始发送数据...')
+            logging.info(str(target_index)+'号目标机起飞,开始发送数据...')
+            print(str(target_index)+'号目标机，adsb数据发送周期：'+str(self.fre_transmit_adsb_targetship_all[target_index-1])+'s')
+            logging.info(str(target_index)+'号目标机，adsb数据发送周期：'+str(self.fre_transmit_adsb_targetship_all[target_index-1])+'s')
+            target_timer = QTimer(self)
+            target_timer.setObjectName('target_timer'+str(target_index))
+            target_timer.setProperty('target_num',target_index)
+            target_timer.timeout.connect(self.show_target_info)
+            target_timer.start(self.fre_transmit_adsb_targetship_all[target_index-1]*1000)
+        except:
+            traceback.print_exc()
+
+    def stop(self):
         try:
             #关闭所有定时器, button使能复原
             self.browser.page().runJavaScript("removeMarkers();")
@@ -480,15 +558,54 @@ class MainWindow(QMainWindow):
     def show_own_info(self):
         '''显示本机信息'''
         try:
-            lock = threading.Lock()
-            self.ui.txt_Heading_Track_Angle_own.setText(str(self.Heading_Track_Angle_own_list[self.count_own]))
-            self.ui.txt_Longitude_own.setText(str(self.lng_own_list[self.count_own]))
-            self.ui.txt_Latitude_own.setText(str(self.lat_own_list[self.count_own]))
-            self.ui.txt_V_EW_own.setText(str(self.V_EW_own_list[self.count_own]))
-            self.ui.txt_V_SN_own.setText(str(self.V_SN_own_list[self.count_own]))
+            current_Heading_Track_Angle = self.Heading_Track_Angle_own_list[self.count_own]
+            current_lng = self.lng_own_list[self.count_own]
+            current_lat = self.lat_own_list[self.count_own]
+            current_v_ew = self.V_EW_own_list[self.count_own]
+            current_v_sn =  self.V_SN_own_list[self.count_own]
+            self.ui.txt_Heading_Track_Angle_own.setText(str(current_Heading_Track_Angle))
+            self.ui.txt_Longitude_own.setText(str(current_lng))
+            self.ui.txt_Latitude_own.setText(str(current_lat))
+            self.ui.txt_V_EW_own.setText(str(current_v_ew))
+            self.ui.txt_V_SN_own.setText(str(current_v_sn))
             self.count_own+=1
 
+            own_data_struct = Ownship_Data_Struct()
+            own_data_struct.ICAO = self.data_ownship['basic']['ICAO'].encode(encoding='utf-8')
+            own_data_struct.Flight_ID = self.data_ownship['basic']['ICAO'].encode(encoding='utf-8')
+            own_data_struct.Flight_24bit_addr = self.data_ownship['basic']['Flight_24bit_addr']
+            own_data_struct.Altitude = self.data_ownship['basic']['Altitude']
+            own_data_struct.Radio_Altitude = self.data_ownship['basic']['Radio_Altitude']
+            own_data_struct.North_South_Velocity = int(current_v_sn * 1000/3600)                              #
+            own_data_struct.East_West_Velocity = int(current_v_ew * 1000/3600)                                #
+            own_data_struct.Vertical_Speed = int(self.data_ownship['basic']['Vertical_Speed'])
+            own_data_struct.Latitude  = c_float(self.ga.degTorad(current_lat))                                #
+            own_data_struct.Longitude = c_float(self.ga.degTorad(current_lng))                               #
+            own_data_struct.Heading_Track_Angle = c_float(self.ga.degTorad(current_Heading_Track_Angle))     #
+            own_data_struct.Ground_Speed = self.data_ownship['basic']['Ground_Speed']
+            own_data_struct.Flight_Length = int(self.data_ownship['basic']['Flight_Length']*1000)
+            own_data_struct.Flight_Width = int(self.data_ownship['basic']['Flight_Width']*1000)
+            own_data_struct.Seconds =   int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[-1])  #
+            print(own_data_struct.Seconds)
+            own_data_struct.Mintes  =   int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[1])   #
+            own_data_struct.Hours   =   int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[0])   #
+            own_data_struct.p_Seconds = 0
+            own_data_struct.p_Mintes=   0
+            own_data_struct.p_Hours =   0
+            own_data_struct.v_Seconds = 0
+            own_data_struct.v_Mintes =  0
+            own_data_struct.v_Hours =   0
+            own_data_struct.s_Seconds = 0
+            own_data_struct.s_Mintes =  0
+            own_data_struct.s_Hours =   0
+            own_data_struct.NACV = self.data_ownship['basic']['NACV']
+            own_data_struct.NACp = self.data_ownship['basic']['NACp']
+            a = ''
+            print(self.dll.Pack_Ownship_data(own_data_struct, a, 1024*4))
+            #     print(self.dll.Unpack_Ownship_data(a, self.own_example, 1024 * 4))
+            #             # print(self.own_example.Seconds)
             # 写入日志
+            lock = threading.Lock()
             lock.acquire()
             logging.info("本机当前经度："   + str(self.lng_own_list[self.count_own]))
             logging.info("本机当前纬度："   + str(self.lat_own_list[self.count_own]))
@@ -507,26 +624,23 @@ class MainWindow(QMainWindow):
         try:
             sender = self.sender()
             target_num = sender.property('target_num')
-            current_lng = self.lng_target_all[target_num-1][self.count_target]
-            current_lat = self.lat_target_all[target_num-1][self.count_target]
+            current_adsb_lng = self.lng_target_all[target_num-1][self.count_target]
+            current_adsb_lat = self.lat_target_all[target_num-1][self.count_target]
             current_Heading_Track_Angle = self.Heading_Track_Angle_target_all[target_num-1][self.count_target]
             current_height = self.Altitude_targetship_all[target_num-1]
             self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(target_num)).setText(str(current_Heading_Track_Angle))
-            self.findChild(QLineEdit, "txt_Longitude_target" + str(target_num)).setText(str(current_lng))
-            self.findChild(QLineEdit, "txt_Latitude_target" + str(target_num)).setText(str(current_lat))
+            self.findChild(QLineEdit, "txt_Longitude_target" + str(target_num)).setText(str(current_adsb_lng))
+            self.findChild(QLineEdit, "txt_Latitude_target" + str(target_num)).setText(str(current_adsb_lat))
             self.findChild(QLineEdit, "txt_V_EW_target" + str(target_num)).setText(str(self.V_EW_target_all[target_num - 1][self.count_target]))
             self.findChild(QLineEdit, "txt_V_SN_target" + str(target_num)).setText(str(self.V_SN_target_all[target_num - 1][self.count_target]))
             self.count_target+=1
-
-            #本机坐标信息
+            # 本机坐标信息
             current_own_lng = self.ui.txt_Longitude_own.text()
             current_own_lat = self.ui.txt_Latitude_own.text()
             current_own_Heading_Track_Angle = self.ui.txt_Heading_Track_Angle_own.text()
             current_own_height = self.ui.txt_Altitude_own.text()
 
-            relative_distance = self.ga.geodistance_with_height(float(current_lng), float(current_lat),float(current_height)/1000,float(current_own_lng), float(current_own_lat), float(current_own_height)/1000)
-            # print(relative_distance)
-            self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_num)).setText(str(relative_distance))
+            # 相对本机方位角
             relative_direction = 0 # 目标机相对本机方位角 单位deg
             if float(current_Heading_Track_Angle) > float(current_own_Heading_Track_Angle):
                 relative_direction = float(current_Heading_Track_Angle) - float(current_own_Heading_Track_Angle)
@@ -534,6 +648,36 @@ class MainWindow(QMainWindow):
                 relative_direction =  float(current_Heading_Track_Angle)+ 360 - float(current_own_Heading_Track_Angle)
             # print(relative_direction)
             self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(target_num)).setText(str(relative_direction))
+
+            # ads-b相对本机距离
+            relative_distance_xy = self.ga.geodistance(float(current_adsb_lng), float(current_adsb_lat), float(current_own_lng),
+                                                     float(current_own_lat))
+            print("相对本机距离："+str(relative_distance_xy))
+            #获取NIC和SIL数据 确定是否为Tcas关联的最佳源
+            tcas_lng = 0   #TCAS经度坐标
+            tcas_lat = 0   #TCAS纬度坐标
+            relative_distance_xyz = 0
+            if self.data_targetship[target_num]['ADS-B']['NIC'] == 0 or self.data_targetship[target_num]['ADS-B']['SIL'] == 0:#tcas关联且为最佳源
+                if relative_distance_xy >=18.52:
+                    relative_distance_xyz = relative_distance_xy
+                else:
+                    print('tcas关联且为最佳源，准备开始发送tacs数据...')
+                    if relative_distance_xy >= 4.649 and relative_distance_xy<18.52: #tcas取ads-b为圆心半径2324内任意点
+                        print('a')
+                        tcas_lng =  current_adsb_lng
+                        tcas_lat =  current_adsb_lat
+                    elif relative_distance_xy >2.324 and  relative_distance_xy <4.649:
+                        print('b')
+                        tcas_lng, tcas_lat = self.ga.get_lngAndlat(current_own_lng,current_own_lat,relative_direction,relative_distance_xy-2.324)
+                    elif relative_distance_xy <2.324:
+                        print('c')
+                        tcas_lng =  current_adsb_lng
+                        tcas_lat =  current_adsb_lat
+                    relative_distance_xyz = self.ga.geodistance_with_height(float(tcas_lng), float(tcas_lat),
+                                                                        float(current_height) / 1000, float(current_own_lng),
+                                                                        float(current_own_lat),
+                                                                        float(current_own_height) / 1000)
+            self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_num)).setText(str(relative_distance_xyz))
             #写入日志
             lock = threading.Lock()
             lock.acquire()

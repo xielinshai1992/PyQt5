@@ -1,8 +1,8 @@
 #4号目标机 配置文件#
 #模拟航路：重庆-武汉
-#不发送tcas数据
-
-basic:
+#没有tcas的ads-b
+ADS-B:
+  fre_transmit_adsb: 1   #ads-b数据发送频率 单位s
   ICAO: 2410qa                #ICAO码
   Flight_ID: '56UC23'         #航班号
   Flight_24bit_addr: 0        #24位地址 默认为0
@@ -53,6 +53,7 @@ basic:
       - 114.206667
       - 30.785000
       - 57
+  Air_Ground_Sta: 0
   Ground_Speed: 900      #地速 单位km/h
   Flight_Length: 38.9    #飞机长度 单位m
   Flight_Width: 35.8     #飞机宽度 单位m
@@ -63,18 +64,17 @@ basic:
   SDA: 1
   emergency_priority_sta: 0
   data_link_version: 2
-  # TCAS信息
+
+TCAS:
+  enable: 0                    #是否有Tcas数据 有为1 无为0
+  distance_to_own: 18.52       #目标机向本机发送Tcas数据的距离阈值 单位km 默认为10nm
+  fre_transmit_tcas: 1         #Tcas数据发送频率 单位s
   Track_ID: 1
   Flight_24bit_addr_TCAS: 0    #24位地址
-  Altitude_TCAS: 12500         #压强高度 单位m
+  Altitude_TCAS: 13000         #压强高度 单位m
   Vertical_Speed_TCAS: 0       #垂直速度
   Bearing: 0                   #相对本机方位 单位deg
   Range: 0                     #相对本机距离 单位km
   Warning_Status: 1            # 1 or 0
 extra:
-  delay_time: 1        #起飞延时 单位s
-  fre_transmit_adsb: 1   #ads-b数据发送频率 单位s
-  TCAS:
-    enable: 0                  #是否有Tcas数据 有为1 无为0
-    distance_to_own: 18.52     #目标机向本机发送Tcas数据的距离阈值 单位km
-    fre_transmit_tcas: 1       #Tcas数据发送频率 单位s
+  delay_time: 0        #起飞延时 单位s
