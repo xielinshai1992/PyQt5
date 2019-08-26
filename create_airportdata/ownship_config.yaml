@@ -2,55 +2,124 @@
 #模拟航路：成都-北京
 basic:
   ICAO: 5843be           #ICAO码
-  Flight_ID: '3U8894'    #航班号
+  Flight_ID: '3U8894'     #航班号
   Flight_24bit_addr: 0   #24位地址 默认为0
   Altitude: 12500        #压强高度 单位m,默认为12500
   Radio_Altitude: 0      #几何高度 默认为0
   North_South_Velocity: 0     #南北速度 单位km/h 初始化0
   East_West_Velocity: 0       #东西速度 单位km/h 初始化0
-  Vertical_Speed: 0      #垂直速度 默认为0
-  Way_Point:             #所有航路点信息
+  Vertical_Speed: 0     #垂直速度 默认为0
+  Way_Point:            #所有航路点信息
     point1:
+      - ZUUU        #导航点
+      - 103.94833   #Longitude经度  deg
+      - 30.58       #Latitude纬度   deg
+      - 0           #Heading_Track_Angle航向角  deg
+    point2:
+      - OGOMO
+      - 105.005
+      - 30.851667
+      - 73
+    point3:
+      - TOREG
+      - 106.063333
+      - 31.358333
+      - 61
+    point4:
+      - SUBUL
+      - 106.710000
+      - 32.328333
+      - 29
+    point5:
+      - ONEBA
+      - 107.495000
+      - 32.810000
+      - 54
+    point6:
+      - NSH
+      - 108.311667
+      - 33.318333
+      - 53
+    point7:
+      - ZS
+      - 108.853333
+      - 34.221667
+      - 26
+    point8:
+      - OD
+      - 108.915000
+      - 34.598333
+      - 8
+    point9:
+      - MIZ
+      - 108.995000
+      - 34.820000
+      - 17
+    point10:
       - WJC
       - 109.376667
       - 35.778333
       - 18
-    point2:
+    point11:
       - OKVUM
       - 110.510000
       - 36.473333
       - 53
-    point3:
+    point12:
       - XIVEP
       - 112.658333
       - 37.631667
       - 55
-    point4:
+    point13:
       - UBLAT
       - 113.443333
       - 38.05
       - 56
-    point5:
+    point14:
+      - ISGOD
+      - 114.09
+      - 38.285
+      - 65
+    point15:
+      - AKLOL
+      - 114.4
+      - 38.396667
+      - 65
+    point16:
       - OC
       - 114.555
       - 38.455
       - 64
-    point6:
+    point17:
       - UBTAB
       - 114.675
       - 38.496667
       - 66
-    point7:
+    point18:
       - SAKOD
       - 115.163333
       - 38.673333
       - 65
-  Ground_Speed: 900      #地速 单位km/h
+    point19:
+      - ENGIL
+      - 115.446667
+      - 38.775000
+      - 65
+    point20:
+      - JB
+      - 116.198333
+      - 39.043333
+      - 65
+    point21:
+      - ZBAA
+      - 116.598333
+      - 40.073333
+      - 17
+  Ground_Speed: 900       #地速 单位km/h
   Flight_Length: 38.9     #飞机长度 单位m
   Flight_Width: 35.8      #飞机宽度 单位m
   NACV: 6    #速度不确定度 默认为6
   NACp: 0    #位置不确定度 默认为0
- 
 extra:
-  delay_time: 0            #起飞延迟 单位s
+  delay_time: 0           #起飞延迟 单位s
   fre_transmit_data: 1     #本机数据发送频率 单位s

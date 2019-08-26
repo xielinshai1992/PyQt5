@@ -6,6 +6,7 @@ from ctypes import *
 import threading
 import yaml
 import time
+import socket
 import logging
 import adsb_mainForm
 from math import *
@@ -15,7 +16,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWebEngineWidgets import *
 from math import radians, cos, sin, asin, sqrt
 from geography_analysis import Geography_Analysis
-from c_api import Ownship_Data_Struct
+from c_api import Ownship_Data_Struct,ADSB_Data_Struct,TCAS_Data_Struct
 
 class MainWindow(QMainWindow):
 
@@ -23,6 +24,13 @@ class MainWindow(QMainWindow):
     target_takeoff_signal = pyqtSignal(int)
     dll = cdll.LoadLibrary("data_interface_pro.dll")
     own_example = Ownship_Data_Struct()
+
+    ip_port_own = ('127.0.0.1',  8000)
+    socket_own = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
+    ip_port_tcas = ('127.0.0.1', 8001)
+    socket_tcas = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
+    ip_port_adsb = ('127.0.0.1', 8002)
+    socket_adsb = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
 
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -51,8 +59,7 @@ class MainWindow(QMainWindow):
         self.ui.btn_import_info_target1.clicked.connect(self.import_info_target)
         self.ui.btn_start.clicked.connect(self.start)
         self.ui.btn_stop.clicked.connect(self.stop)
-        self.count_own = 0    # 本机定时器计数
-        self.count_target = 0  # 目标机定时器计数
+
         self.ga = Geography_Analysis()
 
         #本机信息
@@ -74,6 +81,7 @@ class MainWindow(QMainWindow):
         self.data_targetship = {}   #目标机携带的所有信息 嵌套字典的字典
         self.groundspeed_targetship_all  = []            # 目标机地速
         self.Altitude_targetship_all = []                # 目标机压强高度
+        self.Altitude_targetship_Tcas_all = []               #  目标机Tcas压强高度
         self.fre_transmit_adsb_targetship_all  = []      # ADS-B数据发送频率 单位s
         self.delay_takeoff_targetship_all  = []          # 起飞延迟 单位ms
         self.Heading_Track_Angle_target_all = []  # 航向角序列  嵌套序列
@@ -83,15 +91,23 @@ class MainWindow(QMainWindow):
         self.lat_target_all = []                   # 纬度序列        嵌套序列
         self.lngandlat_target_all = []              # 经纬度序列      嵌套序列
         #TCAS数据
-        self.tcas_enable_target_all = []            # TCAS使能序列   嵌套序列
-        self.tcas_fre_transmit_target_all = []      # TCAS数据发送频率 嵌套序列
-
-        self.ui.btn_test.clicked.connect(self.refresh_map)
+        self.tcas_fre_transmit_target_all = {}     # TCAS数据发送频率
 
         #全局
         self.own_takeoff_signal.connect(self.own_takeoff)
         self.target_takeoff_signal.connect(self.target_takeoff)
 
+        #定时器
+        self.count_own = 0    # 本机定时器计数
+        self.timer_own_show = QTimer()
+        self.timer_own_show.setObjectName('timer_own_show')
+        self.timer_own_transmit = QTimer()
+
+        self.timer_adsb_transmit = QTimer()
+        self.timer_tcas_transmit = QTimer()
+        self.count_target = 0  # 目标机定时器计数
+
+        self.ui.btn_test.clicked.connect(self.refresh_map)
 
     def refresh_map(self):
         try:
@@ -212,10 +228,12 @@ class MainWindow(QMainWindow):
                     self.groundspeed_targetship_all.append(groundspeed_targetship)
                     altitude_target =  data_targetship['ADS-B']['Altitude']
                     self.Altitude_targetship_all.append(altitude_target)
-
+                    tcas_altitude = data_targetship['TCAS']['Altitude_TCAS']
+                    self.Altitude_targetship_Tcas_all.append(tcas_altitude)
                     tcas_enable = data_targetship['TCAS']['enable']
-                    tcas_transmit_fre = data_targetship['TCAS']['fre_transmit_tcas']
-
+                    if tcas_enable == 1:
+                        tcas_transmit_fre = data_targetship['TCAS']['fre_transmit_tcas']
+                        self.tcas_fre_transmit_target_all[current_targetship_index]= tcas_transmit_fre
                     voyage_distance_targetship_list = [] #单个目标机航程距离序列
                     voyage_time_targetship_list = []   #单个目标机航程时间序列
                     lngandlat_own_list = []            #单个目标机航迹经纬度序列
@@ -252,8 +270,7 @@ class MainWindow(QMainWindow):
                     self.lngandlat_target_all.append(lngandlat_own_list)
                     self.lng_target_all.append(lng_own_list)
                     self.lat_target_all.append(lat_own_list)
-                    self.tcas_enable_target_all.append(tcas_enable)
-                    self.tcas_fre_transmit_target_all.append(tcas_transmit_fre)
+
 
         except:
             traceback.print_exc()
@@ -455,6 +472,7 @@ class MainWindow(QMainWindow):
                 print("本机起飞延时"+str(self.delay_takeoff_ownship)+'s')
                 timer_own = threading.Timer(self.delay_takeoff_ownship,self.own_takeoff_signal.emit)
                 timer_own.start()
+
                 # 确定目标机数量
                 self.num_targetship = self.ui.tabWidget.count()
                 print('目标机数量： ' + str(self.num_targetship))
@@ -466,74 +484,19 @@ class MainWindow(QMainWindow):
                         self.target_takeoff_signal.emit(i+1)
                     timer_target = threading.Timer(self.delay_takeoff_targetship_all[i],emit_signal)
                     timer_target.start()
-                # 目标机地图显示
-                for target_index, info in self.data_targetship.items():
-                    hanglu_target = info['ADS-B']['Way_Point']
-                    speed_target = info['ADS-B']['Ground_Speed']
-                    hanglu_target_list = []  # 单个target机航路序列
-                    for i in range(1, len(hanglu_target) + 1):
-                        lng = hanglu_target['point' + str(i)][1]
-                        lat = hanglu_target['point' + str(i)][2]
-                        hanglu_target_list.append([lng, lat])
-                    js_string_target_init = '''init_target(%f,%f,'%s',%s,%d);''' % (
-                        hanglu_target['point1'][1], hanglu_target['point1'][2], info['ADS-B']['Flight_ID'],
-                        hanglu_target_list,
-                        speed_target)
-                    print(js_string_target_init)
-                    self.browser.page().runJavaScript(js_string_target_init)
+
+                #设置发送ads-b和tcas的timer
+
+                self.count_timer_adsb_transmit = 0
+                self.timer_adsb_transmit.timeout.connect(self.ads_b_transmit)
+                self.timer_adsb_transmit.start(1000)
+
+                self.count_timer_tcas_transmit = 0
+                self.timer_tcas_transmit.timeout.connect(self.tcas_transmit)
+                self.timer_tcas_transmit.start(1000)
+
             else:
                 QMessageBox.information(self, '提示', '请检查界面参数是否齐全!', QMessageBox.Ok)
-        except:
-            traceback.print_exc()
-
-
-    def own_takeoff(self):
-        '''
-        模拟本机起飞过程,动态刷新地图、界面
-        :return:
-        '''
-        try:
-            # 本机准备起飞
-            print('本机起飞,开始发送数据...')
-            logging.info('本机起飞,开始发送数据...')
-            print('本机数据发送周期：' + str(self.fre_transmit_ownship) + 's')
-            logging.info('本机数据发送周期：' + str(self.fre_transmit_ownship) + 's')
-            own_timer = QTimer(self)
-            own_timer.setObjectName('own_timer')
-            own_timer.timeout.connect(self.show_own_info)
-            own_timer.start(self.fre_transmit_ownship * 1000)
-            if self.data_ownship['basic']['Way_Point']:
-                hanglu_own = self.data_ownship['basic']['Way_Point']
-                speed_own = self.data_ownship['basic']['Ground_Speed']
-                hanglu_own_list = []  # 本机航路序列
-                for i in range(1, len(hanglu_own) + 1):
-                    lng = hanglu_own['point' + str(i)][1]
-                    lat = hanglu_own['point' + str(i)][2]
-                    hanglu_own_list.append([lng, lat])
-                js_string_own_init = '''init_ownship(%f,%f,'%s',%s,%d);''' % (
-                hanglu_own['point1'][1], hanglu_own['point1'][2], self.data_ownship['basic']['Flight_ID'], hanglu_own_list,
-                speed_own)
-                print(js_string_own_init)
-                self.browser.page().runJavaScript(js_string_own_init)  # 初始化本机位置、标注、航线、移动
-        except:
-            traceback.print_exc()
-
-    def target_takeoff(self,target_index):
-        '''
-        模拟目标机起飞过程，动态刷新地图、界面
-        :param target_index:目标机编号
-        :return:
-        '''
-        try:
-            print(str(target_index)+'号目标机起飞,开始发送数据...')
-            logging.info(str(target_index)+'号目标机起飞,开始发送数据...')
-            print(str(target_index)+'号目标机，adsb数据发送周期：'+str(self.fre_transmit_adsb_targetship_all[target_index-1])+'s')
-            logging.info(str(target_index)+'号目标机，adsb数据发送周期：'+str(self.fre_transmit_adsb_targetship_all[target_index-1])+'s')
-            target_timer = QTimer(self)
-            target_timer.setObjectName('target_timer'+str(target_index))
-            target_timer.setProperty('target_num',target_index)
-            target_timer.timeout.connect(self.show_target_info)
-            target_timer.start(self.fre_transmit_adsb_targetship_all[target_index-1]*1000)
         except:
             traceback.print_exc()
 
@@ -555,79 +518,153 @@ class MainWindow(QMainWindow):
         except:
             traceback.print_exc()
 
-    def show_own_info(self):
-        '''显示本机信息'''
+    # 本机相关函数
+    def own_takeoff(self):
+        '''
+        模拟本机起飞过程,动态刷新地图、界面,仅执行一次
+        :return:
+        '''
         try:
-            current_Heading_Track_Angle = self.Heading_Track_Angle_own_list[self.count_own]
-            current_lng = self.lng_own_list[self.count_own]
-            current_lat = self.lat_own_list[self.count_own]
-            current_v_ew = self.V_EW_own_list[self.count_own]
-            current_v_sn =  self.V_SN_own_list[self.count_own]
-            self.ui.txt_Heading_Track_Angle_own.setText(str(current_Heading_Track_Angle))
-            self.ui.txt_Longitude_own.setText(str(current_lng))
-            self.ui.txt_Latitude_own.setText(str(current_lat))
-            self.ui.txt_V_EW_own.setText(str(current_v_ew))
-            self.ui.txt_V_SN_own.setText(str(current_v_sn))
-            self.count_own+=1
+            # 本机准备起飞
+            print('本机起飞,开始发送数据...')
+            logging.info('本机起飞,开始发送数据...')
+            # 开启定时器动态显示本机信息、发送数据
+            self.timer_own_show.timeout.connect(self.own_showinfo)
+            self.timer_own_show.start(self.fre_transmit_ownship * 1000)
+            self.timer_own_transmit.timeout.connect(self.own_transmit)
+            self.timer_own_transmit.start(self.fre_transmit_ownship * 1000)
+            # 地图模拟飞行
+            if self.data_ownship['basic']['Way_Point']:
+                hanglu_own = self.data_ownship['basic']['Way_Point']
+                speed_own = self.data_ownship['basic']['Ground_Speed']
+                hanglu_own_list = []  # 本机航路序列
+                for i in range(1, len(hanglu_own) + 1):
+                    lng = hanglu_own['point' + str(i)][1]
+                    lat = hanglu_own['point' + str(i)][2]
+                    hanglu_own_list.append([lng, lat])
+                js_string_own_init = '''init_ownship(%f,%f,'%s',%s,%d);''' % (
+                hanglu_own['point1'][1], hanglu_own['point1'][2], self.data_ownship['basic']['Flight_ID'], hanglu_own_list,
+                speed_own)
+                print(js_string_own_init)
+                self.browser.page().runJavaScript(js_string_own_init)  # 初始化本机位置、标注、航线、移动
+        except:
+            traceback.print_exc()
 
+    def own_showinfo(self):
+        '''显示本机信息,主要为经纬度、飞行速度,地图数据更新'''
+        try:
+            if self.count_own >= len(self.Heading_Track_Angle_own_list):
+                self.timer_own_show.stop()
+                self.timer_own_show.deleteLater()
+            else:
+                current_Heading_Track_Angle = self.Heading_Track_Angle_own_list[self.count_own]
+                current_lng = self.lng_own_list[self.count_own]
+                current_lat = self.lat_own_list[self.count_own]
+                current_v_ew = self.V_EW_own_list[self.count_own]
+                current_v_sn =  self.V_SN_own_list[self.count_own]
+                self.ui.txt_Heading_Track_Angle_own.setText(str(current_Heading_Track_Angle))
+                self.ui.txt_Longitude_own.setText(str(current_lng))
+                self.ui.txt_Latitude_own.setText(str(current_lat))
+                self.ui.txt_V_EW_own.setText(str(current_v_ew))
+                self.ui.txt_V_SN_own.setText(str(current_v_sn))
+                self.count_own+=1
+        except:
+            traceback.print_exc()
+
+    def own_transmit(self):
+        '''
+        发送本机数据
+        :return:
+        '''
+        try:
             own_data_struct = Ownship_Data_Struct()
-            own_data_struct.ICAO = self.data_ownship['basic']['ICAO'].encode(encoding='utf-8')
-            own_data_struct.Flight_ID = self.data_ownship['basic']['ICAO'].encode(encoding='utf-8')
+            own_data_struct.ICAO = self.data_ownship['basic']['ICAO'].encode()
+            own_data_struct.Flight_ID = self.data_ownship['basic']['ICAO'].encode()
             own_data_struct.Flight_24bit_addr = self.data_ownship['basic']['Flight_24bit_addr']
             own_data_struct.Altitude = self.data_ownship['basic']['Altitude']
             own_data_struct.Radio_Altitude = self.data_ownship['basic']['Radio_Altitude']
-            own_data_struct.North_South_Velocity = int(current_v_sn * 1000/3600)                              #
-            own_data_struct.East_West_Velocity = int(current_v_ew * 1000/3600)                                #
-            own_data_struct.Vertical_Speed = int(self.data_ownship['basic']['Vertical_Speed'])
-            own_data_struct.Latitude  = c_float(self.ga.degTorad(current_lat))                                #
-            own_data_struct.Longitude = c_float(self.ga.degTorad(current_lng))                               #
-            own_data_struct.Heading_Track_Angle = c_float(self.ga.degTorad(current_Heading_Track_Angle))     #
-            own_data_struct.Ground_Speed = self.data_ownship['basic']['Ground_Speed']
+            own_data_struct.North_South_Velocity = int(float(self.ui.txt_V_SN_own.text()) * 1000/3600)#单位m/s
+            own_data_struct.East_West_Velocity = int(float(self.ui.txt_V_EW_own.text()) * 1000/3600)#单位m/s
+            own_data_struct.Vertical_Speed = int(self.data_ownship['basic']['Vertical_Speed'] * 1000/3600)#单位m/s
+            own_data_struct.Latitude  = c_float(self.ga.degTorad(float(self.ui.txt_Latitude_own.text())))#单位弧度
+            own_data_struct.Longitude = c_float(self.ga.degTorad(float(self.ui.txt_Longitude_own.text())))#单位弧度
+            own_data_struct.Heading_Track_Angle = c_float(self.ga.degTorad(float(self.ui.txt_Heading_Track_Angle_own.text())))#单位弧度
+            own_data_struct.Ground_Speed = c_uint16(self.data_ownship['basic']['Ground_Speed'])
             own_data_struct.Flight_Length = int(self.data_ownship['basic']['Flight_Length']*1000)
             own_data_struct.Flight_Width = int(self.data_ownship['basic']['Flight_Width']*1000)
-            own_data_struct.Seconds =   int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[-1])  #
-            print(own_data_struct.Seconds)
-            own_data_struct.Mintes  =   int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[1])   #
-            own_data_struct.Hours   =   int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[0])   #
-            own_data_struct.p_Seconds = 0
-            own_data_struct.p_Mintes=   0
-            own_data_struct.p_Hours =   0
-            own_data_struct.v_Seconds = 0
-            own_data_struct.v_Mintes =  0
-            own_data_struct.v_Hours =   0
-            own_data_struct.s_Seconds = 0
-            own_data_struct.s_Mintes =  0
-            own_data_struct.s_Hours =   0
-            own_data_struct.NACV = self.data_ownship['basic']['NACV']
-            own_data_struct.NACp = self.data_ownship['basic']['NACp']
-            a = ''
-            print(self.dll.Pack_Ownship_data(own_data_struct, a, 1024*4))
-            #     print(self.dll.Unpack_Ownship_data(a, self.own_example, 1024 * 4))
-            #             # print(self.own_example.Seconds)
+            own_data_struct.Seconds =   c_uint8(int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[-1]))  #
+            own_data_struct.Mintes  =   c_uint8(int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[1]))   #
+            own_data_struct.Hours   =   c_uint8(int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[0]))   #
+            own_data_struct.p_Seconds =  0  #
+            own_data_struct.p_Mintes  =  0   #
+            own_data_struct.p_Hours   =  0   #
+            own_data_struct.v_Seconds =  0
+            own_data_struct.v_Mintes  =  0
+            own_data_struct.v_Hours   =  0
+            own_data_struct.s_Seconds =  0
+            own_data_struct.s_Mintes  =  0
+            own_data_struct.s_Hours   =  0
+            own_data_struct.NACV = c_uint8(self.data_ownship['basic']['NACV'])
+            own_data_struct.NACp = c_uint8(self.data_ownship['basic']['NACp'])
+            temp_byte = bytes(2048)
+            print('本机数据打包长度：'+ str(self.dll.Pack_Ownship_data(own_data_struct, temp_byte, 2048)))
+            print(temp_byte.strip(b'\x00'))
+            self.socket_own.sendto(temp_byte.strip(b'\x00'), self.ip_port_own)
             # 写入日志
             lock = threading.Lock()
             lock.acquire()
-            logging.info("本机当前经度："   + str(self.lng_own_list[self.count_own]))
-            logging.info("本机当前纬度："   + str(self.lat_own_list[self.count_own]))
-            logging.info("本机南北速度：" + str(self.V_SN_own_list[self.count_own]))
-            logging.info("本机东西速度：" + str(self.V_EW_own_list[self.count_own]))
-            logging.info("本机航向角：" + str(self.Heading_Track_Angle_own_list[self.count_own]))
+            logging.info("本机发送数据：" + str(temp_byte.strip(b'\x00')))
             lock.release()
         except:
             traceback.print_exc()
 
-    def show_target_info(self):
+    #  目标机相关函数
+
+    def target_takeoff(self,target_index):
         '''
-        显示目标机信息
+        模拟目标机起飞过程，动态刷新地图、界面，需要执行与目标机数量相同次
+        :param target_index:目标机编号
         :return:
         '''
         try:
-            sender = self.sender()
+            print(str(target_index)+'号目标机起飞,开始发送数据...')
+            logging.info(str(target_index)+'号目标机起飞,开始发送数据...')
+            print(str(target_index)+'号目标机，adsb数据发送周期：'+str(self.fre_transmit_adsb_targetship_all[target_index-1])+'s')
+            logging.info(str(target_index)+'号目标机，adsb数据发送周期：'+str(self.fre_transmit_adsb_targetship_all[target_index-1])+'s')
+            # 开启定时器动态显示本机信息、发送数据
+            target_timer = QTimer(self)
+            target_timer.setObjectName('target_timer'+str(target_index))
+            target_timer.setProperty('target_num',target_index)
+            target_timer.timeout.connect(self.target_showinfo)
+            target_timer.start(self.fre_transmit_adsb_targetship_all[target_index-1]*1000)
+            # 地图模拟飞行
+            hanglu_target = self.data_targetship[target_index]['ADS-B']['Way_Point']
+            speed_target = self.data_targetship[target_index]['ADS-B']['Ground_Speed']
+            hanglu_target_list = []  # 单个target机航路序列
+            for i in range(1, len(hanglu_target) + 1):
+                lng = hanglu_target['point' + str(i)][1]
+                lat = hanglu_target['point' + str(i)][2]
+                hanglu_target_list.append([lng, lat])
+            js_string_target_init = '''init_target(%f,%f,'%s',%s,%d);''' % (
+                hanglu_target['point1'][1], hanglu_target['point1'][2], self.data_targetship[target_index]['ADS-B']['Flight_ID'],
+                hanglu_target_list,
+                speed_target)
+            print(js_string_target_init)
+            self.browser.page().runJavaScript(js_string_target_init)
+        except:
+            traceback.print_exc()
+
+    def target_showinfo(self):
+        '''
+        显示目标机信息 主要为ADS-B速度、经纬度和TCAS相对位置和相对方位
+        '''
+        try:
+            sender = self.sender() #获取连接槽函数的信号源
             target_num = sender.property('target_num')
             current_adsb_lng = self.lng_target_all[target_num-1][self.count_target]
             current_adsb_lat = self.lat_target_all[target_num-1][self.count_target]
             current_Heading_Track_Angle = self.Heading_Track_Angle_target_all[target_num-1][self.count_target]
-            current_height = self.Altitude_targetship_all[target_num-1]
+            current_tcas_height = self.Altitude_targetship_Tcas_all[target_num-1]
             self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(target_num)).setText(str(current_Heading_Track_Angle))
             self.findChild(QLineEdit, "txt_Longitude_target" + str(target_num)).setText(str(current_adsb_lng))
             self.findChild(QLineEdit, "txt_Latitude_target" + str(target_num)).setText(str(current_adsb_lat))
@@ -650,45 +687,109 @@ class MainWindow(QMainWindow):
             self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(target_num)).setText(str(relative_direction))
 
             # ads-b相对本机距离
-            relative_distance_xy = self.ga.geodistance(float(current_adsb_lng), float(current_adsb_lat), float(current_own_lng),
-                                                     float(current_own_lat))
+            relative_distance_xy = self.ga.geodistance(float(current_adsb_lng), float(current_adsb_lat), float(current_own_lng),float(current_own_lat))
             print("相对本机距离："+str(relative_distance_xy))
             #获取NIC和SIL数据 确定是否为Tcas关联的最佳源
-            tcas_lng = 0   #TCAS经度坐标
-            tcas_lat = 0   #TCAS纬度坐标
-            relative_distance_xyz = 0
-            if self.data_targetship[target_num]['ADS-B']['NIC'] == 0 or self.data_targetship[target_num]['ADS-B']['SIL'] == 0:#tcas关联且为最佳源
-                if relative_distance_xy >=18.52:
-                    relative_distance_xyz = relative_distance_xy
-                else:
-                    print('tcas关联且为最佳源，准备开始发送tacs数据...')
-                    if relative_distance_xy >= 4.649 and relative_distance_xy<18.52: #tcas取ads-b为圆心半径2324内任意点
-                        print('a')
-                        tcas_lng =  current_adsb_lng
-                        tcas_lat =  current_adsb_lat
-                    elif relative_distance_xy >2.324 and  relative_distance_xy <4.649:
-                        print('b')
-                        tcas_lng, tcas_lat = self.ga.get_lngAndlat(current_own_lng,current_own_lat,relative_direction,relative_distance_xy-2.324)
-                    elif relative_distance_xy <2.324:
-                        print('c')
-                        tcas_lng =  current_adsb_lng
-                        tcas_lat =  current_adsb_lat
-                    relative_distance_xyz = self.ga.geodistance_with_height(float(tcas_lng), float(tcas_lat),
-                                                                        float(current_height) / 1000, float(current_own_lng),
-                                                                        float(current_own_lat),
-                                                                        float(current_own_height) / 1000)
-            self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_num)).setText(str(relative_distance_xyz))
-            #写入日志
-            lock = threading.Lock()
-            lock.acquire()
-            logging.info(str(target_num)+"号目标机当前经度："   + str(self.lng_target_all[target_num - 1][self.count_target]))
-            logging.info(str(target_num)+"号目标机当前纬度："   + str(self.lat_target_all[target_num - 1][self.count_target]))
-            logging.info(str(target_num)+"号目标机南北速度：" + str(self.V_SN_target_all[target_num - 1][self.count_target]))
-            logging.info(str(target_num)+"号目标机东西速度：" + str(self.V_EW_target_all[target_num - 1][self.count_target]))
-            logging.info(str(target_num)+"号目标机航向角：" + str(self.Heading_Track_Angle_target_all[target_num-1][self.count_target]))
-            lock.release()
+            tcas_lng = current_adsb_lng   #TCAS经度坐标
+            tcas_lat = current_adsb_lat   #TCAS纬度坐标
+            relative_distance_tcas = 0 #tcas相对本机距离
+            if relative_distance_xy >= 4.649 and relative_distance_xy<=18.52: #tcas取ads-b为圆心半径2324内任意点
+                print('a')
+                tcas_lng =  current_adsb_lng
+                tcas_lat =  current_adsb_lat
+            elif relative_distance_xy >2.324 and  relative_distance_xy <4.649:
+                print('b')
+                tcas_lng, tcas_lat = self.ga.get_lngAndlat(current_own_lng,current_own_lat,relative_direction,relative_distance_xy-2.324)
+            elif relative_distance_xy <2.324:
+                print('c')
+                tcas_lng =  current_adsb_lng
+                tcas_lat =  current_adsb_lat
+            relative_distance_tcas = self.ga.geodistance_with_height(float(tcas_lng), float(tcas_lat),
+                                                                float(current_tcas_height)/1000, float(current_own_lng),
+                                                                float(current_own_lat),
+                                                                float(current_own_height)/1000)
+            self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_num)).setText(str(relative_distance_tcas))
         except:
             traceback.print_exc()
+
+    def ads_b_transmit(self):
+        try:
+            #确定一个ads_b发送周期内的ADSB_Data_Struct数量
+            num = 0
+            target_index_list = []
+            for index in range(self.num_targetship):
+                if self.count_timer_adsb_transmit% self.fre_transmit_adsb_targetship_all[index] == 0:
+                    num += 1
+                    target_index_list.append(index+1)
+            # 开始打包ADS-B数据
+            lock = threading.Lock()
+            lock.acquire()
+            logging.info("开始打包"+str(num)+"个目标机ADS-B数据....")
+            print("开始打包"+str(num)+"个目标机ADS-B数据....")
+            ArrayType = ADSB_Data_Struct * num
+            array = ArrayType()
+            j = 0
+            for target_index in target_index_list:
+                adsb_data_struct = ADSB_Data_Struct()
+                adsb_data_struct.ICAO = self.data_targetship[target_index]['ADS-B']['ICAO'].encode()
+                adsb_data_struct.Flight_ID = self.data_targetship[target_index]['ADS-B']['Flight_ID'].encode()
+                adsb_data_struct.Flight_24bit_addr = self.data_targetship[target_index]['ADS-B']['Flight_24bit_addr']
+                adsb_data_struct.Aircraft_Category =  self.data_targetship[target_index]['ADS-B']['Aircraft_Category']
+                adsb_data_struct.Altitude = self.data_targetship[target_index]['ADS-B']['Altitude']
+                adsb_data_struct.Radio_Altitude = self.data_targetship[target_index]['ADS-B']['Radio_Altitude']
+                adsb_data_struct.North_South_Velocity = int(float(self.findChild(QLineEdit, "txt_V_SN_target" + str(target_index)).text()) * 1000 / 3600)  # 单位m/s
+                adsb_data_struct.East_West_Velocity = int(float(self.findChild(QLineEdit, "txt_V_EW_target" + str(target_index)).text()) * 1000 / 3600) # 单位m/s
+                adsb_data_struct.Vertical_Speed = int(self.data_targetship[target_index]['ADS-B']['Vertical_Speed'] * 1000 / 3600)  # 单位m/s
+                adsb_data_struct.Latitude = c_float(self.ga.degTorad(float(self.findChild(QLineEdit, "txt_Latitude_target" + str(target_index)).text())))  # 单位弧度
+                adsb_data_struct.Longitude = c_float(self.ga.degTorad(float(self.findChild(QLineEdit, "txt_Longitude_target" + str(target_index)).text())))  # 单位弧度
+                adsb_data_struct.Heading_Track_Angle = c_float(self.ga.degTorad(float(self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(target_index)).text())))  # 单位弧度
+                adsb_data_struct.Air_Ground_Sta = c_uint8(self.data_targetship[target_index]['ADS-B']['Air_Ground_Sta'])
+                adsb_data_struct.Ground_Speed = c_uint16(self.data_targetship[target_index]['ADS-B']['Ground_Speed'])
+                adsb_data_struct.Flight_Length = int(self.data_targetship[target_index]['ADS-B']['Flight_Length'] * 1000)
+                adsb_data_struct.Flight_Width = int(self.data_targetship[target_index]['ADS-B']['Flight_Width'] * 1000)
+                adsb_data_struct.Seconds = c_uint8(int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[-1]))  #
+                adsb_data_struct.Mintes = c_uint8(int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[1]))  #
+                adsb_data_struct.Hours = c_uint8(int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[0]))  #
+                adsb_data_struct.p_Seconds = c_uint8(int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[-1]))  #
+                adsb_data_struct.p_Mintes = c_uint8(int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[1]))  #
+                adsb_data_struct.p_Hours = c_uint8(int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[0]))  #
+                adsb_data_struct.v_Seconds = 0
+                adsb_data_struct.v_Mintes = 0
+                adsb_data_struct.v_Hours = 0
+                adsb_data_struct.s_Seconds = 0
+                adsb_data_struct.s_Mintes = 0
+                adsb_data_struct.s_Hours = 0
+                adsb_data_struct.NACV = c_uint8(self.data_targetship[target_index]['ADS-B']['NACV'])
+                adsb_data_struct.NACp = c_uint8(self.data_targetship[target_index]['ADS-B']['NACp'])
+                array[j] = adsb_data_struct
+                j+=1
+            temp_byte = bytes(2048)
+            print('目标机ADS-B数据打包长度：' + str(self.dll.Pack_ADSB_data(array,num, temp_byte, 2048)))
+            logging.info('目标机ADS-B数据打包长度：' + str(self.dll.Pack_ADSB_data(array,num, temp_byte, 2048)))
+            print(temp_byte.strip(b'\x00'))
+            # UDP发送数据
+            self.socket_adsb.sendto(temp_byte.strip(b'\x00'), self.ip_port_adsb)
+            logging.info("目标机发送ADS-B数据：" + str(temp_byte.strip(b'\x00')))
+            lock.release()
+            self.count_timer_adsb_transmit +=1
+        except:
+            traceback.print_exc()
+
+    def tcas_transmit(self):
+        try:
+            # 确定一个tcas发送周期内的TCAS_Data_Struct数量
+            num = 0
+            target_index_list = []
+            for target_index, fre in self.tcas_fre_transmit_target_all.items():
+                if self.count_timer_tcas_transmit % fre == 0:
+                    num += 1
+                    target_index_list.append(target_index)
+            # 开始打包TCAS数据
+            # UDP发送数据
+            self.count_timer_tcas_transmit += 1
+        except:
+            traceback.print_exc()
+
 
     def update_time(self):
         current_Time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
