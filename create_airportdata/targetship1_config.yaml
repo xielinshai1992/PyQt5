@@ -1,5 +1,5 @@
 #1号目标机 配置文件#
-#模拟航路：兰州-南京
+#模拟航路：兰州-武汉
 #tacs与ads-b关联且为最佳源
 
 ADS-B:
@@ -20,140 +20,130 @@ ADS-B:
       - 36.515       #Latitude纬度   单位deg
       - 0            #Heading_Track_Angle航向角  单位deg
     point2:
-      - AKMAT
-      - 103.843333
-      - 37.601667
-      - 9
-    point3:
-      - JTA
-      - 104.08
-      - 37.196667
-      - 155
-    point4:
       - YHD
       - 106.41
       - 38.346667
       - 57
-    point5:
+    point3:
       - MIMOK
       - 107.75
       - 38.2
       - 98
-    point6:
+    point4:
       - LUVES
       - 108.306667
       - 38.146667
       - 97
-    point7:
+    point5:
       - APOGO
       - 110.665
       - 37.93
       - 96
-    point8:
+    point6:
       - OMKAK
       - 111.716667
       - 37.835
       - 96
-    point9:
+    point7:
       - GODON
       - 112.351667
       - 37.775
       - 97
-    point10:
+    point8:
       - TYN
       - 112.62
       - 37.748333
       - 97
-    point11:
+    point9:
       - XIVEP
       - 112.658333
       - 37.631667
       - 165
-    point12:
+    point10:
       - ANPIG
       - 112.85
       - 37.055
       - 165
-    point13:
+    point11:
       - EGEBI
       - 112.936667
       - 36.793333
       - 165
-    point14:
+    point12:
       - SQ
       - 113.116667
       - 36.24
       - 165
-    point15:
+    point13:
       - PADNO
       - 113.293333
       - 35.846667
       - 160
-    point16:
+    point14:
       - TAMIX
       - 113.398333
       - 35.611667
       - 160
-    point17:
+    point15:
       - NOPIN
       - 113.471667
       - 35.446667
       - 160
-    point18:
+    point16:
       - DUBAG
       - 113.730000
       - 34.863333
       - 160
-    point19:
+    point17:
       - CGO
       - 113.843333
       - 34.518333
       - 165
-    point20:
+    point18:
       - ZHO
       - 114.655
       - 33.665
       - 141
-    point21:
+    point19:
       - FYG
       - 115.73
       - 32.883333
       - 131
-    point22:
+    point20:
       - BIPIM
       - 116.183333
       - 32.565
       - 130
-    point23:
+    point21:
       - PEDNU
       - 116.728333
       - 32.188333
       - 129
-    point24:
+    point22:
       - MAGLI
       - 117.013333
       - 31.983333
       - 130
-    point25:
+    point23:
       - HFE
       - 117.301667
       - 31.775
       - 130
-    point26:
+    point24:
       - ZSNJ
       - 118.863333
       - 31.743333
       - 91
   Air_Ground_Sta: 0
-  Ground_Speed: 900      #地速 单位km/h
+  Ground_Speed: 960      #地速 单位km/h
   Flight_Length: 38.9    #飞机长度 单位m
   Flight_Width: 35.8     #飞机宽度 单位m
   NACV: 6    #速度不确定度 默认为6
-  NACp: 0    #位置不确定度 默认为0
-  NIC: 0     # 1 OR 0
+  NACp: 3    #位置不确定度 默认为0
+  NIC: 2     # 1 OR 0
   SIL: 1     # 1 OR 0
   SDA: 1
-  emergency_priority_sta: 0
+  emergency_priority_sta: 1
   data_link_version: 2
   # TCAS信息
   Track_ID: 1

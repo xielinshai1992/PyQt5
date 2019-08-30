@@ -215,7 +215,7 @@ class Ui_MainWindow(object):
         self.btn_stop.setGeometry(QtCore.QRect(50, 180, 201, 28))
         self.btn_stop.setObjectName("btn_stop")
         self.btn_test = QtWidgets.QPushButton(self.groupBox_3)
-        self.btn_test.setGeometry(QtCore.QRect(50, 240, 201, 28))
+        self.btn_test.setGeometry(QtCore.QRect(60, 250, 181, 28))
         self.btn_test.setObjectName("btn_test")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox.setGeometry(QtCore.QRect(920, 0, 291, 361))

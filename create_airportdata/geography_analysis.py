@@ -35,7 +35,9 @@ class Geography_Analysis():
         :param h2:
         :return:
         '''
-        return sqrt(self.geodistance(lng1,lat1,lng2,lat2)**2 + (h1-h2)**2)
+        xy = float(self.geodistance(lng1,lat1,lng2,lat2))
+        z = float(h1-h2)
+        return sqrt( pow(xy, 2) + pow(z, 2))
 
     def get_lngAndlat(self,lng1,lat1,angle,distance):
         '''

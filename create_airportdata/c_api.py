@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import traceback
 from ctypes import *
+#pragma pack(1)
 class ADSB_Data_Struct(Structure):
+    _pack_ = 1
     _fields_ = [("ICAO", c_char*16),
                 ("Flight_ID", c_char*16),
                 ("Flight_24bit_addr",c_int32),
@@ -35,8 +37,8 @@ class ADSB_Data_Struct(Structure):
                 ("SDA", c_uint8),
                 ("emergency_priority_sta", c_uint8),
                 ("data_link_version", c_uint8)]
-
 class TCAS_Data_Struct(Structure):
+    _pack_ = 1
     _fields_ = [("Track_ID", c_char*16),
                 ("Flight_24bit_address", c_uint32),
                 ("Altitude", c_int16),
@@ -57,11 +59,11 @@ class TCAS_Data_Struct(Structure):
                 ("s_Mintes", c_uint8),
                 ("s_Hours", c_uint8),
                 ]
-
 class Ownship_Data_Struct(Structure):
+    _pack_ = 1
     _fields_ = [("ICAO", c_char*16),
                 ("Flight_ID", c_char*16),
-                ("Flight_24bit_addr",c_int32),
+                ("Flight_24bit_addr", c_int32),
                 ("Altitude", c_int16),
                 ("Radio_Altitude", c_int16),
                 ("North_South_Velocity", c_int16),
@@ -87,4 +89,5 @@ class Ownship_Data_Struct(Structure):
                 ("s_Hours", c_uint8),
                 ("NACV", c_uint8),
                 ("NACp", c_uint8)]
+#pragma pack()
 
