@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-import traceback
 from ctypes import *
-#pragma pack(1)
 class ADSB_Data_Struct(Structure):
     _pack_ = 1
     _fields_ = [("ICAO", c_char*16),
@@ -10,9 +8,9 @@ class ADSB_Data_Struct(Structure):
                 ("Aircraft_Category", c_uint8),
                 ("Altitude", c_int16),
                 ("Radio_Altitude", c_int16),
-                ("North_South_Velocity", c_int16),
-                ("East_West_Velocity", c_int16),
-                ("Vertical_Speed", c_int16),
+                ("North_South_Velocity", c_float),
+                ("East_West_Velocity", c_float),
+                ("Vertical_Speed", c_float),
                 ("Latitude", c_float),
                 ("Longitude", c_float),
                 ("Heading_Track_Angle", c_float),
@@ -21,15 +19,19 @@ class ADSB_Data_Struct(Structure):
                 ("Seconds", c_uint8),
                 ("Mintes", c_uint8),
                 ("Hours", c_uint8),
+                ("sec",c_float),
                 ("p_Seconds", c_uint8),
                 ("p_Mintes", c_uint8),
                 ("p_Hours", c_uint8),
+                ("p_sec",c_float),
                 ("v_Seconds", c_uint8),
                 ("v_Mintes", c_uint8),
                 ("v_Hours", c_uint8),
+                ("v_sec",c_float),
                 ("s_Seconds", c_uint8),
                 ("s_Mintes", c_uint8),
                 ("s_Hours", c_uint8),
+                ("s_sec",c_float),
                 ("NACV", c_uint8),
                 ("NACp", c_uint8),
                 ("NIC", c_uint8),
@@ -39,7 +41,7 @@ class ADSB_Data_Struct(Structure):
                 ("data_link_version", c_uint8)]
 class TCAS_Data_Struct(Structure):
     _pack_ = 1
-    _fields_ = [("Track_ID", c_char*16),
+    _fields_ = [("Track_ID", c_char*8),
                 ("Flight_24bit_address", c_uint32),
                 ("Altitude", c_int16),
                 ("Vertical_Speed", c_int16),
@@ -49,16 +51,8 @@ class TCAS_Data_Struct(Structure):
                 ("Seconds", c_uint8),
                 ("Mintes", c_uint8),
                 ("Hours", c_uint8),
-                ("p_Seconds", c_uint8),
-                ("p_Mintes", c_uint8),
-                ("p_Hours", c_uint8),
-                ("v_Seconds", c_uint8),
-                ("v_Mintes", c_uint8),
-                ("v_Hours", c_uint8),
-                ("s_Seconds", c_uint8),
-                ("s_Mintes", c_uint8),
-                ("s_Hours", c_uint8),
-                ]
+                ("sec", c_float)]
+
 class Ownship_Data_Struct(Structure):
     _pack_ = 1
     _fields_ = [("ICAO", c_char*16),
@@ -66,9 +60,9 @@ class Ownship_Data_Struct(Structure):
                 ("Flight_24bit_addr", c_int32),
                 ("Altitude", c_int16),
                 ("Radio_Altitude", c_int16),
-                ("North_South_Velocity", c_int16),
-                ("East_West_Velocity", c_int16),
-                ("Vertical_Speed", c_int16),
+                ("North_South_Velocity", c_float),
+                ("East_West_Velocity", c_float),
+                ("Vertical_Speed", c_float),
                 ("Latitude", c_float),
                 ("Longitude", c_float),
                 ("Heading_Track_Angle", c_float),
@@ -78,16 +72,9 @@ class Ownship_Data_Struct(Structure):
                 ("Seconds", c_uint8),
                 ("Mintes", c_uint8),
                 ("Hours", c_uint8),
-                ("p_Seconds", c_uint8),
-                ("p_Mintes", c_uint8),
-                ("p_Hours", c_uint8),
-                ("v_Seconds", c_uint8),
-                ("v_Mintes", c_uint8),
-                ("v_Hours", c_uint8),
-                ("s_Seconds", c_uint8),
-                ("s_Mintes", c_uint8),
-                ("s_Hours", c_uint8),
+                ("sec",  c_float),
                 ("NACV", c_uint8),
-                ("NACp", c_uint8)]
-#pragma pack()
-
+                ("NACp", c_uint8),
+                ("NIC", c_uint8),
+                ("SIL", c_uint8)
+                ]
