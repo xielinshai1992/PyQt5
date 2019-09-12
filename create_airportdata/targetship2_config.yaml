@@ -1,6 +1,7 @@
 #1号目标机 配置文件#
 #模拟航路：西宁-长沙
-#tacs与ads-b关联且不为最佳源
+#tcas与ads-b不关联
+Type: 2    # 1：tcas与adsb关联且为最佳源  2：tcas与ads-b不关联 3：仅ads_b 4：仅tcas
 ADS-B:
   fre_transmit_adsb: 1   #ads-b数据发送频率 单位s
   ICAO: 6324fo           #ICAO码
@@ -13,31 +14,36 @@ ADS-B:
   East_West_Velocity: 0       #东西速度 单位km/h 初始化0
   Vertical_Speed: 0     #垂直速度 默认为0
   Way_Point:            #所有航路点信息
-#    point1:
-#      - ZLXN         #航路点名称
-#      - 102.038333   #Longitude经度  单位deg
-#      - 36.531667    #Latitude纬度   单位deg
-#      - 0            #Heading_Track_Angle航向角  单位deg
     point1:
-      - XIXAN
-      - 104.125000
-      - 36.280000
-      - 98
+      - ZLXN         #航路点名称
+      - 106.55   #Longitude经度  单位deg
+      - 33.12    #Latitude纬度   单位deg
+      - 0            #Heading_Track_Angle航向角  单位deg
     point2:
       - ENH
       - 109.601667
       - 30.291667
       - 101
-    point3:
-      - DYG
-      - 110.405000
-      - 29.093333
-      - 150
-    point4:
-      - ZGHA
-      - 113.218333
-      - 28.190000
-      - 82
+#    point1:
+#      - ZLXN         #航路点名称
+#      - 102.038333   #Longitude经度  单位deg
+#      - 36.531667    #Latitude纬度   单位deg
+#      - 0            #Heading_Track_Angle航向角  单位deg
+#    point1:
+#      - ENH
+#      - 109.601667
+#      - 30.291667
+#      - 101
+#    point2:
+#      - DYG
+#      - 110.405000
+#      - 29.093333
+#      - 150
+#    point3:
+#      - ZGHA
+#      - 113.218333
+#      - 28.190000
+#      - 82
   Air_Ground_Sta: 0
   Ground_Speed: 960      #地速 单位km/h
   Flight_Length: 38.9    #飞机长度 单位m
@@ -55,7 +61,7 @@ TCAS:
   fre_transmit_tcas: 1         #Tcas数据发送频率 单位s
   Track_ID: 1
   Flight_24bit_addr_TCAS: 0    #24位地址
-  Altitude_TCAS: 12500         #压强高度 单位m
+  Altitude_TCAS: 13000         #压强高度 单位m
   Vertical_Speed_TCAS: 0       #垂直速度
   Bearing: 0                   #相对本机方位 单位deg
   Range: 0                     #相对本机距离 单位km

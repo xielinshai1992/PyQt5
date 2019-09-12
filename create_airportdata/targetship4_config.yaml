@@ -1,58 +1,49 @@
-#4号目标机 配置文件#
-#模拟航路：重庆-武汉
-#没有tcas的ads-b
+#1号目标机 配置文件#
+#模拟航路：呼和浩特-济南
+#仅tcas
+Type: 4    # 1：tcas与adsb关联且为最佳源  2：tcas与ads-b不关联 3：仅ads_b 4：仅tcas
 ADS-B:
   fre_transmit_adsb: 1   #ads-b数据发送频率 单位s
-  ICAO: 2410qa                #ICAO码
-  Flight_ID: '56UC23'         #航班号
-  Flight_24bit_addr: 0        #24位地址 默认为0
-  Aircraft_Category: 0        #飞机类别 默认为0
-  Altitude: 12500             #压强高度 单位m,默认为12500
-  Radio_Altitude: 0           #几何高度 默认为0
+  ICAO: 2456IO           #ICAO码
+  Flight_ID: '3c8a69'    #航班号
+  Flight_24bit_addr: 0   #24位地址 默认为0
+  Aircraft_Category: 0   #飞机类别 默认为0
+  Altitude: 12500        #压强高度 单位m,默认为12500
+  Radio_Altitude: 0      #几何高度 默认为0
   North_South_Velocity: 0     #南北速度 单位km/h 初始化0
   East_West_Velocity: 0       #东西速度 单位km/h 初始化0
-  Vertical_Speed: 0           #垂直速度 默认为0
-  Way_Point:                  #所有航路点信息
+  Vertical_Speed: 0     #垂直速度 默认为0
+  Way_Point:            #所有航路点信息
     point1:
-      - ZUCK                  #航路点名称
-      - 106.640000            #Longitude经度  单位deg
-      - 29.72                 #Latitude纬度   单位deg
-      - 0                     #Heading_Track_Angle航向角  单位deg
+      - ZBHH         #航路点名称
+      - 111.823333   #Longitude经度  单位deg
+      - 40.848333    #Latitude纬度   单位deg
+      - 0            #Heading_Track_Angle航向角  单位deg
     point2:
-      - SAKPU
-      - 108.646667
-      - 30.035000
-      - 79
+      - TODAM
+      - 112.201667
+      - 39.491667
+      - 168
     point3:
-      - LOTMO
-      - 109.435
-      - 30.248333
-      - 72
+      - EKETA
+      - 112.59
+      - 37.875
+      - 169
     point4:
-      - ENH
-      - 109.601667
-      - 30.291667
-      - 73
+      - TYN
+      - 112.62
+      - 37.748333
+      - 169
     point5:
-      - YIH
-      - 111.476667
-      - 30.563333
-      - 80
+      - WXI
+      - 114.916667
+      - 36.363333
+      - 126
     point6:
-      - UK
-      - 112.273333
-      - 30.290000
-      - 111
-    point7:
-      - GUGAM
-      - 113.1850
-      - 30.216667
-      - 95
-    point8:
-      - ZHHH
-      - 114.206667
-      - 30.785000
-      - 57
+      - ZSJN
+      - 117.215
+      - 36.858333
+      - 74
   Air_Ground_Sta: 0
   Ground_Speed: 900      #地速 单位km/h
   Flight_Length: 38.9    #飞机长度 单位m
@@ -60,13 +51,12 @@ ADS-B:
   NACV: 6    #速度不确定度 默认为6
   NACp: 0    #位置不确定度 默认为0
   NIC: 0     # 1 OR 0
-  SIL: 0     # 1 OR 0
+  SIL: 1     # 1 OR 0
   SDA: 1
   emergency_priority_sta: 0
   data_link_version: 2
-
 TCAS:
-  enable: 0                    #是否有Tcas数据 有为1 无为0
+  enable: 1                    #是否有Tcas数据 有为1 无为0
   distance_to_own: 18.52       #目标机向本机发送Tcas数据的距离阈值 单位km 默认为10nm
   fre_transmit_tcas: 1         #Tcas数据发送频率 单位s
   Track_ID: 1

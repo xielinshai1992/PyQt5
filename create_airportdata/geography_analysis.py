@@ -45,7 +45,7 @@ class Geography_Analysis():
         :param lng1:经度
         :param lat1:纬度
         :param angle:方位角  #deg
-        :param distance:距离
+        :param distance:距离 #km
         :return:
         '''
         alpha1 = self.degTorad(angle);

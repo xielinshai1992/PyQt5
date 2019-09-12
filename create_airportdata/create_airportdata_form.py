@@ -84,10 +84,14 @@ class MainWindow(QMainWindow):
         self.lng_target_all = []                   # 经度序列        嵌套序列
         self.lat_target_all = []                   # 纬度序列        嵌套序列
         self.lngandlat_target_all = []              # 经纬度序列      嵌套序列
+        self.type_target_all = []                   # 目标机类型序列
+
         #TCAS数据
         self.tcas_fre_transmit_target_all = {}     # TCAS数据发送频率
 
+
         #全局
+        self.tcas_transmit_distance = 18.52 #发送tcas的距离阈值
         self.own_takeoff_signal.connect(self.own_takeoff)
         self.target_takeoff_signal.connect(self.target_takeoff)
 
@@ -199,37 +203,68 @@ class MainWindow(QMainWindow):
                     data_targetship = yaml.load(file_data)
                 if data_targetship:
                     self.data_targetship[current_targetship_index] = data_targetship
-                    self.findChild(QLineEdit, "txt_ICAO_target"+str(current_targetship_index)).setText(data_targetship['ADS-B']['ICAO'])
-                    self.findChild(QLineEdit, "txt_FlightID_target" + str(current_targetship_index)).setText(data_targetship['ADS-B']['Flight_ID'])
-                    self.findChild(QLineEdit, "txt_Altitude_target" + str(current_targetship_index)).setText(str(data_targetship['ADS-B']['Altitude']))
-                    self.findChild(QLineEdit, "txt_V_SN_target" + str(current_targetship_index)).setText(str(data_targetship['ADS-B']['North_South_Velocity']))
-                    self.findChild(QLineEdit, "txt_V_EW_target"+ str(current_targetship_index)).setText(str(data_targetship['ADS-B']['East_West_Velocity']))
-                    self.findChild(QLineEdit, "txt_Latitude_target" + str(current_targetship_index)).setText(str(data_targetship['ADS-B']['Way_Point']['point1'][2]))
-                    self.findChild(QLineEdit, "txt_Longitude_target" + str(current_targetship_index)).setText(str(data_targetship['ADS-B']['Way_Point']['point1'][1]))
-                    self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(current_targetship_index)).setText(str(data_targetship['ADS-B']['Way_Point']['point1'][3]))
-                    self.findChild(QLineEdit, "txt_GroundSpeed_target" + str(current_targetship_index)).setText(str(data_targetship['ADS-B']['Ground_Speed']))
-                    self.findChild(QLineEdit, "txt_Track_ID_target" + str(current_targetship_index)).setText(str(data_targetship['TCAS']['Track_ID']))
-                    self.findChild(QLineEdit, "txt_Tcas_Altitude_target" + str(current_targetship_index)).setText(str(data_targetship['TCAS']['Altitude_TCAS']))
-                    self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(current_targetship_index)).setText(str(data_targetship['TCAS']['Bearing']))
-                    self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(current_targetship_index)).setText(str(data_targetship['TCAS']['Range']))
+                    self.type_target_all.append(data_targetship['Type'])
+                    if data_targetship['Type'] == 3:
+                        print('仅发ads-b')
+                        # groupBox标题修改
+                        groupBox_adsb = self.findChild(QGroupBox,'groupBox_adsb_target' + str(current_targetship_index))
+                        groupBox_adsb.setTitle('仅发ADS-B')
+                        groupBox_tcas = self.findChild(QGroupBox,'groupBox_tcas_target' + str(current_targetship_index))
+                        groupBox_tcas.setTitle('TCAS')
+
+                    if data_targetship['Type'] == 4:
+                        print('仅发ads-b')
+                        # groupBox标题修改
+                        groupBox_adsb = self.findChild(QGroupBox,'groupBox_adsb_target' + str(current_targetship_index))
+                        groupBox_adsb.setTitle('ADS-B')
+                        groupBox_tcas = self.findChild(QGroupBox,'groupBox_tcas_target' + str(current_targetship_index))
+                        groupBox_tcas.setTitle('仅发TCAS')
+
+                    self.findChild(QLineEdit, "txt_ICAO_target" + str(current_targetship_index)).setText(
+                        data_targetship['ADS-B']['ICAO'])
+                    self.findChild(QLineEdit, "txt_FlightID_target" + str(current_targetship_index)).setText(
+                        data_targetship['ADS-B']['Flight_ID'])
+                    self.findChild(QLineEdit, "txt_Altitude_target" + str(current_targetship_index)).setText(
+                        str(data_targetship['ADS-B']['Altitude']))
+                    self.findChild(QLineEdit, "txt_V_SN_target" + str(current_targetship_index)).setText(
+                        str(data_targetship['ADS-B']['North_South_Velocity']))
+                    self.findChild(QLineEdit, "txt_V_EW_target" + str(current_targetship_index)).setText(
+                        str(data_targetship['ADS-B']['East_West_Velocity']))
+                    self.findChild(QLineEdit, "txt_Latitude_target" + str(current_targetship_index)).setText(
+                        str(data_targetship['ADS-B']['Way_Point']['point1'][2]))
+                    self.findChild(QLineEdit, "txt_Longitude_target" + str(current_targetship_index)).setText(
+                        str(data_targetship['ADS-B']['Way_Point']['point1'][1]))
+                    self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(current_targetship_index)).setText(
+                        str(data_targetship['ADS-B']['Way_Point']['point1'][3]))
+                    self.findChild(QLineEdit, "txt_GroundSpeed_target" + str(current_targetship_index)).setText(
+                        str(data_targetship['ADS-B']['Ground_Speed']))
+                    self.findChild(QLineEdit, "txt_Track_ID_target" + str(current_targetship_index)).setText(
+                        str(data_targetship['TCAS']['Track_ID']))
+                    self.findChild(QLineEdit, "txt_Tcas_Altitude_target" + str(current_targetship_index)).setText(
+                        str(data_targetship['TCAS']['Altitude_TCAS']))
+                    self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(current_targetship_index)).setText(
+                        str(data_targetship['TCAS']['Bearing']))
+                    self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(current_targetship_index)).setText(
+                        str(data_targetship['TCAS']['Range']))
                     fre_transmit_targetship = data_targetship['ADS-B']['fre_transmit_adsb']
                     self.fre_transmit_adsb_targetship_all.append(fre_transmit_targetship)
                     self.delay_takeoff_targetship_all.append(data_targetship['extra']['delay_time'])
                     groundspeed_targetship = data_targetship['ADS-B']['Ground_Speed']
                     self.groundspeed_targetship_all.append(groundspeed_targetship)
-                    altitude_target =  data_targetship['ADS-B']['Altitude']
+                    altitude_target = data_targetship['ADS-B']['Altitude']
                     self.Altitude_targetship_all.append(altitude_target)
                     tcas_altitude = data_targetship['TCAS']['Altitude_TCAS']
                     self.Altitude_targetship_Tcas_all.append(tcas_altitude)
                     tcas_enable = data_targetship['TCAS']['enable']
                     if tcas_enable == 1:
                         tcas_transmit_fre = data_targetship['TCAS']['fre_transmit_tcas']
-                        self.tcas_fre_transmit_target_all[current_targetship_index]= tcas_transmit_fre
+                        self.tcas_fre_transmit_target_all[current_targetship_index] = tcas_transmit_fre
+
                     voyage_distance_targetship_list = [] #单个目标机航程距离序列
                     voyage_time_targetship_list = []   #单个目标机航程时间序列
                     lngandlat_own_list = []            #单个目标机航迹经纬度序列
-                    V_EW_own_list = []                #单个目标机东西速度序列
-                    V_SN_own_list = []                #单个目标机南北速度序列
+                    V_EW_own_list = []                 #单个目标机东西速度序列
+                    V_SN_own_list = []                 #单个目标机南北速度序列
                     Heading_Track_Angle_own_list = []  #单个目标机航向角序列
                     lng_own_list = []                  #单个目标机经度系列
                     lat_own_list =[]                   #单个目标机纬度系列
@@ -280,6 +315,7 @@ class MainWindow(QMainWindow):
             btn_import_info_target.clicked.connect(self.import_info_target)
             # ADS-B布局
             groupBox_adsb = QGroupBox(frame_copy)
+            groupBox_adsb.setObjectName('groupBox_adsb_target'+str(target_plane_index))
             groupBox_adsb.setTitle('ADS-B')
             groupBox_adsb.setGeometry(QRect(10, 50, 291, 361))
             layout_adsb = QWidget(groupBox_adsb)
@@ -382,6 +418,7 @@ class MainWindow(QMainWindow):
             gridLayout_adsb.addWidget(btn_stop_sending_adsb, 9, 1, 1, 2)
             # T-CAS布局
             groupBox_tcas = QGroupBox(frame_copy)
+            groupBox_tcas.setObjectName('groupBox_tcas_target'+str(target_plane_index))
             groupBox_tcas.setTitle('TCAS')
             groupBox_tcas.setGeometry(QRect(310, 50, 271, 361))
             layout_tcas = QWidget(groupBox_tcas)
@@ -490,7 +527,6 @@ class MainWindow(QMainWindow):
                 self.count_timer_adsb_transmit = 0
                 self.timer_adsb_transmit.timeout.connect(self.target_ads_b_transmit)
                 self.timer_adsb_transmit.start(1000)
-
                 self.count_timer_tcas_transmit = 0
                 self.timer_tcas_transmit.timeout.connect(self.target_tcas_transmit)
                 self.timer_tcas_transmit.start(1000)
@@ -612,7 +648,7 @@ class MainWindow(QMainWindow):
             self.count_own_transmit += int(self.fre_transmit_ownship * 1000 / 50)
             temp_byte = bytes(2048)
             lenth = self.dll.Pack_Ownship_data(own_data_struct, temp_byte, 2048)
-            print('本机数据打包长度：'+ str(lenth))
+            #print('本机数据打包长度：'+ str(lenth))
             #print(temp_byte.strip(b'\x00'))
             self.socket_own.sendto(temp_byte.strip(b'\x00'), self.ip_port_own)
             #写入日志
@@ -669,52 +705,77 @@ class MainWindow(QMainWindow):
                 self.findChild(QTimer,'target_timer'+str(target_num)).stop()
                 self.findChild(QTimer,'target_timer'+str(target_num)).deleteLater()
             else:
+                # 目标机类型
+                current_type = self.type_target_all[target_num-1]
+                print(current_type)
                 current_adsb_lng = self.lng_target_all[target_num-1][self.variable['target_count' + str(target_num)]]
                 current_adsb_lat = self.lat_target_all[target_num-1][self.variable['target_count' + str(target_num)]]
                 current_Heading_Track_Angle = self.Heading_Track_Angle_target_all[target_num-1][self.variable['target_count' + str(target_num)]]
-                current_tcas_height = self.Altitude_targetship_Tcas_all[target_num-1]
                 self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(target_num)).setText(str(current_Heading_Track_Angle))
                 self.findChild(QLineEdit, "txt_Longitude_target" + str(target_num)).setText(str(current_adsb_lng))
                 self.findChild(QLineEdit, "txt_Latitude_target" + str(target_num)).setText(str(current_adsb_lat))
                 self.findChild(QLineEdit, "txt_V_EW_target" + str(target_num)).setText(str(self.V_EW_target_all[target_num - 1][self.variable['target_count' + str(target_num)]]))
                 self.findChild(QLineEdit, "txt_V_SN_target" + str(target_num)).setText(str(self.V_SN_target_all[target_num - 1][self.variable['target_count' + str(target_num)]]))
-                self.variable['target_count' + str(target_num)] +=20  #50ms产生一次数据，1s显示数据的时间步长为20
+                self.variable['target_count' + str(target_num)] += 20  #50ms产生一次数据，1s显示数据的时间步长为20
                 # 本机坐标信息
                 current_own_lng = self.ui.txt_Longitude_own.text()
                 current_own_lat = self.ui.txt_Latitude_own.text()
                 current_own_Heading_Track_Angle = self.ui.txt_Heading_Track_Angle_own.text()
                 current_own_height = self.ui.txt_Altitude_own.text()
-
-                # 相对本机方位角
-                relative_direction = 0 # 目标机相对本机方位角 单位deg
-                if float(current_Heading_Track_Angle) > float(current_own_Heading_Track_Angle):
-                    relative_direction = float(current_Heading_Track_Angle) - float(current_own_Heading_Track_Angle)
-                else:
-                    relative_direction = float(current_Heading_Track_Angle)+ 360 - float(current_own_Heading_Track_Angle)
-                # print(relative_direction)
-                self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(target_num)).setText(str(relative_direction))
                 # ads-b相对本机距离
-                relative_distance_xy = self.ga.geodistance(float(current_adsb_lng), float(current_adsb_lat), float(current_own_lng),float(current_own_lat))
-                #获取NIC和SIL数据 确定是否为Tcas关联的最佳源
-                tcas_lng = current_adsb_lng   #TCAS经度坐标
-                tcas_lat = current_adsb_lat   #TCAS纬度坐标
-                relative_distance_tcas = 0 #tcas相对本机距离
-                if relative_distance_xy >= 4.649 and relative_distance_xy<=18.52: #tcas取ads-b为圆心半径2324内任意点
-                    print('a')
-                    tcas_lng =  current_adsb_lng
-                    tcas_lat =  current_adsb_lat
-                elif relative_distance_xy >2.324 and  relative_distance_xy <4.649:
-                    print('b')
-                    tcas_lng, tcas_lat = self.ga.get_lngAndlat(current_own_lng,current_own_lat,relative_direction,relative_distance_xy-2.324)
-                elif relative_distance_xy <2.324:
-                    print('c')
-                    tcas_lng =  current_adsb_lng
-                    tcas_lat =  current_adsb_lat
-                relative_distance_tcas = round(self.ga.geodistance_with_height(float(tcas_lng), float(tcas_lat),
-                                                                    float(current_tcas_height)/1000, float(current_own_lng),
-                                                                    float(current_own_lat),
-                                                                    float(current_own_height)/1000),3)
-                self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_num)).setText(str(relative_distance_tcas))
+                relative_distance_xy = self.ga.geodistance(float(current_adsb_lng), float(current_adsb_lat),float(current_own_lng), float(current_own_lat))
+                print("ads-b相对本机距离: "+str(relative_distance_xy))
+
+                if relative_distance_xy <= self.tcas_transmit_distance: # ads-b相对本机距离小于10海里开始发送tcas数据
+                    current_tcas_height = self.Altitude_targetship_Tcas_all[target_num - 1]   #当前tcas高度
+                    relative_direction = 0 # tcas相对本机方位 单位deg
+                    if float(current_Heading_Track_Angle) > float(current_own_Heading_Track_Angle):
+                        relative_direction = float(current_Heading_Track_Angle) - float(current_own_Heading_Track_Angle)
+                    else:
+                        relative_direction = float(current_Heading_Track_Angle)+ 360 - float(current_own_Heading_Track_Angle)
+                    self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(target_num)).setText(str(relative_direction))
+                    relative_distance_xyz = 0  #tcas相对本机距离 xyz三个方向的平方跟
+                    tcas_lng = 0   #TCAS经度坐标
+                    tcas_lat = 0   #TCAS纬度坐标
+                    if current_type == 1: #tcas与adsb关联且为最佳源
+                        if relative_distance_xy >= 4.649 and relative_distance_xy <= self.tcas_transmit_distance: #tcas取ads_b为圆心半径2324内任意一点 tcas可取ads_b
+                            tcas_lng = current_adsb_lng   #TCAS经度坐标
+                            tcas_lat = current_adsb_lat   #TCAS纬度坐标
+                        elif relative_distance_xy > 2.324 and relative_distance_xy < 4.649:
+                            tcas_lng, tcas_lat = self.ga.get_lngAndlat(current_own_lng, current_own_lat,
+                                                                       relative_direction, relative_distance_xy - 2.324)
+                        elif relative_distance_xy < 2.324:
+                            tcas_lng = current_adsb_lng   #TCAS经度坐标
+                            tcas_lat = current_adsb_lat   #TCAS纬度坐标
+                        relative_distance_xyz = round(self.ga.geodistance_with_height(float(tcas_lng), float(tcas_lat),
+                                                                                      float(current_tcas_height) / 1000,
+                                                                                      float(current_own_lng),
+                                                                                      float(current_own_lat),
+                                                                                      float(current_own_height) / 1000),3)
+                        self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_num)).setText(
+                            str(relative_distance_xyz))
+                    if current_type == 2: #tcas与ads-b不关联
+                        r = round((sqrt(5403064+pow(relative_distance_xy+2325, 2)*4.6225)+284)/1000 ,3)
+                        tcas_lng, tcas_lat = self.ga.get_lngAndlat(current_adsb_lng,current_adsb_lat,90,r)
+                        relative_distance_xyz = round(self.ga.geodistance_with_height(float(tcas_lng), float(tcas_lat),
+                                                                                      float(current_tcas_height) / 1000,
+                                                                                      float(current_own_lng),
+                                                                                      float(current_own_lat),
+                                                                                      float(current_own_height) / 1000), 3)
+                        self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_num)).setText(
+                            str(relative_distance_xyz))
+                    if current_type == 4:  #仅tcas
+                        tcas_lng = current_adsb_lng  # TCAS经度坐标
+                        tcas_lat = current_adsb_lat  # TCAS纬度坐标
+                        relative_distance_xyz = round(self.ga.geodistance_with_height(float(tcas_lng), float(tcas_lat),
+                                                                                      float(current_tcas_height) / 1000,
+                                                                                      float(current_own_lng),
+                                                                                      float(current_own_lat),
+                                                                                      float(current_own_height) / 1000),3)
+                        self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_num)).setText(
+                            str(relative_distance_xyz))
+                else:
+                    print("距离未到10海里，不发送tcas数据")
         except:
             traceback.print_exc()
 
@@ -731,7 +792,7 @@ class MainWindow(QMainWindow):
             lock = threading.Lock()
             lock.acquire()
             logging.info("开始打包"+str(num)+"个目标机ADS-B数据....")
-            print("开始打包"+str(num)+"个目标机ADS-B数据....")
+            #print("开始打包"+str(num)+"个目标机ADS-B数据....")
             ArrayType = ADSB_Data_Struct * num
             array = ArrayType()
             j = 0
@@ -750,7 +811,6 @@ class MainWindow(QMainWindow):
                 adsb_data_struct.Longitude = round(self.ga.degTorad(self.lng_target_all[target_index-1][self.variable['target_count_transmit' + str(target_index)]]), 6)
                 adsb_data_struct.Heading_Track_Angle = round(self.ga.degTorad(self.Heading_Track_Angle_target_all[target_index-1][self.variable['target_count_transmit' + str(target_index)]]),6) # 航向角
                 add_count = int(self.fre_transmit_adsb_targetship_all[target_index-1] * 1000 / 50)
-                print(add_count)
                 self.variable['target_count_transmit' + str(target_index)] += add_count
                 adsb_data_struct.Air_Ground_Sta = self.data_targetship[target_index]['ADS-B']['Air_Ground_Sta']
                 adsb_data_struct.Ground_Speed = int(float(self.data_targetship[target_index]['ADS-B']['Ground_Speed'] * 1000/3600))    #地速
@@ -781,7 +841,7 @@ class MainWindow(QMainWindow):
                 j+=1
             temp_byte = bytes(2048)
             lenth = self.dll.Pack_ADSB_data(array,num, temp_byte, 2048)
-            print('目标机ADS-B数据打包长度：' + str(lenth))
+            #print('目标机ADS-B数据打包长度：' + str(lenth))
             logging.info('目标机ADS-B数据打包长度：' + str(lenth))
             print(temp_byte.strip(b'\x00'))
             #UDP发送数据
@@ -795,8 +855,7 @@ class MainWindow(QMainWindow):
     def target_tcas_transmit(self):
         try:
             # 确定一个tcas发送周期内的TCAS_Data_Struct数量
-            target_index_list = []
-
+            target_index_list = [] #目标机索引序列
             for target_index, fre in self.tcas_fre_transmit_target_all.items():
                 if self.count_timer_tcas_transmit % fre == 0:
                     target_index_list.append(target_index)
@@ -804,10 +863,9 @@ class MainWindow(QMainWindow):
             target_tcas_index_list = []
             for target_index in target_index_list:
                 relative_distance = float(self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_index)).text())
-                print(str(target_index)+'号目标机相对本机距离：'+ str(relative_distance))
-                if relative_distance <= 18.52:# 当相对本机位置小于18.52km时，开始发送TCAS数据
+                if relative_distance <= self.tcas_transmit_distance and relative_distance > 0 :# 当相对本机位置小于18.52km时，开始发送TCAS数据
                     target_tcas_index_list.append(target_index)
-                    num +=1
+                    num += 1
             # 开始打包TCAS数据
             if num > 0:
                 lock = threading.Lock()
@@ -819,16 +877,16 @@ class MainWindow(QMainWindow):
                 j = 0
                 for target_index in target_tcas_index_list:
                     tcas_data_struct = TCAS_Data_Struct()
-                    tcas_data_struct.Track_ID = self.data_targetship[target_index]['TCAS']['Track_ID']
+                    tcas_data_struct.Track_ID = self.data_targetship[target_index]['TCAS']['Track_ID'].encode()            #ICAO码
                     tcas_data_struct.Flight_24bit_addr = self.data_targetship[target_index]['TCAS']['Flight_24bit_addr_TCAS']
                     tcas_data_struct.Altitude = self.data_targetship[target_index]['TCAS']['Altitude_TCAS']
-                    tcas_data_struct.Vertical_Speed = self.data_targetship[target_index]['TCAS']['Vertical_Speed_TCAS']
-                    tcas_data_struct.Bearing = self.ga.degTorad(float(self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(target_index)).text()))  # 单位弧度#
-                    tcas_data_struct.Range = float(self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_index)).text())*1000 #相对本机距离 单位m
+                    tcas_data_struct.Vertical_Speed = round(self.data_targetship[target_index]['TCAS']['Vertical_Speed_TCAS'] * 1000 /3600 ,6)
+                    tcas_data_struct.Bearing = round(self.ga.degTorad(float(self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(target_index)).text())),6)  # 单位弧度#
+                    tcas_data_struct.Range = round(float(self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_index)).text())*1000,6) #相对本机距离 单位m
                     tcas_data_struct.Warning_Status = self.data_targetship[target_index]['TCAS']['Warning_Status']
-                    tcas_data_struct.Seconds = c_uint8(int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[-1]))  #
-                    tcas_data_struct.Mintes = c_uint8(int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[1]))  #
-                    tcas_data_struct.Hours = c_uint8(int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[0]))  #
+                    tcas_data_struct.Seconds = (int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[-1]))  #
+                    tcas_data_struct.Mintes = (int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[1]))  #
+                    tcas_data_struct.Hours = (int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[0]))  #
                     tcas_data_struct.sec = 0
                     array[j] = tcas_data_struct
                     j+=1

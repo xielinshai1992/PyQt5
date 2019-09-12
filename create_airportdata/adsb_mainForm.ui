@@ -76,7 +76,7 @@
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QGroupBox" name="groupBox_5">
+       <widget class="QGroupBox" name="groupBox_tcas_target1">
         <property name="geometry">
          <rect>
           <x>310</x>
@@ -234,7 +234,7 @@
          <string>导入飞机信息</string>
         </property>
        </widget>
-       <widget class="QGroupBox" name="groupBox_4">
+       <widget class="QGroupBox" name="groupBox_adsb_target1">
         <property name="geometry">
          <rect>
           <x>10</x>
