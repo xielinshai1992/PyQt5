@@ -100,8 +100,8 @@ class Geography_Analysis():
         :return:
         '''
         return  x * 180 / pi
-
-# ga = Geography_Analysis()
-# print(ga.geodistance(103.94833, 30.58, 105.005, 30.851667))
-# print(ga.geodistance_with_height(103.94833, 30.58, 13,105.005, 30.851667,12.5))
+#
+ga = Geography_Analysis()
+print(ga.geodistance(107.77 , 32.98, 106.71, 32.328333))
+print(ga.geodistance(107.77,  32.98, 107.02, 33.07 ))
 

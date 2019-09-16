@@ -22,13 +22,13 @@ ADS-B:
       - 12500          #高度 m
     point2:
       - ENH
-      - 109.601667
-      - 30.291667
+      - 108.081667
+      - 31.57
       - 101
       - 900
       - 12500
   Air_Ground_Sta: 0
-  Ground_Speed: 900      #地速 单位km/h
+  Ground_Speed: 900     #地速 单位km/h
   Flight_Length: 38.9    #飞机长度 单位m
   Flight_Width: 35.8     #飞机宽度 单位m
   NACV: 6    #速度不确定度 默认为6
@@ -50,7 +50,7 @@ TCAS:
   enable: 1                    #是否有Tcas数据 有为1 无为0
   distance_to_own: 18.52       #目标机向本机发送Tcas数据的距离阈值 单位km 默认为10nm
   fre_transmit_tcas: 1         #Tcas数据发送频率 单位s
-  Track_ID: 1
+  Track_ID: '1'
   Flight_24bit_addr_TCAS: 0    #24位地址
   Altitude_TCAS: 12500         #压强高度 单位m
   Vertical_Speed_TCAS: 0       #垂直速度

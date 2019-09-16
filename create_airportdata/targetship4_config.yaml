@@ -59,7 +59,7 @@ TCAS:
   enable: 1                    #是否有Tcas数据 有为1 无为0
   distance_to_own: 18.52       #目标机向本机发送Tcas数据的距离阈值 单位km 默认为10nm
   fre_transmit_tcas: 1         #Tcas数据发送频率 单位s
-  Track_ID: 1
+  Track_ID: '4'
   Flight_24bit_addr_TCAS: 0    #24位地址
   Altitude_TCAS: 13000         #压强高度 单位m
   Vertical_Speed_TCAS: 0       #垂直速度

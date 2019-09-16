@@ -1,5 +1,5 @@
 #1号目标机 配置文件#
-#模拟航路：西宁-长沙
+#模拟航路：宝鸡-安康
 #tcas与ads-b不关联
 Type: 2    # 1：tcas与adsb关联且为最佳源  2：tcas与ads-b不关联 3：仅ads_b 4：仅tcas
 ADS-B:
@@ -16,36 +16,16 @@ ADS-B:
   Way_Point:            #所有航路点信息
     point1:
       - ZLXN         #航路点名称
-      - 106.55   #Longitude经度  单位deg
-      - 33.12    #Latitude纬度   单位deg
+      - 107.02   #Longitude经度  单位deg
+      - 33.07  #Latitude纬度   单位deg
       - 0            #Heading_Track_Angle航向角  单位deg
     point2:
       - ENH
-      - 109.601667
-      - 30.291667
+      - 109.02
+      - 32.68
       - 101
-#    point1:
-#      - ZLXN         #航路点名称
-#      - 102.038333   #Longitude经度  单位deg
-#      - 36.531667    #Latitude纬度   单位deg
-#      - 0            #Heading_Track_Angle航向角  单位deg
-#    point1:
-#      - ENH
-#      - 109.601667
-#      - 30.291667
-#      - 101
-#    point2:
-#      - DYG
-#      - 110.405000
-#      - 29.093333
-#      - 150
-#    point3:
-#      - ZGHA
-#      - 113.218333
-#      - 28.190000
-#      - 82
   Air_Ground_Sta: 0
-  Ground_Speed: 960      #地速 单位km/h
+  Ground_Speed: 900      #地速 单位km/h
   Flight_Length: 38.9    #飞机长度 单位m
   Flight_Width: 35.8     #飞机宽度 单位m
   NACV: 6    #速度不确定度 默认为6
@@ -59,7 +39,7 @@ TCAS:
   enable: 1                    #是否有Tcas数据 有为1 无为0
   distance_to_own: 18.52       #目标机向本机发送Tcas数据的距离阈值 单位km 默认为10nm
   fre_transmit_tcas: 1         #Tcas数据发送频率 单位s
-  Track_ID: 1
+  Track_ID: '2'
   Flight_24bit_addr_TCAS: 0    #24位地址
   Altitude_TCAS: 13000         #压强高度 单位m
   Vertical_Speed_TCAS: 0       #垂直速度
@@ -67,4 +47,4 @@ TCAS:
   Range: 0                     #相对本机距离 单位km
   Warning_Status: 1            # 1 or 0
 extra:
-  delay_time: 0        #起飞延时 单位s
+  delay_time: 209        #起飞延时 单位s
