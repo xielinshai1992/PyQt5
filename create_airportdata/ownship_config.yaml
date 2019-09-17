@@ -10,26 +10,11 @@ basic:
   East_West_Velocity: 0       #东西速度 单位km/h 初始化0
   Vertical_Speed: 0     #垂直速度 默认为0
   Way_Point:            #所有航路点信息
-#    point1:
-#      - ZUUU        #导航点
-#      - 103.94833   #Longitude经度  deg
-#      - 30.58       #Latitude纬度   deg
-#      - 0           #Heading_Track_Angle航向角  deg
-#    point2:
-#      - OGOMO
-#      - 105.005
-#      - 30.851667
-#      - 73
-#    point3:
-#      - TOREG
-#      - 106.063333
-#      - 31.358333
-#      - 61
     point1:
       - SUBUL
       - 106.710000
       - 32.328333
-      - 29
+      - 0
     point2:
       - ONEBA
       - 107.495000

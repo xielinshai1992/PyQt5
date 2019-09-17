@@ -15,8 +15,8 @@ ADS-B:
   Way_Point:            #所有航路点信息
     point1:
       - ZLXN         #航路点名称
-      - 106.55       #Longitude经度  单位deg
-      - 33.12        #Latitude纬度   单位deg
+      - 106.85       #Longitude经度  单位deg
+      - 33.02        #Latitude纬度   单位deg
       - 0            #Heading_Track_Angle航向角  单位deg
       - 900            #速度 km/h
       - 12500          #高度 m
@@ -24,7 +24,7 @@ ADS-B:
       - ENH
       - 108.081667
       - 31.57
-      - 101
+      - 144
       - 900
       - 12500
   Air_Ground_Sta: 0

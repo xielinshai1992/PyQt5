@@ -1,6 +1,6 @@
 #4号目标机 配置文件#
 #模拟航路：重庆-武汉
-#仅ads_b
+#仅发ads_b
 Type: 3    # 1：tcas与adsb关联且为最佳源  2：tcas与ads-b不关联 3：仅ads_b 4：仅tcas
 ADS-B:
   fre_transmit_adsb: 1   #ads-b数据发送频率 单位s
@@ -23,37 +23,12 @@ ADS-B:
       - SAKPU
       - 108.646667
       - 30.035000
-      - 79
+      - 79.24
     point3:
       - LOTMO
       - 109.435
       - 30.248333
       - 72
-    point4:
-      - ENH
-      - 109.601667
-      - 30.291667
-      - 73
-    point5:
-      - YIH
-      - 111.476667
-      - 30.563333
-      - 80
-    point6:
-      - UK
-      - 112.273333
-      - 30.290000
-      - 111
-    point7:
-      - GUGAM
-      - 113.1850
-      - 30.216667
-      - 95
-    point8:
-      - ZHHH
-      - 114.206667
-      - 30.785000
-      - 57
   Air_Ground_Sta: 0
   Ground_Speed: 900      #地速 单位km/h
   Flight_Length: 38.9    #飞机长度 单位m

@@ -100,8 +100,30 @@ class Geography_Analysis():
         :return:
         '''
         return  x * 180 / pi
-#
-ga = Geography_Analysis()
-print(ga.geodistance(107.77 , 32.98, 106.71, 32.328333))
-print(ga.geodistance(107.77,  32.98, 107.02, 33.07 ))
 
+    def getDegree(self, latA, lonA, latB, lonB):
+        """
+        Args:
+            point p1(latA, lonA)
+            point p2(latB, lonB)
+        Returns:
+            bearing between the two GPS points,
+            default: the basis of heading direction is north
+        """
+        radLatA = radians(latA)
+        radLonA = radians(lonA)
+        radLatB = radians(latB)
+        radLonB = radians(lonB)
+        dLon = radLonB - radLonA
+        y = sin(dLon) * cos(radLatB)
+        x = cos(radLatA) * sin(radLatB) - sin(radLatA) * cos(radLatB) * cos(dLon)
+        brng = degrees(atan2(y, x))
+        brng = (brng + 360) % 360
+        return brng
+
+
+ga = Geography_Analysis()
+print(ga.getDegree(33.02,106.85   , 31.57, 108.081667))  #1号目标机
+#print(ga.getDegree(33.07, 107.02 , 32.68, 109.02))  #2号目标机
+#print(ga.getDegree(33.07, 107.02 , 32.07, 108.06))  #4号目标机
+#print(ga.getDegree(34.221667, 108.853333,34.598333,108.915000))  #3号目标机

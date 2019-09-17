@@ -1,6 +1,6 @@
 #1号目标机 配置文件#
-#模拟航路：呼和浩特-济南
-#仅tcas
+#模拟航路：汉中-万源
+#仅发tcas
 Type: 4    # 1：tcas与adsb关联且为最佳源  2：tcas与ads-b不关联 3：仅ads_b 4：仅tcas
 ADS-B:
   fre_transmit_adsb: 1   #ads-b数据发送频率 单位s
@@ -16,34 +16,14 @@ ADS-B:
   Way_Point:            #所有航路点信息
     point1:
       - ZBHH         #航路点名称
-      - 111.823333   #Longitude经度  单位deg
-      - 40.848333    #Latitude纬度   单位deg
+      - 107.02  #Longitude经度  单位deg
+      - 33.07    #Latitude纬度   单位deg
       - 0            #Heading_Track_Angle航向角  单位deg
     point2:
       - TODAM
-      - 112.201667
-      - 39.491667
-      - 168
-    point3:
-      - EKETA
-      - 112.59
-      - 37.875
-      - 169
-    point4:
-      - TYN
-      - 112.62
-      - 37.748333
-      - 169
-    point5:
-      - WXI
-      - 114.916667
-      - 36.363333
-      - 126
-    point6:
-      - ZSJN
-      - 117.215
-      - 36.858333
-      - 74
+      - 108.06
+      - 32.07
+      - 138
   Air_Ground_Sta: 0
   Ground_Speed: 900      #地速 单位km/h
   Flight_Length: 38.9    #飞机长度 单位m
@@ -61,10 +41,10 @@ TCAS:
   fre_transmit_tcas: 1         #Tcas数据发送频率 单位s
   Track_ID: '4'
   Flight_24bit_addr_TCAS: 0    #24位地址
-  Altitude_TCAS: 13000         #压强高度 单位m
+  Altitude_TCAS: 12500         #压强高度 单位m
   Vertical_Speed_TCAS: 0       #垂直速度
   Bearing: 0                   #相对本机方位 单位deg
   Range: 0                     #相对本机距离 单位km
   Warning_Status: 1            # 1 or 0
 extra:
-  delay_time: 0        #起飞延时 单位s
+  delay_time: 20       #起飞延时 单位s

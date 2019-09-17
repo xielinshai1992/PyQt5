@@ -18,13 +18,9 @@ from geography_analysis import Geography_Analysis
 from c_api import Ownship_Data_Struct,ADSB_Data_Struct,TCAS_Data_Struct
 
 class MainWindow(QMainWindow):
-
     own_takeoff_signal = pyqtSignal()
     target_takeoff_signal = pyqtSignal(int)
     dll = cdll.LoadLibrary("data_interface_pro.dll")
-    own_example = Ownship_Data_Struct()
-
-
 
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -78,15 +74,17 @@ class MainWindow(QMainWindow):
         self.groundspeed_targetship_all  = []            # 目标机地速
         self.Altitude_targetship_all = []                # 目标机压强高度
         self.Altitude_targetship_Tcas_all = []               #  目标机Tcas压强高度
-        self.fre_transmit_adsb_targetship_all  = []      # ADS-B数据发送频率 单位s
-        self.delay_takeoff_targetship_all  = {}          # 起飞延迟 单位ms
+        self.fre_transmit_adsb_targetship_all  = {}      # ADS-B数据发送频率 单位s
+
         self.Heading_Track_Angle_target_all = []  # 航向角序列  嵌套序列
         self.V_SN_target_all= []                   # 南北速度序列    嵌套序列
         self.V_EW_target_all = []                  # 东西速度序列    嵌套序列
         self.lng_target_all = []                   # 经度序列        嵌套序列
         self.lat_target_all = []                   # 纬度序列        嵌套序列
         self.lngandlat_target_all = []              # 经纬度序列      嵌套序列
-        self.type_target_all = []                   # 目标机类型序列
+        self.type_target_all = {}                   # 目标机类型序列
+        self.delay_takeoff_targetship_all = {}  # 起飞延迟 单位ms  键为目标机索引
+
 
         #TCAS数据
         self.tcas_fre_transmit_target_all = {}     # TCAS数据发送频率
@@ -94,11 +92,9 @@ class MainWindow(QMainWindow):
 
         #全局
         self.data_matlab = 'data_matlab.txt'
-
         self.tcas_transmit_distance = 18.52 #发送tcas的距离阈值
         self.own_takeoff_signal.connect(self.own_takeoff)
-        self.target_takeoff_signal.connect(self.target_takeoff)
-
+        self.target_takeoff_signal.connect(self.open_target_timer)
         #定时器
         self.count_own = 0    # 本机显示计数器
         self.count_own_transmit =0  #本机发送计数器
@@ -224,7 +220,7 @@ class MainWindow(QMainWindow):
                     data_targetship = yaml.load(file_data)
                 if data_targetship:
                     self.data_targetship[current_targetship_index] = data_targetship
-                    self.type_target_all.append(data_targetship['Type'])
+                    self.type_target_all[current_targetship_index] = data_targetship['Type']
                     if data_targetship['Type'] == 3:
                         print('仅发ads-b')
                         # groupBox标题修改
@@ -234,7 +230,7 @@ class MainWindow(QMainWindow):
                         groupBox_tcas.setTitle('TCAS')
 
                     if data_targetship['Type'] == 4:
-                        print('仅发ads-b')
+                        print('仅发tcas')
                         # groupBox标题修改
                         groupBox_adsb = self.findChild(QGroupBox,'groupBox_adsb_target' + str(current_targetship_index))
                         groupBox_adsb.setTitle('ADS-B')
@@ -268,7 +264,7 @@ class MainWindow(QMainWindow):
                     self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(current_targetship_index)).setText(
                         str(data_targetship['TCAS']['Range']))
                     fre_transmit_targetship = data_targetship['ADS-B']['fre_transmit_adsb']
-                    self.fre_transmit_adsb_targetship_all.append(fre_transmit_targetship)
+                    self.fre_transmit_adsb_targetship_all[current_targetship_index] = fre_transmit_targetship
                     self.delay_takeoff_targetship_all[current_targetship_index] = data_targetship['extra']['delay_time']
                     groundspeed_targetship = data_targetship['ADS-B']['Ground_Speed']
                     self.groundspeed_targetship_all.append(groundspeed_targetship)
@@ -513,17 +509,16 @@ class MainWindow(QMainWindow):
     # 控制台区域
     def start(self):
         try:
+            # 创建socket
+            ip = '127.0.0.1'
+            self.ip_port_own = (ip, 8000)
+            self.socket_own = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
+            self.ip_port_tcas = (ip, 8001)
+            self.socket_tcas = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
+            self.ip_port_adsb = (ip, 8002)
+            self.socket_adsb = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
             #TODO：界面检查,确定目标机数量
             if len(self.data_targetship) == self.ui.tabWidget.count() and self.data_ownship:
-                #创建socket
-                #'192.168.100.128', 8000
-                ip = '127.0.0.1'
-                self.ip_port_own =  (ip, 8000)
-                self.socket_own = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
-                self.ip_port_tcas = (ip, 8001)
-                self.socket_tcas = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
-                self.ip_port_adsb = (ip, 8002)
-                self.socket_adsb = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
                 # 界面btn使能
                 self.ui.btn_start.setEnabled(False)
                 self.ui.btn_stop.setEnabled(True)
@@ -532,22 +527,18 @@ class MainWindow(QMainWindow):
                 print("本机起飞延时"+str(self.delay_takeoff_ownship)+'s')
                 timer_own = threading.Timer(self.delay_takeoff_ownship,self.own_takeoff_signal.emit)
                 timer_own.start()
-
                 # 确定目标机数量
                 self.num_targetship = self.ui.tabWidget.count()
                 for i in range(self.num_targetship):
-                    self.variable['target_count' +  str(i + 1)] = 0
+                    self.variable['target_count' +  str(i + 1)] = 0        #计时器变量初始化
                     self.variable['target_count_transmit' + str(i + 1)] = 0
-                print('目标机数量： ' + str(self.num_targetship))
-                logging.info('目标机数量： '+str(self.num_targetship))
-                for i in range(self.num_targetship):
                     self.findChild(QPushButton, 'btn_import_info_target' + str(i + 1)).setEnabled(False)
                     delay = self.delay_takeoff_targetship_all[i+1]
-                    print(str(i+1)+"号目标机起飞延时" + str(delay) + 's')
-                    def emit_signal():
-                        self.target_takeoff_signal.emit(i+1)
-                    timer_target = threading.Timer(delay,emit_signal)
+                    print(str(i+1) + "号目标机起飞延时" + str(delay) + 's')
+                    timer_target = threading.Timer(delay,self.target_takeoff, [i+1])
                     timer_target.start()
+                print('目标机数量： ' + str(self.num_targetship))
+                logging.info('目标机数量： '+str(self.num_targetship))
 
                 #设置发送ads-b和tcas的timer
                 self.count_timer_adsb_transmit = 0
@@ -571,6 +562,9 @@ class MainWindow(QMainWindow):
             self.ui.btn_stop.setEnabled(False)
             self.count_own = 0
             self.count_own_transmit = 0
+            self.count_timer_adsb_transmit = 0
+            self.count_timer_tcas_transmit = 0
+            self
             #定时器关闭
             self.timer_own_show.stop()
             self.timer_own_transmit.stop()
@@ -649,63 +643,75 @@ class MainWindow(QMainWindow):
         try:
             # lock = threading.Lock()
             # lock.acquire()
-            own_data_struct = Ownship_Data_Struct()
-            own_data_struct.ICAO = self.data_ownship['basic']['ICAO'].encode()                           #ICAO码
-            own_data_struct.Flight_ID = self.data_ownship['basic']['Flight_ID'].encode()                 #航班号
-            own_data_struct.Flight_24bit_addr = self.data_ownship['basic']['Flight_24bit_addr']
-            own_data_struct.Altitude = self.data_ownship['basic']['Altitude']                            #几何高度
-            own_data_struct.Radio_Altitude = self.data_ownship['basic']['Radio_Altitude']
-            own_data_struct.North_South_Velocity = round(self.V_SN_own_list[self.count_own_transmit]* 1000/3600, 6)         #南北速度
-            own_data_struct.East_West_Velocity = round(self.V_EW_own_list[self.count_own_transmit]* 1000/3600, 6)          #东西速度
-            own_data_struct.Vertical_Speed = round(self.data_ownship['basic']['Vertical_Speed'] * 1000/3600, 6)
-            own_data_struct.Latitude = round(self.ga.degTorad(self.lat_own_list[self.count_own_transmit]), 6)               #纬度
-            own_data_struct.Longitude = round(self.ga.degTorad(self.lng_own_list[self.count_own_transmit]), 6)             #经度
-            Heading_own = round(self.ga.degTorad(self.Heading_Track_Angle_own_list[self.count_own_transmit]), 6)           #航向角
-            own_data_struct.Heading_Track_Angle = Heading_own
-            own_data_struct.Ground_Speed = int(float(self.data_ownship['basic']['Ground_Speed'] * 1000/3600))               #地速
-            own_data_struct.Flight_Length = int(self.data_ownship['basic']['Flight_Length'] * 1000)
-            own_data_struct.Flight_Width = int(self.data_ownship['basic']['Flight_Width'] * 1000)
-            own_data_struct.Seconds = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[2])  #
-            own_data_struct.Mintes  = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[1])   #
-            own_data_struct.Hours   = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[0])   #
-            own_data_struct.sec = round(float(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[-1])/1000000,3)
-            own_data_struct.NACV = int(self.data_ownship['basic']['NACV'])                 # 0-4
-            own_data_struct.NACp = int(self.data_ownship['basic']['NACp'])                 # 0-11
-            own_data_struct.NIC =  int(self.data_ownship['basic']['NIC'])
-            own_data_struct.SIL =  int(self.data_ownship['basic']['SIL'])
-            self.count_own_transmit += int(self.fre_transmit_ownship * 1000 / 50)
-            with open(self.data_matlab,'a') as f1:
-                time = own_data_struct.Hours * 3600+ own_data_struct.Mintes*60 + own_data_struct.Seconds+ own_data_struct.sec
-                num =  str(own_data_struct.Flight_ID, encoding = "utf-8")
-                type = 0
-                lat =  round(own_data_struct.Latitude,6)
-                lon = round(own_data_struct.Longitude,6)
-                alt = own_data_struct.Altitude
-                ew_v = round(own_data_struct.East_West_Velocity,3)
-                ns_v = round(own_data_struct.North_South_Velocity,3)
-                alt_rate = 0
-                nacp = own_data_struct.NACp
-                nacv = own_data_struct.NACV
-                nic = own_data_struct.NIC
-                sil = own_data_struct.SIL
-                heading = round(own_data_struct.Heading_Track_Angle,6)
-                ptoa = '[]'
-                vtoa = '[]'
-                utoa = '[]'
-                _range ='[]'
-                bearing = '[]'
-                mode_s = '[]'
-                f1.write(str(round(time,3))+'\t'+ num  +'\t'+str(type)+'\t'+str(lat)+'\t'+str(lon)+'\t'+str(alt)+'\t'+str(ew_v)+'\t'+str(ns_v)+'\t'+str(alt_rate)+'\t'+str(nacp)+'\t'+str(nacv)+'\t'+str(nic)+'\t'+str(sil)+'\t'+str(heading)+'\t'+ptoa+'\t'+vtoa+'\t'+ utoa+'\t'+_range+'\t'+bearing+'\t'+mode_s+'\n')
-            temp_byte = bytes(2048)
-            lenth = self.dll.Pack_Ownship_data(own_data_struct, temp_byte, 2048)
-            #print('本机数据打包长度：'+ str(lenth))
-            #print(temp_byte.strip(b'\x00'))
-            self.socket_own.sendto(temp_byte.strip(b'\x00'), self.ip_port_own)
-            #写入日志
-            logging.info("本机发送数据：" + str(temp_byte.strip(b'\x00')))
-            #lock.release()
+            if self.count_own_transmit >= len(self.V_SN_own_list):
+                self.timer_own_transmit.stop()
+            else:
+                own_data_struct = Ownship_Data_Struct()
+                own_data_struct.ICAO = self.data_ownship['basic']['ICAO'].encode()                           #ICAO码
+                own_data_struct.Flight_ID = self.data_ownship['basic']['Flight_ID'].encode()                 #航班号
+                own_data_struct.Flight_24bit_addr = self.data_ownship['basic']['Flight_24bit_addr']
+                own_data_struct.Altitude = self.data_ownship['basic']['Altitude']                            #几何高度
+                own_data_struct.Radio_Altitude = self.data_ownship['basic']['Radio_Altitude']
+                own_data_struct.North_South_Velocity = round(self.V_SN_own_list[self.count_own_transmit]* 1000/3600, 6)         #南北速度
+                own_data_struct.East_West_Velocity = round(self.V_EW_own_list[self.count_own_transmit]* 1000/3600, 6)          #东西速度
+                own_data_struct.Vertical_Speed = round(self.data_ownship['basic']['Vertical_Speed'] * 1000/3600, 6)
+                own_data_struct.Latitude = round(self.ga.degTorad(self.lat_own_list[self.count_own_transmit]), 6)               #纬度
+                own_data_struct.Longitude = round(self.ga.degTorad(self.lng_own_list[self.count_own_transmit]), 6)             #经度
+                Heading_own = round(self.ga.degTorad(self.Heading_Track_Angle_own_list[self.count_own_transmit]), 6)           #航向角
+                own_data_struct.Heading_Track_Angle = Heading_own
+                own_data_struct.Ground_Speed = int(float(self.data_ownship['basic']['Ground_Speed'] * 1000/3600))               #地速
+                own_data_struct.Flight_Length = int(self.data_ownship['basic']['Flight_Length'] * 1000)
+                own_data_struct.Flight_Width = int(self.data_ownship['basic']['Flight_Width'] * 1000)
+                own_data_struct.Seconds = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[2])  #
+                own_data_struct.Mintes  = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[1])   #
+                own_data_struct.Hours   = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[0])   #
+                own_data_struct.sec = round(float(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[-1])/1000000,3)
+                own_data_struct.NACV = int(self.data_ownship['basic']['NACV'])                 # 0-4
+                own_data_struct.NACp = int(self.data_ownship['basic']['NACp'])                 # 0-11
+                own_data_struct.NIC =  int(self.data_ownship['basic']['NIC'])
+                own_data_struct.SIL =  int(self.data_ownship['basic']['SIL'])
+                self.count_own_transmit += int(self.fre_transmit_ownship * 1000 / 50)
+                with open(self.data_matlab,'a') as f1:
+                    time = own_data_struct.Hours * 3600+ own_data_struct.Mintes*60 + own_data_struct.Seconds+ own_data_struct.sec
+                    num =  str(own_data_struct.Flight_ID, encoding = "utf-8")
+                    type = 0
+                    lat =  round(own_data_struct.Latitude,6)
+                    lon = round(own_data_struct.Longitude,6)
+                    alt = own_data_struct.Altitude
+                    ew_v = round(own_data_struct.East_West_Velocity,3)
+                    ns_v = round(own_data_struct.North_South_Velocity,3)
+                    alt_rate = 0
+                    nacp = own_data_struct.NACp
+                    nacv = own_data_struct.NACV
+                    nic = own_data_struct.NIC
+                    sil = own_data_struct.SIL
+                    heading = round(own_data_struct.Heading_Track_Angle,6)
+                    ptoa = '[]'
+                    vtoa = '[]'
+                    utoa = '[]'
+                    _range ='[]'
+                    bearing = '[]'
+                    mode_s = '[]'
+                    f1.write(str(round(time,3))+'\t'+ num  +'\t'+str(type)+'\t'+str(lat)+'\t'+str(lon)+'\t'+str(alt)+'\t'+str(ew_v)+'\t'+str(ns_v)+'\t'+str(alt_rate)+'\t'+str(nacp)+'\t'+str(nacv)+'\t'+str(nic)+'\t'+str(sil)+'\t'+str(heading)+'\t'+ptoa+'\t'+vtoa+'\t'+ utoa+'\t'+_range+'\t'+bearing+'\t'+mode_s+'\n')
+                temp_byte = bytes(2048)
+                lenth = self.dll.Pack_Ownship_data(own_data_struct, temp_byte, 2048)
+                print('本机数据打包长度：'+ str(lenth))
+                #print(temp_byte.strip(b'\x00'))
+                self.socket_own.sendto(temp_byte.strip(b'\x00'), self.ip_port_own)
+                #写入日志
+             #logging.info("本机发送数据：" + str(temp_byte.strip(b'\x00')))
+             #lock.release()
         except:
             traceback.print_exc()
+
+    def open_target_timer(self,target_index):
+        # 开启定时器动态显示目标机信息
+        target_timer = QTimer(self)
+        target_timer.setObjectName('target_timer' + str(target_index))
+        target_timer.setProperty('target_num', target_index)
+        target_timer.timeout.connect(self.target_showinfo)
+        target_timer.start(1000)
+        pass
 
     #  目标机相关函数
     def target_takeoff(self,target_index):
@@ -717,14 +723,9 @@ class MainWindow(QMainWindow):
         try:
             print(str(target_index)+'号目标机起飞,开始发送数据...')
             logging.info(str(target_index)+'号目标机起飞,开始发送数据...')
-            print(str(target_index)+'号目标机，adsb数据发送周期：'+str(self.fre_transmit_adsb_targetship_all[target_index-1])+'s')
-            logging.info(str(target_index)+'号目标机，adsb数据发送周期：'+str(self.fre_transmit_adsb_targetship_all[target_index-1])+'s')
-            # 开启定时器动态显示本机信息、发送数据
-            target_timer = QTimer(self)
-            target_timer.setObjectName('target_timer'+str(target_index))
-            target_timer.setProperty('target_num',target_index)
-            target_timer.timeout.connect(self.target_showinfo)
-            target_timer.start(1000)
+            print(str(target_index)+'号目标机，adsb数据发送周期：'+str(self.fre_transmit_adsb_targetship_all[target_index])+'s')
+            logging.info(str(target_index)+'号目标机，adsb数据发送周期：'+str(self.fre_transmit_adsb_targetship_all[target_index])+'s')
+            self.target_takeoff_signal.emit(target_index)
             # 地图模拟飞行
             hanglu_target = self.data_targetship[target_index]['ADS-B']['Way_Point']
             speed_target = self.data_targetship[target_index]['ADS-B']['Ground_Speed']
@@ -748,23 +749,23 @@ class MainWindow(QMainWindow):
         '''
         try:
             sender = self.sender() #获取连接槽函数的信号源
-            target_num = sender.property('target_num')
-            if self.variable['target_count' + str(target_num)] >= len(self.lng_target_all[target_num-1]):
-                self.findChild(QTimer,'target_timer'+str(target_num)).stop()
-                self.findChild(QTimer,'target_timer'+str(target_num)).deleteLater()
+            target_index = sender.property('target_num')
+            if self.variable['target_count' + str(target_index)] >= len(self.lng_target_all[target_index-1]):
+                self.findChild(QTimer,'target_timer'+str(target_index)).stop()
+                self.findChild(QTimer,'target_timer'+str(target_index)).deleteLater()
             else:
                 # 目标机类型
-                current_type = self.type_target_all[target_num-1]
+                current_type = self.type_target_all[target_index]
                 print("目标机当前类型："+str(current_type))
-                current_adsb_lng = self.lng_target_all[target_num-1][self.variable['target_count' + str(target_num)]]
-                current_adsb_lat = self.lat_target_all[target_num-1][self.variable['target_count' + str(target_num)]]
-                current_Heading_Track_Angle = self.Heading_Track_Angle_target_all[target_num-1][self.variable['target_count' + str(target_num)]]
-                self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(target_num)).setText(str(current_Heading_Track_Angle))
-                self.findChild(QLineEdit, "txt_Longitude_target" + str(target_num)).setText(str(current_adsb_lng))
-                self.findChild(QLineEdit, "txt_Latitude_target" + str(target_num)).setText(str(current_adsb_lat))
-                self.findChild(QLineEdit, "txt_V_EW_target" + str(target_num)).setText(str(self.V_EW_target_all[target_num - 1][self.variable['target_count' + str(target_num)]]))
-                self.findChild(QLineEdit, "txt_V_SN_target" + str(target_num)).setText(str(self.V_SN_target_all[target_num - 1][self.variable['target_count' + str(target_num)]]))
-                self.variable['target_count' + str(target_num)] += 20  #50ms产生一次数据，1s显示数据的时间步长为20
+                current_adsb_lng = self.lng_target_all[target_index-1][self.variable['target_count' + str(target_index)]]
+                current_adsb_lat = self.lat_target_all[target_index-1][self.variable['target_count' + str(target_index)]]
+                current_Heading_Track_Angle = self.Heading_Track_Angle_target_all[target_index-1][self.variable['target_count' + str(target_index)]]
+                self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(target_index)).setText(str(current_Heading_Track_Angle))
+                self.findChild(QLineEdit, "txt_Longitude_target" + str(target_index)).setText(str(current_adsb_lng))
+                self.findChild(QLineEdit, "txt_Latitude_target" + str(target_index)).setText(str(current_adsb_lat))
+                self.findChild(QLineEdit, "txt_V_EW_target" + str(target_index)).setText(str(self.V_EW_target_all[target_index - 1][self.variable['target_count' + str(target_index)]]))
+                self.findChild(QLineEdit, "txt_V_SN_target" + str(target_index)).setText(str(self.V_SN_target_all[target_index - 1][self.variable['target_count' + str(target_index)]]))
+                self.variable['target_count' + str(target_index)] += 20  #50ms产生一次数据，1s显示数据的时间步长为20
                 # 本机坐标信息
                 current_own_lng = self.ui.txt_Longitude_own.text()
                 current_own_lat = self.ui.txt_Latitude_own.text()
@@ -775,13 +776,13 @@ class MainWindow(QMainWindow):
                 print("ads-b相对本机距离: "+str(relative_distance_xy))
 
                 if relative_distance_xy <= self.tcas_transmit_distance: # ads-b相对本机距离小于10海里开始发送tcas数据
-                    current_tcas_height = self.Altitude_targetship_Tcas_all[target_num - 1]   #当前tcas高度
+                    current_tcas_height = self.Altitude_targetship_Tcas_all[target_index - 1]   #当前tcas高度
                     relative_direction = 0 # tcas相对本机方位 单位deg
                     if float(current_Heading_Track_Angle) > float(current_own_Heading_Track_Angle):
                         relative_direction = float(current_Heading_Track_Angle) - float(current_own_Heading_Track_Angle)
                     else:
                         relative_direction = float(current_Heading_Track_Angle)+ 360 - float(current_own_Heading_Track_Angle)
-                    self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(target_num)).setText(str(relative_direction))
+                    self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(target_index)).setText(str(relative_direction))
                     relative_distance_xyz = 0  #tcas相对本机距离 xyz三个方向的平方跟
                     tcas_lng = 0   #TCAS经度坐标
                     tcas_lat = 0   #TCAS纬度坐标
@@ -800,7 +801,7 @@ class MainWindow(QMainWindow):
                                                                                       float(current_own_lng),
                                                                                       float(current_own_lat),
                                                                                       float(current_own_height) / 1000),3)
-                        self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_num)).setText(
+                        self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_index)).setText(
                             str(relative_distance_xyz))
                     if current_type == 2: #tcas与ads-b不关联
                         r = round((sqrt(5403064+pow(relative_distance_xy+2325, 2)*4.6225)+284)/1000 ,3)
@@ -810,7 +811,7 @@ class MainWindow(QMainWindow):
                                                                                       float(current_own_lng),
                                                                                       float(current_own_lat),
                                                                                       float(current_own_height) / 1000), 3)
-                        self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_num)).setText(
+                        self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_index)).setText(
                             str(relative_distance_xyz))
                     if current_type == 4:  #仅tcas
                         tcas_lng = current_adsb_lng  # TCAS经度坐标
@@ -820,7 +821,7 @@ class MainWindow(QMainWindow):
                                                                                       float(current_own_lng),
                                                                                       float(current_own_lat),
                                                                                       float(current_own_height) / 1000),3)
-                        self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_num)).setText(
+                        self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_index)).setText(
                             str(relative_distance_xyz))
                 else:
                     print("距离未到10海里，不发送tcas数据")
@@ -829,137 +830,137 @@ class MainWindow(QMainWindow):
 
     def target_ads_b_transmit(self):
         try:
-            # lock = threading.Lock()
-            # lock.acquire()
             #确定一个ads_b发送周期内的ADSB_Data_Struct数量
             num = 0
-            target_index_list = []
-            for index in range(self.num_targetship):
-                if self.count_timer_adsb_transmit% self.fre_transmit_adsb_targetship_all[index] == 0:
-                    num += 1
-                    target_index_list.append(index+1)
-
+            target_index_list = []   #待发送ads-b数据的目标机索引序列
+            for index, delaytime in self.delay_takeoff_targetship_all.items():
+                if self.count_timer_adsb_transmit >= delaytime:# 经过起飞延时，准备开始发送数据
+                    if self.count_timer_adsb_transmit % self.fre_transmit_adsb_targetship_all[index] == 0 and self.type_target_all[index]!= 4:
+                        num += 1
+                        target_index_list.append(index)
+            print("待发送ads-b数据的目标机索引为："+str(target_index_list))
             # 开始打包ADS-B数据
-            lock = threading.Lock()
-            lock.acquire()
-            logging.info("开始打包"+str(num)+"个目标机ADS-B数据....")
-            #print("开始打包"+str(num)+"个目标机ADS-B数据....")
-            ArrayType = ADSB_Data_Struct * num
-            array = ArrayType()
-            j = 0
-            for target_index in target_index_list:
-                if self.variable['target_count_transmit' + str(target_index)] >= len(self.V_SN_target_all[target_index-1]):
-                    self.timer_adsb_transmit.stop()
-                else:
-                    adsb_data_struct = ADSB_Data_Struct()
-                    adsb_data_struct.ICAO = self.data_targetship[target_index]['ADS-B']['ICAO'].encode()            #ICAO码
-                    adsb_data_struct.Flight_ID = self.data_targetship[target_index]['ADS-B']['Flight_ID'].encode()  #航班号
-                    adsb_data_struct.Flight_24bit_addr = self.data_targetship[target_index]['ADS-B']['Flight_24bit_addr']
-                    adsb_data_struct.Aircraft_Category = self.data_targetship[target_index]['ADS-B']['Aircraft_Category']
-                    adsb_data_struct.Altitude = self.data_targetship[target_index]['ADS-B']['Altitude']             #几何高度
-                    adsb_data_struct.Radio_Altitude = self.data_targetship[target_index]['ADS-B']['Radio_Altitude']
-                    adsb_data_struct.North_South_Velocity = round(self.V_SN_target_all[target_index-1][self.variable['target_count_transmit'+ str(target_index)]]*1000/3600, 6)
-                    adsb_data_struct.East_West_Velocity = round(self.V_EW_target_all[target_index-1][self.variable['target_count_transmit'+ str(target_index)]]*1000/3600, 6)
-                    adsb_data_struct.Vertical_Speed = float(self.data_targetship[target_index]['ADS-B']['Vertical_Speed']*1000/3600)
-                    adsb_data_struct.Latitude = round(self.ga.degTorad(self.lat_target_all[target_index-1][self.variable['target_count_transmit'+ str(target_index)]]), 6)
-                    adsb_data_struct.Longitude = round(self.ga.degTorad(self.lng_target_all[target_index-1][self.variable['target_count_transmit' + str(target_index)]]), 6)
-                    adsb_data_struct.Heading_Track_Angle = round(self.ga.degTorad(self.Heading_Track_Angle_target_all[target_index-1][self.variable['target_count_transmit' + str(target_index)]]),6) # 航向角
-                    add_count = int(self.fre_transmit_adsb_targetship_all[target_index-1] * 1000 / 50)
-                    self.variable['target_count_transmit' + str(target_index)] += add_count
-                    adsb_data_struct.Air_Ground_Sta = self.data_targetship[target_index]['ADS-B']['Air_Ground_Sta']
-                    adsb_data_struct.Ground_Speed = int(float(self.data_targetship[target_index]['ADS-B']['Ground_Speed'] * 1000/3600))    #地速
-                    adsb_data_struct.Seconds = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[2])    #
-                    adsb_data_struct.Mintes = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[1])      #
-                    adsb_data_struct.Hours = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[0])       #
-                    adsb_data_struct.sec = round(float(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[-1])/1000000,3)
-                    adsb_data_struct.p_Seconds = int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[-1])  #
-                    adsb_data_struct.p_Mintes = int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[1])    #
-                    adsb_data_struct.p_Hours = int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[0])     #
-                    adsb_data_struct.p_sec = round(float(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[-1])/1000000,3)
-                    adsb_data_struct.v_Seconds = 0
-                    adsb_data_struct.v_Mintes = 0
-                    adsb_data_struct.v_Hours = 0
-                    adsb_data_struct.v_sec = 0
-                    adsb_data_struct.s_Seconds = 0
-                    adsb_data_struct.s_Mintes = 0
-                    adsb_data_struct.s_Hours = 0
-                    adsb_data_struct.s_sec = 0
-                    adsb_data_struct.NACV = self.data_targetship[target_index]['ADS-B']['NACV']
-                    adsb_data_struct.NACp = self.data_targetship[target_index]['ADS-B']['NACp']
-                    adsb_data_struct.NIC = self.data_targetship[target_index]['ADS-B']['NIC']
-                    adsb_data_struct.SIL = self.data_targetship[target_index]['ADS-B']['SIL']
-                    adsb_data_struct.SAD = self.data_targetship[target_index]['ADS-B']['SDA']
-                    adsb_data_struct.emergency_priority_sta = self.data_targetship[target_index]['ADS-B']['emergency_priority_sta']
-                    adsb_data_struct.data_link_version = self.data_targetship[target_index]['ADS-B']['data_link_version']
+            # lock = threading.Lock()
+            # lock.acquire()
+            # logging.info("开始打包"+str(num)+"个目标机ADS-B数据....")
+            # 开始打包ADS-B数据
+            if num > 0:
+                print("开始打包"+str(num)+"个目标机ADS-B数据....")
+                ArrayType = ADSB_Data_Struct * num
+                array = ArrayType()
+                j = 0
+                for target_index in target_index_list:
+                    if self.variable['target_count_transmit' + str(target_index)] >= len(self.V_SN_target_all[target_index-1]):
+                        self.timer_adsb_transmit.stop()
+                    else:
+                        adsb_data_struct = ADSB_Data_Struct()
+                        adsb_data_struct.ICAO = self.data_targetship[target_index]['ADS-B']['ICAO'].encode()            #ICAO码
+                        adsb_data_struct.Flight_ID = self.data_targetship[target_index]['ADS-B']['Flight_ID'].encode()  #航班号
+                        adsb_data_struct.Flight_24bit_addr = self.data_targetship[target_index]['ADS-B']['Flight_24bit_addr']
+                        adsb_data_struct.Aircraft_Category = self.data_targetship[target_index]['ADS-B']['Aircraft_Category']
+                        adsb_data_struct.Altitude = self.data_targetship[target_index]['ADS-B']['Altitude']             #几何高度
+                        adsb_data_struct.Radio_Altitude = self.data_targetship[target_index]['ADS-B']['Radio_Altitude']
+                        adsb_data_struct.North_South_Velocity = round(self.V_SN_target_all[target_index-1][self.variable['target_count_transmit'+ str(target_index)]]*1000/3600, 6)
+                        adsb_data_struct.East_West_Velocity = round(self.V_EW_target_all[target_index-1][self.variable['target_count_transmit'+ str(target_index)]]*1000/3600, 6)
+                        adsb_data_struct.Vertical_Speed = float(self.data_targetship[target_index]['ADS-B']['Vertical_Speed']*1000/3600)
+                        adsb_data_struct.Latitude = round(self.ga.degTorad(self.lat_target_all[target_index-1][self.variable['target_count_transmit'+ str(target_index)]]), 6)
+                        adsb_data_struct.Longitude = round(self.ga.degTorad(self.lng_target_all[target_index-1][self.variable['target_count_transmit' + str(target_index)]]), 6)
+                        adsb_data_struct.Heading_Track_Angle = round(self.ga.degTorad(self.Heading_Track_Angle_target_all[target_index-1][self.variable['target_count_transmit' + str(target_index)]]),6) # 航向角
+                        add_count = int(self.fre_transmit_adsb_targetship_all[target_index] * 1000 / 50)
+                        self.variable['target_count_transmit' + str(target_index)] += add_count
+                        adsb_data_struct.Air_Ground_Sta = self.data_targetship[target_index]['ADS-B']['Air_Ground_Sta']
+                        adsb_data_struct.Ground_Speed = int(float(self.data_targetship[target_index]['ADS-B']['Ground_Speed'] * 1000/3600))    #地速
+                        adsb_data_struct.Seconds = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[2])    #
+                        adsb_data_struct.Mintes = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[1])      #
+                        adsb_data_struct.Hours = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[0])       #
+                        adsb_data_struct.sec = round(float(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[-1])/1000000,3)
+                        adsb_data_struct.p_Seconds = int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[-1])  #
+                        adsb_data_struct.p_Mintes = int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[1])    #
+                        adsb_data_struct.p_Hours = int(datetime.datetime.now().strftime('%H:%M:%S').split(':')[0])     #
+                        adsb_data_struct.p_sec = round(float(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[-1])/1000000,3)
+                        adsb_data_struct.v_Seconds = 0
+                        adsb_data_struct.v_Mintes = 0
+                        adsb_data_struct.v_Hours = 0
+                        adsb_data_struct.v_sec = 0
+                        adsb_data_struct.s_Seconds = 0
+                        adsb_data_struct.s_Mintes = 0
+                        adsb_data_struct.s_Hours = 0
+                        adsb_data_struct.s_sec = 0
+                        adsb_data_struct.NACV = self.data_targetship[target_index]['ADS-B']['NACV']
+                        adsb_data_struct.NACp = self.data_targetship[target_index]['ADS-B']['NACp']
+                        adsb_data_struct.NIC = self.data_targetship[target_index]['ADS-B']['NIC']
+                        adsb_data_struct.SIL = self.data_targetship[target_index]['ADS-B']['SIL']
+                        adsb_data_struct.SAD = self.data_targetship[target_index]['ADS-B']['SDA']
+                        adsb_data_struct.emergency_priority_sta = self.data_targetship[target_index]['ADS-B']['emergency_priority_sta']
+                        adsb_data_struct.data_link_version = self.data_targetship[target_index]['ADS-B']['data_link_version']
 
-                    with open(self.data_matlab, 'a') as f1:
-                        time = adsb_data_struct.Hours * 3600 + adsb_data_struct.Mintes * 60 + adsb_data_struct.Seconds + adsb_data_struct.sec
-                        id = str(adsb_data_struct.Flight_ID, encoding="utf-8")
-                        type = 1
-                        lat = round(adsb_data_struct.Latitude, 6)
-                        lon = round(adsb_data_struct.Longitude, 6)
-                        alt = adsb_data_struct.Altitude
-                        ew_v = round(adsb_data_struct.East_West_Velocity, 3)
-                        ns_v = round(adsb_data_struct.North_South_Velocity, 3)
-                        alt_rate = 0
-                        nacp = adsb_data_struct.NACp
-                        nacv = adsb_data_struct.NACV
-                        nic = adsb_data_struct.NIC
-                        sil = adsb_data_struct.SIL
-                        heading = '[]'
-                        ptoa = adsb_data_struct.p_Hours * 3600 + adsb_data_struct.p_Mintes * 60 + adsb_data_struct.p_Seconds + adsb_data_struct.p_sec
-                        vtoa = '[]'
-                        utoa = '[]'
-                        _range = '[]'
-                        bearing = '[]'
-                        mode_s = '[]'
-                        f1.write(str(round(time, 3)) + '\t' + id + '\t' + str(type) + '\t' + str(lat) + '\t' + str(
-                            lon) + '\t' + str(alt) + '\t' + str(ew_v) + '\t' + str(ns_v) + '\t' + str(
-                            alt_rate) + '\t' + str(nacp) + '\t' + str(nacv) + '\t' + str(nic) + '\t' + str(
-                            sil) + '\t' + str(
-                            heading) + '\t' + str(round(ptoa, 3)) + '\t' + vtoa + '\t' + utoa + '\t' + _range + '\t' + bearing + '\t' + mode_s + '\n')
+                        with open(self.data_matlab, 'a') as f1:
+                            time = adsb_data_struct.Hours * 3600 + adsb_data_struct.Mintes * 60 + adsb_data_struct.Seconds + adsb_data_struct.sec
+                            id = str(adsb_data_struct.Flight_ID, encoding="utf-8")
+                            type = 1
+                            lat = round(adsb_data_struct.Latitude, 6)
+                            lon = round(adsb_data_struct.Longitude, 6)
+                            alt = adsb_data_struct.Altitude
+                            ew_v = round(adsb_data_struct.East_West_Velocity, 3)
+                            ns_v = round(adsb_data_struct.North_South_Velocity, 3)
+                            alt_rate = 0
+                            nacp = adsb_data_struct.NACp
+                            nacv = adsb_data_struct.NACV
+                            nic = adsb_data_struct.NIC
+                            sil = adsb_data_struct.SIL
+                            heading = '[]'
+                            ptoa = adsb_data_struct.p_Hours * 3600 + adsb_data_struct.p_Mintes * 60 + adsb_data_struct.p_Seconds + adsb_data_struct.p_sec
+                            vtoa = '[]'
+                            utoa = '[]'
+                            _range = '[]'
+                            bearing = '[]'
+                            mode_s = '[]'
+                            f1.write(str(round(time, 3)) + '\t' + id + '\t' + str(type) + '\t' + str(lat) + '\t' + str(
+                                lon) + '\t' + str(alt) + '\t' + str(ew_v) + '\t' + str(ns_v) + '\t' + str(
+                                alt_rate) + '\t' + str(nacp) + '\t' + str(nacv) + '\t' + str(nic) + '\t' + str(
+                                sil) + '\t' + str(
+                                heading) + '\t' + str(round(ptoa, 3)) + '\t' + vtoa + '\t' + utoa + '\t' + _range + '\t' + bearing + '\t' + mode_s + '\n')
 
-                    array[j] = adsb_data_struct
-                    j+=1
+                        array[j] = adsb_data_struct
+                        j+=1
                 temp_byte = bytes(2048)
                 lenth = self.dll.Pack_ADSB_data(array, num, temp_byte, 2048)
-                #print('目标机ADS-B数据打包长度：' + str(lenth))
+                print('目标机ADS-B数据打包长度：' + str(lenth))
                 #print(temp_byte.strip(b'\x00'))
                 #UDP发送数据
                 self.socket_adsb.sendto(temp_byte.strip(b'\x00'), self.ip_port_adsb)
                 logging.info("目标机发送ADS-B数据：" + str(temp_byte.strip(b'\x00')))
-                self.count_timer_adsb_transmit +=1
-                # lock.release()
+            self.count_timer_adsb_transmit +=1
+            # lock.release()
         except:
             traceback.print_exc()
 
     def target_tcas_transmit(self):
         try:
             # 确定一个tcas发送周期内的TCAS_Data_Struct数量
-            target_index_list = [] #目标机索引序列
-            for target_index, fre in self.tcas_fre_transmit_target_all.items():
-                if self.count_timer_tcas_transmit % fre == 0:
-                    target_index_list.append(target_index)
             num = 0
-            target_tcas_index_list = []
-            for target_index in target_index_list:
-                #ads-b相对本机距离
-                relative_distance_xy = self.ga.geodistance(float(self.findChild(QLineEdit,'txt_Longitude_target'+str(target_index)).text()),                                                              float(self.findChild(QLineEdit,'txt_Latitude_target'+str(target_index)).text()),
-                                                           float(self.ui.txt_Longitude_own.text()),
-                                                           float(self.ui.txt_Latitude_own.text()))
-                if relative_distance_xy <= self.tcas_transmit_distance and relative_distance_xy >0:# 当相对本机位置小于18.52km时,发送TCAS数据
-                    target_tcas_index_list.append(target_index)
-                    num += 1
+            target_index_list = [] #待发送tcas数据的目标机索引序列
+            for target_index, fre in self.tcas_fre_transmit_target_all.items():
+                if self.count_timer_tcas_transmit % fre == 0 and self.type_target_all[target_index] != 3:
+                    relative_distance_xy = self.ga.geodistance(
+                        float(self.findChild(QLineEdit, 'txt_Longitude_target' + str(target_index)).text()),
+                        float(self.findChild(QLineEdit, 'txt_Latitude_target' + str(target_index)).text()),
+                        float(self.ui.txt_Longitude_own.text()),
+                        float(self.ui.txt_Latitude_own.text()))
+                    if relative_distance_xy <= self.tcas_transmit_distance and relative_distance_xy > 0:#相对本机位置小于18.52km时,发送
+                        target_index_list.append(target_index)
+                        num += 1
             # 开始打包TCAS数据
             if num > 0:
-                lock = threading.Lock()
-                lock.acquire()
-                logging.info("开始打包" + str(num) + "个目标机TCAS数据....")
+                # lock = threading.Lock()
+                # lock.acquire()
+                print("待发送tcas数据的目标机索引为：" + str(target_index_list))
                 print("开始打包" + str(num) + "个目标机TCAS数据....")
+                #logging.info("开始打包" + str(num) + "个目标机TCAS数据....")
                 ArrayType = TCAS_Data_Struct * num
                 array = ArrayType()
                 j = 0
-                for target_index in target_tcas_index_list:
+                for target_index in target_index_list:
                     tcas_data_struct = TCAS_Data_Struct()
                     tcas_data_struct.Track_ID = self.data_targetship[target_index]['TCAS']['Track_ID'].encode()           #ICAO码
                     tcas_data_struct.Flight_24bit_addr = self.data_targetship[target_index]['TCAS']['Flight_24bit_addr_TCAS']
@@ -1003,11 +1004,11 @@ class MainWindow(QMainWindow):
                 temp_byte = bytes(2048)
                 print('目标机TCAS数据打包长度：' + str(self.dll.Pack_TCAS_data(array,num, temp_byte, 2048)))
                 logging.info('目标机TCAS数据打包长度：' + str(self.dll.Pack_TCAS_data(array,num, temp_byte, 2048)))
-                print(temp_byte.strip(b'\x00'))
+                #print(temp_byte.strip(b'\x00'))
                 # UDP发送数据
                 self.socket_tcas.sendto(temp_byte.strip(b'\x00'), self.ip_port_tcas)
-                logging.info("目标机发送ADS-B数据：" + str(temp_byte.strip(b'\x00')))
-                lock.release()
+                # logging.info("目标机发送ADS-B数据：" + str(temp_byte.strip(b'\x00')))
+                # lock.release()
             self.count_timer_tcas_transmit += 1
         except:
             traceback.print_exc()

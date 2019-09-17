@@ -1,5 +1,5 @@
 #1号目标机 配置文件#
-#模拟航路：宝鸡-安康
+#模拟航路：汉中-安康
 #tcas与ads-b不关联
 Type: 2    # 1：tcas与adsb关联且为最佳源  2：tcas与ads-b不关联 3：仅ads_b 4：仅tcas
 ADS-B:
@@ -23,7 +23,7 @@ ADS-B:
       - ENH
       - 109.02
       - 32.68
-      - 101
+      - 102.53
   Air_Ground_Sta: 0
   Ground_Speed: 900      #地速 单位km/h
   Flight_Length: 38.9    #飞机长度 单位m
