@@ -30,30 +30,57 @@
     var layers = [layer1,layer2 ]// 添加到地图上
     map.add(layers);
 
-    var markers = []
-    var polylines = []
+    var markers = []  //所有点标记
+    var texts = []     //所有文本标记
+    var polylines = []  //所有航路
+
     function removeMarkers() {
+        //删除所有点标记和线标记
         map.remove(markers)
         map.remove(polylines)
+        map.remove(texts)
     }
 
+    ///更新本机位置
+    function update_own_position(lng,lat,angle){
+        eval("window.marker_ownship.setPosition(["+lng+","+lat+"])")
+        eval("window.marker_ownship.setAngle("+angle+")")
+        window.text_ownship.setPosition([lng,lat])
+    }
 	/// 配置本机
-	function init_ownship(first_lng,first_lat,flight_id,path,speed){
-        var marker_ownship = new AMap.Marker(
-            {
-            position: new AMap.LngLat(first_lng, first_lat),
-            offset: new AMap.Pixel(-10, -10),
+	function init_ownship(first_lng,first_lat,flight_id,path){
+        window.marker_ownship = new AMap.Marker(
+        {
+            position: new AMap.LngLat(first_lng,first_lat),
+            offset: new AMap.Pixel(-10,-10),
             icon: 'pic/airport.png', // 添加 Icon 图标 URL
             title: '本机',
-            });
-        marker_ownship.setLabel({
-                offset: new AMap.Pixel(5, 5),  //设置文本标注偏移量
-                content: flight_id, //设置本机航班号
-                direction: 'bottom' //设置文本标注方位
-            });
-        markers.push(marker_ownship)
-        map.add(marker_ownship)
-         // 设置本机航路
+        });
+        // 创建纯文本标记
+        window.text_ownship = new AMap.Text({
+        text: flight_id,
+        cursor:'pointer',
+        offset: new AMap.Pixel(0, 30),
+        angle:0,
+        style:{
+            'padding': '0rem 0rem',
+            'margin-bottom': '.25rem',
+            'border-radius': '.25rem',
+            'background-color': 'white',
+            'width': '4rem',
+            'border-width': 0,
+            'box-shadow': '0 2px 6px 0 rgba(114, 124, 245, .5)',
+            'text-align': 'center',
+            'font-size': '12px',
+            'color': 'blue'
+        },
+        position: [first_lng,first_lat]
+        });
+        map.add(window.marker_ownship)
+        map.add(window.text_ownship)
+        markers.push(window.marker_ownship)
+        texts.push(window.text_ownship)
+        //设置本机航路
         var polyline_own = new AMap.Polyline({
         isOutline: true,
         outlineColor: '#ffeeff',
@@ -74,24 +101,46 @@
         polyline_own.setMap(map);
         map.setFitView([polyline_own]);
         polylines.push(polyline_own)
-        marker_ownship.moveAlong(path_own,speed)
-
     }
+
+    /// 更新目标机位置
+    function update_target_position(index,lng,lat,angle){
+        eval("window.marker_target"+index+".setPosition([lng,lat])")
+        eval("window.marker_target"+index+".setAngle("+angle+")")
+        eval("window.text_target"+index+".setPosition([lng,lat])")
+    }
+
     /// 配置目标机
-	function init_target(first_lng,first_lat,flight_id,path,speed){
-	    var marker_target = new AMap.Marker({
-            position: new AMap.LngLat(first_lng,first_lat),
-            offset: new AMap.Pixel(-10, -10),
-            icon: 'pic/airport2.png', // 添加 Icon 图标 URL
-            title: '目标机'});
-        marker_target.setLabel({
-                offset: new AMap.Pixel(5, 5),  //设置文本标注偏移量
-                content: flight_id, //设置目标机航班号
-                direction: 'bottom' //设置文本标注方位
-            });
-        markers.push(marker_target)
-        map.add(marker_target);
-        // 设置本机航路
+	function init_target(index,first_lng,first_lat,flight_id,path){
+        eval("window.marker_target"+index+" = new AMap.Marker({\n" +
+            "            position: new AMap.LngLat(first_lng,first_lat),\n" +
+            "            offset: new AMap.Pixel(-10, -10),\n" +
+            "            icon: 'pic/airport2.png', // 添加 Icon 图标 URL\n" +
+            "            title: '目标机'});")
+        eval("window.text_target"+index+" = new AMap.Text({\n" +
+            "        text: flight_id,\n" +
+            "        cursor:'pointer',\n" +
+            "        offset: new AMap.Pixel(0, 30),\n" +
+            "        angle:0,\n" +
+            "        style:{\n" +
+            "            'padding': '0rem 0rem',\n" +
+            "            'margin-bottom': '.25rem',\n" +
+            "            'border-radius': '.25rem',\n" +
+            "            'background-color': 'white',\n" +
+            "            'width': '4rem',\n" +
+            "            'border-width': 0,\n" +
+            "            'box-shadow': '0 2px 6px 0 rgba(114, 124, 245, .5)',\n" +
+            "            'text-align': 'center',\n" +
+            "            'font-size': '12px',\n" +
+            "            'color': 'blue'\n" +
+            "        },\n" +
+            "        position: [first_lng,first_lat]\n" +
+            "        });")
+        eval("map.add(window.marker_target"+index+")")
+        eval("map.add(window.text_target"+index+")")
+        eval("markers.push(window.marker_target"+index+")")
+        eval("texts.push(window.text_target"+index+")")
+        // 设置航路
         var polyline = new AMap.Polyline({
         isOutline: true,
         outlineColor: '#ffeeff',
@@ -111,8 +160,7 @@
         polyline.setPath(path_target);
         polyline.setMap(map);
         map.setFitView([polyline]);
-        polylines.push(polyline)
-        marker_target.moveAlong(path_target,speed)
+        polylines.push(polyline);
     }
 
 </script>

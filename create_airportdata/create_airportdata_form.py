@@ -107,7 +107,6 @@ class MainWindow(QMainWindow):
         self.variable = locals()
         #self.ui.btn_test.clicked.connect(self.test)
 
-
     def stop_transmit_adsb(self):
         try:
             current_targetship_index = self.ui.tabWidget.currentIndex() + 1
@@ -608,8 +607,7 @@ class MainWindow(QMainWindow):
                     lng = hanglu_own['point' + str(i)][1]
                     lat = hanglu_own['point' + str(i)][2]
                     hanglu_own_list.append([lng, lat])
-                js_string_own_init = '''init_ownship(%f,%f,'%s',%s,%d);''' % (
-                hanglu_own['point1'][1], hanglu_own['point1'][2], self.data_ownship['basic']['Flight_ID'], hanglu_own_list,speed_own)
+                js_string_own_init = '''init_ownship(%f,%f,'%s',%s);''' % (hanglu_own['point1'][1],hanglu_own['point1'][2],self.data_ownship['basic']['Flight_ID'], hanglu_own_list)
                 print(js_string_own_init)
                 self.browser.page().runJavaScript(js_string_own_init)  # 初始化本机位置、标注、航线、移动
         except:
@@ -624,6 +622,8 @@ class MainWindow(QMainWindow):
                 current_Heading_Track_Angle = self.Heading_Track_Angle_own_list[self.count_own]
                 current_lng = self.lng_own_list[self.count_own]
                 current_lat = self.lat_own_list[self.count_own]
+                js_string_own = '''update_own_position(%f,%f,%f)'''%(current_lng,current_lat,current_Heading_Track_Angle-45)
+                self.browser.page().runJavaScript(js_string_own)
                 current_v_ew = self.V_EW_own_list[self.count_own]
                 current_v_sn =  self.V_SN_own_list[self.count_own]
                 self.ui.txt_Heading_Track_Angle_own.setText(str(current_Heading_Track_Angle))
@@ -728,16 +728,14 @@ class MainWindow(QMainWindow):
             self.target_takeoff_signal.emit(target_index)
             # 地图模拟飞行
             hanglu_target = self.data_targetship[target_index]['ADS-B']['Way_Point']
-            speed_target = self.data_targetship[target_index]['ADS-B']['Ground_Speed']
             hanglu_target_list = []  # 单个target机航路序列
             for i in range(1, len(hanglu_target) + 1):
                 lng = hanglu_target['point' + str(i)][1]
                 lat = hanglu_target['point' + str(i)][2]
                 hanglu_target_list.append([lng, lat])
-            js_string_target_init = '''init_target(%f,%f,'%s',%s,%d);''' % (
+            js_string_target_init = '''init_target(%d,%f,%f,'%s',%s);''' % ( target_index,
                 hanglu_target['point1'][1], hanglu_target['point1'][2], self.data_targetship[target_index]['ADS-B']['Flight_ID'],
-                hanglu_target_list,
-                speed_target)
+                hanglu_target_list)
             print(js_string_target_init)
             self.browser.page().runJavaScript(js_string_target_init)
         except:
@@ -760,6 +758,8 @@ class MainWindow(QMainWindow):
                 current_adsb_lng = self.lng_target_all[target_index-1][self.variable['target_count' + str(target_index)]]
                 current_adsb_lat = self.lat_target_all[target_index-1][self.variable['target_count' + str(target_index)]]
                 current_Heading_Track_Angle = self.Heading_Track_Angle_target_all[target_index-1][self.variable['target_count' + str(target_index)]]
+                js_string = '''update_target_position(%d,%f,%f,%f)'''%(target_index,current_adsb_lng,current_adsb_lat,current_Heading_Track_Angle- 45)
+                self.browser.page().runJavaScript(js_string)
                 self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(target_index)).setText(str(current_Heading_Track_Angle))
                 self.findChild(QLineEdit, "txt_Longitude_target" + str(target_index)).setText(str(current_adsb_lng))
                 self.findChild(QLineEdit, "txt_Latitude_target" + str(target_index)).setText(str(current_adsb_lat))

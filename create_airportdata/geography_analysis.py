@@ -122,8 +122,8 @@ class Geography_Analysis():
         return brng
 
 
-ga = Geography_Analysis()
-print(ga.getDegree(33.02,106.85   , 31.57, 108.081667))  #1号目标机
+#ga = Geography_Analysis()
+#print(ga.getDegree(33.02,106.85   , 31.57, 108.081667))  #1号目标机
 #print(ga.getDegree(33.07, 107.02 , 32.68, 109.02))  #2号目标机
 #print(ga.getDegree(33.07, 107.02 , 32.07, 108.06))  #4号目标机
 #print(ga.getDegree(34.221667, 108.853333,34.598333,108.915000))  #3号目标机
