@@ -100,11 +100,11 @@ basic:
       - 116.598333
       - 40.073333
       - 17
-  Ground_Speed: 900      #地速 单位km/h
+  Ground_Speed: 2700      #地速 单位km/h
   Flight_Length: 38.9     #飞机长度 单位m
   Flight_Width: 35.8      #飞机宽度 单位m
-  NACV: 6    #速度不确定度 默认为6
-  NACp: 3    #位置不确定度 默认为0
+  NACV: 4    #速度不确定度 默认为6
+  NACp: 7    #位置不确定度 默认为0
   NIC: 1
   SIL: 2
 extra:

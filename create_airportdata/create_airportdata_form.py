@@ -1,4 +1,5 @@
 import sys
+import random
 import os
 import datetime
 import traceback
@@ -509,7 +510,8 @@ class MainWindow(QMainWindow):
     def start(self):
         try:
             # 创建socket
-            ip = '127.0.0.1'
+            ip = '192.168.100.97'
+            #ip = '127.0.0.1'
             self.ip_port_own = (ip, 8000)
             self.socket_own = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
             self.ip_port_tcas = (ip, 8001)
@@ -559,23 +561,25 @@ class MainWindow(QMainWindow):
             self.ui.btn_start.setEnabled(True)
             self.ui.btn_import_info_own.setEnabled(True)
             self.ui.btn_stop.setEnabled(False)
+            for i in range(1, self.num_targetship+1):
+                self.findChild(QPushButton, 'btn_import_info_target' + str(i)).setEnabled(True)
+            #关闭所有定时器
+            self.timer_own_transmit.stop()
+            self.timer_adsb_transmit.stop()
+            self.timer_tcas_transmit.stop()
+            self.timer_own_show.stop()
+            for i in range(1, self.num_targetship + 1):
+                if self.findChild(QTimer,'target_timer'+str(i)):
+                    self.findChild(QTimer,'target_timer'+str(i)).stop()
+                    self.findChild(QTimer,'target_timer'+str(i)).deleteLater()
+            #定时器相关计数器清0
             self.count_own = 0
             self.count_own_transmit = 0
             self.count_timer_adsb_transmit = 0
             self.count_timer_tcas_transmit = 0
-            self
-            #定时器关闭
-            self.timer_own_show.stop()
-            self.timer_own_transmit.stop()
-            self.timer_adsb_transmit.stop()
-            self.timer_tcas_transmit.stop()
             for i in range(1,self.num_targetship+1):
                 self.variable['target_count' + str(i)] = 0
                 self.variable['target_count_transmit' + str(i)] = 0
-                if self.findChild(QTimer,'target_timer'+str(i)):
-                    self.findChild(QTimer,'target_timer'+str(i)).stop()
-                    self.findChild(QTimer,'target_timer'+str(i)).deleteLater()
-                self.findChild(QPushButton,'btn_import_info_target'+str(i)).setEnabled(True)
             # socket关闭
             self.socket_tcas.close()
             self.socket_own.close()
@@ -757,7 +761,7 @@ class MainWindow(QMainWindow):
                 print("目标机当前类型："+str(current_type))
                 current_adsb_lng = self.lng_target_all[target_index-1][self.variable['target_count' + str(target_index)]]
                 current_adsb_lat = self.lat_target_all[target_index-1][self.variable['target_count' + str(target_index)]]
-                current_Heading_Track_Angle = self.Heading_Track_Angle_target_all[target_index-1][self.variable['target_count' + str(target_index)]]
+                current_Heading_Track_Angle = float(self.Heading_Track_Angle_target_all[target_index-1][self.variable['target_count' + str(target_index)]])
                 js_string = '''update_target_position(%d,%f,%f,%f)'''%(target_index,current_adsb_lng,current_adsb_lat,current_Heading_Track_Angle- 45)
                 self.browser.page().runJavaScript(js_string)
                 self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(target_index)).setText(str(current_Heading_Track_Angle))
@@ -767,22 +771,15 @@ class MainWindow(QMainWindow):
                 self.findChild(QLineEdit, "txt_V_SN_target" + str(target_index)).setText(str(self.V_SN_target_all[target_index - 1][self.variable['target_count' + str(target_index)]]))
                 self.variable['target_count' + str(target_index)] += 20  #50ms产生一次数据，1s显示数据的时间步长为20
                 # 本机坐标信息
-                current_own_lng = self.ui.txt_Longitude_own.text()
-                current_own_lat = self.ui.txt_Latitude_own.text()
+                current_own_lng = float(self.ui.txt_Longitude_own.text())
+                current_own_lat = float(self.ui.txt_Latitude_own.text())
                 current_own_Heading_Track_Angle = self.ui.txt_Heading_Track_Angle_own.text()
                 current_own_height = self.ui.txt_Altitude_own.text()
                 # ads-b相对本机距离
                 relative_distance_xy = self.ga.geodistance(float(current_adsb_lng), float(current_adsb_lat),float(current_own_lng), float(current_own_lat))
                 print("ads-b相对本机距离: "+str(relative_distance_xy))
-
                 if relative_distance_xy <= self.tcas_transmit_distance: # ads-b相对本机距离小于10海里开始发送tcas数据
                     current_tcas_height = self.Altitude_targetship_Tcas_all[target_index - 1]   #当前tcas高度
-                    relative_direction = 0 # tcas相对本机方位 单位deg
-                    if float(current_Heading_Track_Angle) > float(current_own_Heading_Track_Angle):
-                        relative_direction = float(current_Heading_Track_Angle) - float(current_own_Heading_Track_Angle)
-                    else:
-                        relative_direction = float(current_Heading_Track_Angle)+ 360 - float(current_own_Heading_Track_Angle)
-                    self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(target_index)).setText(str(relative_direction))
                     relative_distance_xyz = 0  #tcas相对本机距离 xyz三个方向的平方跟
                     tcas_lng = 0   #TCAS经度坐标
                     tcas_lat = 0   #TCAS纬度坐标
@@ -792,7 +789,7 @@ class MainWindow(QMainWindow):
                             tcas_lat = current_adsb_lat   #TCAS纬度坐标
                         elif relative_distance_xy > 2.324 and relative_distance_xy < 4.649:
                             tcas_lng, tcas_lat = self.ga.get_lngAndlat(current_own_lng, current_own_lat,
-                                                                       relative_direction, relative_distance_xy - 2.324)
+                                                                       current_Heading_Track_Angle-current_own_lng, relative_distance_xy - 2.324)
                         elif relative_distance_xy < 2.324:
                             tcas_lng = current_adsb_lng   #TCAS经度坐标
                             tcas_lat = current_adsb_lat   #TCAS纬度坐标
@@ -805,7 +802,8 @@ class MainWindow(QMainWindow):
                             str(relative_distance_xyz))
                     if current_type == 2: #tcas与ads-b不关联
                         r = round((sqrt(5403064+pow(relative_distance_xy+2325, 2)*4.6225)+284)/1000 ,3)
-                        tcas_lng, tcas_lat = self.ga.get_lngAndlat(current_adsb_lng,current_adsb_lat,90,r)
+                        random_deg = random.uniform(0,360)
+                        tcas_lng, tcas_lat = self.ga.get_lngAndlat(current_adsb_lng,current_adsb_lat,random_deg,r)
                         relative_distance_xyz = round(self.ga.geodistance_with_height(float(tcas_lng), float(tcas_lat),
                                                                                       float(current_tcas_height) / 1000,
                                                                                       float(current_own_lng),
@@ -823,6 +821,16 @@ class MainWindow(QMainWindow):
                                                                                       float(current_own_height) / 1000),3)
                         self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_index)).setText(
                             str(relative_distance_xyz))
+
+                    if tcas_lng and tcas_lat:
+                        temp_direction = self.ga.getDegree(float(current_own_lat),float(current_own_lng),float(tcas_lat),float(tcas_lng))
+                        temp_direction = float(current_own_Heading_Track_Angle) - temp_direction
+                        if temp_direction < 0:
+                            temp_direction += 360
+                        print("temp_direction："+str(temp_direction))
+                        temp_direction = round(temp_direction,3)
+                        self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(target_index)).setText(
+                            str(temp_direction))
                 else:
                     print("距离未到10海里，不发送tcas数据")
         except:
@@ -920,16 +928,21 @@ class MainWindow(QMainWindow):
                                 alt_rate) + '\t' + str(nacp) + '\t' + str(nacv) + '\t' + str(nic) + '\t' + str(
                                 sil) + '\t' + str(
                                 heading) + '\t' + str(round(ptoa, 3)) + '\t' + vtoa + '\t' + utoa + '\t' + _range + '\t' + bearing + '\t' + mode_s + '\n')
-
+                        temp_byte = bytes(2048)
+                        lenth = self.dll.Pack_ADSB_data(adsb_data_struct, 1, temp_byte, 2048)
+                        self.socket_adsb.sendto(temp_byte.strip(b'\x00'), self.ip_port_adsb)
+                        import time
+                        time.sleep(0.02)
                         array[j] = adsb_data_struct
                         j+=1
-                temp_byte = bytes(2048)
-                lenth = self.dll.Pack_ADSB_data(array, num, temp_byte, 2048)
-                print('目标机ADS-B数据打包长度：' + str(lenth))
+                #temp_byte = bytes(2048)
+                #lenth = self.dll.Pack_ADSB_data(array, num, temp_byte, 2048)
+                #print('目标机ADS-B数据打包长度：' + str(lenth))
                 #print(temp_byte.strip(b'\x00'))
                 #UDP发送数据
-                self.socket_adsb.sendto(temp_byte.strip(b'\x00'), self.ip_port_adsb)
-                logging.info("目标机发送ADS-B数据：" + str(temp_byte.strip(b'\x00')))
+                #self.socket_adsb.sendto(temp_byte.strip(b'\x00'), self.ip_port_adsb)
+                #print(len(temp_byte.strip(b'\x00')))
+                #logging.info("目标机发送ADS-B数据：" + str(temp_byte.strip(b'\x00')))
             self.count_timer_adsb_transmit +=1
             # lock.release()
         except:
@@ -956,7 +969,7 @@ class MainWindow(QMainWindow):
                 # lock.acquire()
                 print("待发送tcas数据的目标机索引为：" + str(target_index_list))
                 print("开始打包" + str(num) + "个目标机TCAS数据....")
-                #logging.info("开始打包" + str(num) + "个目标机TCAS数据....")
+                # logging.info("开始打包" + str(num) + "个目标机TCAS数据....")
                 ArrayType = TCAS_Data_Struct * num
                 array = ArrayType()
                 j = 0
@@ -966,13 +979,18 @@ class MainWindow(QMainWindow):
                     tcas_data_struct.Flight_24bit_addr = self.data_targetship[target_index]['TCAS']['Flight_24bit_addr_TCAS']
                     tcas_data_struct.Altitude = self.data_targetship[target_index]['TCAS']['Altitude_TCAS']
                     tcas_data_struct.Vertical_Speed = int(self.data_targetship[target_index]['TCAS']['Vertical_Speed_TCAS'] * 1000 /3600)
-                    tcas_data_struct.Bearing = round(self.ga.degTorad(float(self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(target_index)).text())),6)  # 单位弧度#
+                    tcas_data_struct.Bearing = round(self.ga.degTorad(float(self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(target_index)).text())),6)  # 单位弧度# range:0-2pi
                     tcas_data_struct.Range = round(float(self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_index)).text())*1000,6) #相对本机距离 单位m
                     tcas_data_struct.Warning_Status = self.data_targetship[target_index]['TCAS']['Warning_Status']
                     tcas_data_struct.Seconds = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[2])  #
                     tcas_data_struct.Mintes = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[1])  #
                     tcas_data_struct.Hours = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[0])  #
                     tcas_data_struct.sec = round(float(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[-1])/1000000,3)
+                    temp_byte = bytes(2048)
+                    lenth = self.dll.Pack_TCAS_data(tcas_data_struct, 1, temp_byte, 2048)
+                    self.socket_tcas.sendto(temp_byte.strip(b'\x00'), self.ip_port_tcas)
+                    import time
+                    time.sleep(0.02)
                     array[j] = tcas_data_struct
                     j+=1
                     with open(self.data_matlab, 'a') as f1:
@@ -1001,12 +1019,12 @@ class MainWindow(QMainWindow):
                             alt_rate) + '\t' + str(nacp) + '\t' + str(nacv) + '\t' + str(nic) + '\t' + str(
                             sil) + '\t' + str(
                             heading) + '\t' + ptoa + '\t' + vtoa + '\t' + utoa + '\t' + str(_range) + '\t' + str(bearing) + '\t' + str(mode_s) + '\n')
-                temp_byte = bytes(2048)
-                print('目标机TCAS数据打包长度：' + str(self.dll.Pack_TCAS_data(array,num, temp_byte, 2048)))
-                logging.info('目标机TCAS数据打包长度：' + str(self.dll.Pack_TCAS_data(array,num, temp_byte, 2048)))
+                #temp_byte = bytes(2048)
+                #print('目标机TCAS数据打包长度：' + str(self.dll.Pack_TCAS_data(array,num, temp_byte, 2048)))
+                #logging.info('目标机TCAS数据打包长度：' + str(self.dll.Pack_TCAS_data(array,num, temp_byte, 2048)))
                 #print(temp_byte.strip(b'\x00'))
-                # UDP发送数据
-                self.socket_tcas.sendto(temp_byte.strip(b'\x00'), self.ip_port_tcas)
+                #UDP发送数据
+                #self.socket_tcas.sendto(temp_byte.strip(b'\x00'), self.ip_port_tcas)
                 # logging.info("目标机发送ADS-B数据：" + str(temp_byte.strip(b'\x00')))
                 # lock.release()
             self.count_timer_tcas_transmit += 1

@@ -1,5 +1,5 @@
 #4号目标机 配置文件#
-#模拟航路：重庆-武汉
+#模拟航路：巴中-襄阳
 #仅发ads_b
 Type: 3    # 1：tcas与adsb关联且为最佳源  2：tcas与ads-b不关联 3：仅ads_b 4：仅tcas
 ADS-B:
@@ -16,25 +16,20 @@ ADS-B:
   Way_Point:                  #所有航路点信息
     point1:
       - ZUCK                  #航路点名称
-      - 106.640000            #Longitude经度  单位deg
-      - 29.72                 #Latitude纬度   单位deg
+      - 106.77             #Longitude经度  单位deg
+      - 31.85                #Latitude纬度   单位deg
       - 0                     #Heading_Track_Angle航向角  单位deg
     point2:
       - SAKPU
-      - 108.646667
-      - 30.035000
-      - 79.24
-    point3:
-      - LOTMO
-      - 109.435
-      - 30.248333
-      - 72
+      - 112.20
+      - 32.08
+      - 89
   Air_Ground_Sta: 0
-  Ground_Speed: 900      #地速 单位km/h
+  Ground_Speed: 2700      #地速 单位km/h
   Flight_Length: 38.9    #飞机长度 单位m
   Flight_Width: 35.8     #飞机宽度 单位m
-  NACV: 6    #速度不确定度 默认为6
-  NACp: 0    #位置不确定度 默认为0
+  NACV: 4    #速度不确定度 默认为6
+  NACp: 7    #位置不确定度 默认为0
   NIC: 0     # 1 OR 0
   SIL: 0     # 1 OR 0
   SDA: 1
@@ -44,7 +39,7 @@ TCAS:
   enable: 0                    #是否有Tcas数据 有为1 无为0
   distance_to_own: 18.52       #目标机向本机发送Tcas数据的距离阈值 单位km 默认为10nm
   fre_transmit_tcas: 1         #Tcas数据发送频率 单位s
-  Track_ID: '3'
+  Track_ID: '3CA439'
   Flight_24bit_addr_TCAS: 0    #24位地址
   Altitude_TCAS: 13000         #压强高度 单位m
   Vertical_Speed_TCAS: 0       #垂直速度

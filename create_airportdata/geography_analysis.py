@@ -115,15 +115,14 @@ class Geography_Analysis():
         radLatB = radians(latB)
         radLonB = radians(lonB)
         dLon = radLonB - radLonA
-        y = sin(dLon) * cos(radLatB)
-        x = cos(radLatA) * sin(radLatB) - sin(radLatA) * cos(radLatB) * cos(dLon)
-        brng = degrees(atan2(y, x))
+        dLat = radLatB - radLatA
+        brng = degrees(atan2(dLat,dLon))
         brng = (brng + 360) % 360
         return brng
 
 
-#ga = Geography_Analysis()
-#print(ga.getDegree(33.02,106.85   , 31.57, 108.081667))  #1号目标机
-#print(ga.getDegree(33.07, 107.02 , 32.68, 109.02))  #2号目标机
-#print(ga.getDegree(33.07, 107.02 , 32.07, 108.06))  #4号目标机
-#print(ga.getDegree(34.221667, 108.853333,34.598333,108.915000))  #3号目标机
+# ga = Geography_Analysis()
+# print(ga.getDegree(33.02,106.85   , 31.57, 108.081667))  #1号目标机
+# print(ga.getDegree(33.07, 107.02 , 32.68, 109.02))  #2号目标机
+# print(ga.getDegree(31.85 , 106.77   ,32.08, 79.24))  #4号目标机
+# print(ga.getDegree(29.72 , 106.64,30.035, 108.646667))  #3号目标机
