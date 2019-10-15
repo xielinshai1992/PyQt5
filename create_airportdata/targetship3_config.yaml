@@ -23,7 +23,7 @@ ADS-B:
       - SAKPU
       - 112.20
       - 32.08
-      - 89
+      - 86
   Air_Ground_Sta: 0
   Ground_Speed: 2700      #地速 单位km/h
   Flight_Length: 38.9    #飞机长度 单位m

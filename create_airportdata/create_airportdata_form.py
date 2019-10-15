@@ -52,7 +52,6 @@ class MainWindow(QMainWindow):
         self.ui.btn_stopsend_tcas_target1.clicked.connect(self.stop_transmit_tcas)
         self.ui.btn_start.clicked.connect(self.start)
         self.ui.btn_stop.clicked.connect(self.stop)
-
         self.ga = Geography_Analysis()
 
         #本机信息
@@ -74,22 +73,19 @@ class MainWindow(QMainWindow):
         self.data_targetship = {}   #目标机携带的所有信息 嵌套字典的字典
         self.groundspeed_targetship_all  = []            # 目标机地速
         self.Altitude_targetship_all = []                # 目标机压强高度
-        self.Altitude_targetship_Tcas_all = []               #  目标机Tcas压强高度
-        self.fre_transmit_adsb_targetship_all  = {}      # ADS-B数据发送频率 单位s
-
-        self.Heading_Track_Angle_target_all = []  # 航向角序列  嵌套序列
-        self.V_SN_target_all= []                   # 南北速度序列    嵌套序列
-        self.V_EW_target_all = []                  # 东西速度序列    嵌套序列
-        self.lng_target_all = []                   # 经度序列        嵌套序列
-        self.lat_target_all = []                   # 纬度序列        嵌套序列
-        self.lngandlat_target_all = []              # 经纬度序列      嵌套序列
-        self.type_target_all = {}                   # 目标机类型序列
-        self.delay_takeoff_targetship_all = {}  # 起飞延迟 单位ms  键为目标机索引
-
-
-        #TCAS数据
+        self.type_target_all = {}                       # 目标机类型序列
+        self.delay_takeoff_targetship_all = {}          # 起飞延迟 单位ms  键为目标机索引
+        #ADS-B
+        self.fre_transmit_adsb_targetship_all  = {}     # ADS-B数据发送频率 单位s
+        self.Heading_Track_Angle_target_all = []        # 航向角序列  嵌套序列
+        self.V_SN_target_all= []                        # 南北速度序列    嵌套序列
+        self.V_EW_target_all = []                       # 东西速度序列    嵌套序列
+        self.lng_target_all = []                        # 经度序列        嵌套序列
+        self.lat_target_all = []                        # 纬度序列        嵌套序列
+        self.lngandlat_target_all = []                  # 经纬度序列      嵌套序列
+        #TCAS
         self.tcas_fre_transmit_target_all = {}     # TCAS数据发送频率
-
+        self.Altitude_targetship_Tcas_all = []     # 目标机Tcas压强高度
 
         #全局
         self.data_matlab = 'data_matlab.txt'
@@ -99,7 +95,7 @@ class MainWindow(QMainWindow):
         #定时器
         self.count_own = 0    # 本机显示计数器
         self.count_own_transmit =0  #本机发送计数器
-        self.timer_own_show = QTimer()  #本机信息显示
+
 
         self.timer_own_transmit = QTimer()
         self.timer_adsb_transmit = QTimer()
@@ -123,7 +119,6 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, '提示', str(current_targetship_index)+'号目标机停止发送tcas!', QMessageBox.Ok)
         except:
             QMessageBox.information(self, '提示','停止发送失败！', QMessageBox.Ok)
-
 
     def refresh_map(self):
         try:
@@ -200,8 +195,6 @@ class MainWindow(QMainWindow):
             #print("本机数据量："+ str(len(self.Heading_Track_Angle_own_list)))
             print("本机数据量：" + str(len(self.lat_own_list)))
 
-
-
         except:
             traceback.print_exc()
 
@@ -277,14 +270,14 @@ class MainWindow(QMainWindow):
                         tcas_transmit_fre = data_targetship['TCAS']['fre_transmit_tcas']
                         self.tcas_fre_transmit_target_all[current_targetship_index] = tcas_transmit_fre
 
-                    voyage_distance_targetship_list = [] #单个目标机航程距离序列
-                    voyage_time_targetship_list = []   #单个目标机航程时间序列
-                    lngandlat_own_list = []            #单个目标机航迹经纬度序列
-                    V_EW_own_list = []                 #单个目标机东西速度序列
-                    V_SN_own_list = []                 #单个目标机南北速度序列
-                    Heading_Track_Angle_own_list = []  #单个目标机航向角序列
-                    lng_own_list = []                  #单个目标机经度系列
-                    lat_own_list =[]                   #单个目标机纬度系列
+                    voyage_distance_targetship_list = []    #单个目标机航程距离序列
+                    voyage_time_targetship_list = []        #单个目标机航程时间序列
+                    lngandlat_own_list = []                 #单个目标机航迹经纬度序列
+                    V_EW_own_list = []                      #单个目标机东西速度序列
+                    V_SN_own_list = []                      #单个目标机南北速度序列
+                    Heading_Track_Angle_own_list = []       #单个目标机航向角序列
+                    lng_own_list = []                       #单个目标机经度系列
+                    lat_own_list =[]                        #单个目标机纬度系列
 
                     for i in range(1, len(data_targetship['ADS-B']['Way_Point'])):
                         lng1 = data_targetship['ADS-B']['Way_Point']['point'+str(i)][1]
@@ -510,8 +503,8 @@ class MainWindow(QMainWindow):
     def start(self):
         try:
             # 创建socket
-            ip = '192.168.100.97'
-            #ip = '127.0.0.1'
+            #ip = '192.168.100.132'
+            ip = '127.0.0.1'
             self.ip_port_own = (ip, 8000)
             self.socket_own = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
             self.ip_port_tcas = (ip, 8001)
@@ -563,7 +556,11 @@ class MainWindow(QMainWindow):
             self.ui.btn_stop.setEnabled(False)
             for i in range(1, self.num_targetship+1):
                 self.findChild(QPushButton, 'btn_import_info_target' + str(i)).setEnabled(True)
-            #关闭所有定时器
+            #界面参数清零
+            for i in range(1, self.num_targetship + 1):
+                self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(i)).setText("0")
+                self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(i)).setText("0")
+            #关闭所有定时器(4台目标机情况下有8个定时器)
             self.timer_own_transmit.stop()
             self.timer_adsb_transmit.stop()
             self.timer_tcas_transmit.stop()
@@ -584,6 +581,39 @@ class MainWindow(QMainWindow):
             self.socket_tcas.close()
             self.socket_own.close()
             self.socket_adsb.close()
+            # 初始化变量清零
+            # 本机信息
+            # self.data_ownship = {}  # 本机数据
+            # self.voyage_distance_ownship_list = []  # 本机航路距离列表 N个航路点有N-1条航路
+            # self.voyage_time_ownship_list = []  # 本机航路时间列表
+            # self.groundspeed_ownship = 0  # 本机地速
+            # self.fre_transmit_ownship = 0  # 数据发送频率 单位s
+            # self.delay_takeoff_ownship = 0  # 起飞延迟 单位s
+            # self.Heading_Track_Angle_own_list = []  # 本机航向角序列
+            # self.V_SN_own_list = []  # 南北速度序列
+            # self.V_EW_own_list = []  # 东西速度序列
+            # self.lng_own_list = []  # 经度序列
+            # self.lat_own_list = []  # 纬度序列
+            # self.lngandlat_own_list = []  # 经纬度序列
+            #
+            # # 目标机信息
+            # self.num_targetship = 0  # 目标机数量
+            # self.data_targetship = {}  # 目标机携带的所有信息 嵌套字典的字典
+            # self.groundspeed_targetship_all = []  # 目标机地速
+            # self.Altitude_targetship_all = []  # 目标机压强高度
+            # self.type_target_all = {}  # 目标机类型序列
+            # self.delay_takeoff_targetship_all = {}  # 起飞延迟 单位ms  键为目标机索引
+            # # ADS-B
+            # self.fre_transmit_adsb_targetship_all = {}  # ADS-B数据发送频率 单位s
+            # self.Heading_Track_Angle_target_all = []  # 航向角序列  嵌套序列
+            # self.V_SN_target_all = []  # 南北速度序列    嵌套序列
+            # self.V_EW_target_all = []  # 东西速度序列    嵌套序列
+            # self.lng_target_all = []  # 经度序列        嵌套序列
+            # self.lat_target_all = []  # 纬度序列        嵌套序列
+            # self.lngandlat_target_all = []  # 经纬度序列      嵌套序列
+            # # TCAS
+            # self.tcas_fre_transmit_target_all = {}  # TCAS数据发送频率
+            # self.Altitude_targetship_Tcas_all = []  # 目标机Tcas压强高度
         except:
             traceback.print_exc()
 
@@ -598,6 +628,7 @@ class MainWindow(QMainWindow):
             print('本机起飞,开始发送数据...')
             logging.info('本机起飞,开始发送数据...')
             # 开启定时器动态显示本机信息、发送数据
+            self.timer_own_show = QTimer()  # 本机信息显示
             self.timer_own_show.timeout.connect(self.own_showinfo)
             self.timer_own_show.start(1000)
             self.timer_own_transmit.timeout.connect(self.own_transmit)
@@ -620,16 +651,19 @@ class MainWindow(QMainWindow):
     def own_showinfo(self):
         '''显示本机信息,主要为经纬度、飞行速度,地图数据更新'''
         try:
+
             if self.count_own >= len(self.Heading_Track_Angle_own_list):
                 self.timer_own_show.stop()
             else:
                 current_Heading_Track_Angle = self.Heading_Track_Angle_own_list[self.count_own]
                 current_lng = self.lng_own_list[self.count_own]
                 current_lat = self.lat_own_list[self.count_own]
+                with open('test.txt', 'a') as f:
+                    f.write("lng:"+str(current_lng)+" lat:"+str(current_lat)+'\n')
                 js_string_own = '''update_own_position(%f,%f,%f)'''%(current_lng,current_lat,current_Heading_Track_Angle-45)
                 self.browser.page().runJavaScript(js_string_own)
                 current_v_ew = self.V_EW_own_list[self.count_own]
-                current_v_sn =  self.V_SN_own_list[self.count_own]
+                current_v_sn = self.V_SN_own_list[self.count_own]
                 self.ui.txt_Heading_Track_Angle_own.setText(str(current_Heading_Track_Angle))
                 self.ui.txt_Longitude_own.setText(str(current_lng))
                 self.ui.txt_Latitude_own.setText(str(current_lat))
@@ -699,11 +733,10 @@ class MainWindow(QMainWindow):
                     f1.write(str(round(time,3))+'\t'+ num  +'\t'+str(type)+'\t'+str(lat)+'\t'+str(lon)+'\t'+str(alt)+'\t'+str(ew_v)+'\t'+str(ns_v)+'\t'+str(alt_rate)+'\t'+str(nacp)+'\t'+str(nacv)+'\t'+str(nic)+'\t'+str(sil)+'\t'+str(heading)+'\t'+ptoa+'\t'+vtoa+'\t'+ utoa+'\t'+_range+'\t'+bearing+'\t'+mode_s+'\n')
                 temp_byte = bytes(2048)
                 lenth = self.dll.Pack_Ownship_data(own_data_struct, temp_byte, 2048)
-                print('本机数据打包长度：'+ str(lenth))
+                #print('本机数据打包长度：'+ str(lenth))
                 #print(temp_byte.strip(b'\x00'))
                 self.socket_own.sendto(temp_byte.strip(b'\x00'), self.ip_port_own)
-                #写入日志
-             #logging.info("本机发送数据：" + str(temp_byte.strip(b'\x00')))
+                logging.info("本机发送数据：" + str(temp_byte.strip(b'\x00')))
              #lock.release()
         except:
             traceback.print_exc()
@@ -846,14 +879,14 @@ class MainWindow(QMainWindow):
                     if self.count_timer_adsb_transmit % self.fre_transmit_adsb_targetship_all[index] == 0 and self.type_target_all[index]!= 4:
                         num += 1
                         target_index_list.append(index)
-            print("待发送ads-b数据的目标机索引为："+str(target_index_list))
+            #print("待发送ads-b数据的目标机索引为："+str(target_index_list))
             # 开始打包ADS-B数据
             # lock = threading.Lock()
             # lock.acquire()
-            # logging.info("开始打包"+str(num)+"个目标机ADS-B数据....")
+            logging.info("开始打包"+str(num)+"个目标机ADS-B数据....")
             # 开始打包ADS-B数据
             if num > 0:
-                print("开始打包"+str(num)+"个目标机ADS-B数据....")
+                #print("开始打包"+str(num)+"个目标机ADS-B数据....")
                 ArrayType = ADSB_Data_Struct * num
                 array = ArrayType()
                 j = 0
@@ -931,6 +964,7 @@ class MainWindow(QMainWindow):
                         temp_byte = bytes(2048)
                         lenth = self.dll.Pack_ADSB_data(adsb_data_struct, 1, temp_byte, 2048)
                         self.socket_adsb.sendto(temp_byte.strip(b'\x00'), self.ip_port_adsb)
+                        logging.info("目标机发送ADS-B数据：" + str(temp_byte.strip(b'\x00')))
                         import time
                         time.sleep(0.02)
                         array[j] = adsb_data_struct
@@ -967,9 +1001,9 @@ class MainWindow(QMainWindow):
             if num > 0:
                 # lock = threading.Lock()
                 # lock.acquire()
-                print("待发送tcas数据的目标机索引为：" + str(target_index_list))
-                print("开始打包" + str(num) + "个目标机TCAS数据....")
-                # logging.info("开始打包" + str(num) + "个目标机TCAS数据....")
+                #print("待发送tcas数据的目标机索引为：" + str(target_index_list))
+                #print("开始打包" + str(num) + "个目标机TCAS数据....")
+                logging.info("开始打包" + str(num) + "个目标机TCAS数据....")
                 ArrayType = TCAS_Data_Struct * num
                 array = ArrayType()
                 j = 0
@@ -989,6 +1023,7 @@ class MainWindow(QMainWindow):
                     temp_byte = bytes(2048)
                     lenth = self.dll.Pack_TCAS_data(tcas_data_struct, 1, temp_byte, 2048)
                     self.socket_tcas.sendto(temp_byte.strip(b'\x00'), self.ip_port_tcas)
+                    logging.info("目标机发送ADS-B数据：" + str(temp_byte.strip(b'\x00')))
                     import time
                     time.sleep(0.02)
                     array[j] = tcas_data_struct
@@ -1038,7 +1073,7 @@ class MainWindow(QMainWindow):
 
 if __name__=='__main__':
     app = QApplication(sys.argv)
-    logging.basicConfig(filename='own_data.log', format='%(asctime)s %(message)s',datefmt='%Y-%m-%d %H:%M:%S',level=logging.INFO)
+    logging.basicConfig(filename='output.log', format='%(asctime)s %(message)s',datefmt='%Y-%m-%d %H:%M:%S',level=logging.INFO)
     win = MainWindow()
     win.show()
     sys.exit(app.exec_())
