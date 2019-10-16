@@ -98,7 +98,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>停止发送TCAS数据</string>
+          <string>暂停发送TCAS数据</string>
          </property>
         </widget>
         <widget class="QWidget" name="layoutWidget">
@@ -520,7 +520,7 @@
           <item row="9" column="0" colspan="2">
            <widget class="QPushButton" name="btn_stopsend_adsb_target1">
             <property name="text">
-             <string>停止发送ADS-B数据</string>
+             <string>暂停发送ADS-B数据</string>
             </property>
            </widget>
           </item>

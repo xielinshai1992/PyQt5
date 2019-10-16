@@ -84,39 +84,56 @@ class MainWindow(QMainWindow):
         self.lat_target_all = []                        # 纬度序列        嵌套序列
         self.lngandlat_target_all = []                  # 经纬度序列      嵌套序列
         #TCAS
-        self.tcas_fre_transmit_target_all = {}     # TCAS数据发送频率
-        self.Altitude_targetship_Tcas_all = []     # 目标机Tcas压强高度
+        self.tcas_fre_transmit_target_all = {}          # TCAS数据发送频率
+        self.Altitude_targetship_Tcas_all = []          # 目标机Tcas压强高度
 
         #全局
+        self.pause_transmit_adsb_index = []             # 暂停发送ads-b的目标机索引
+        self.pause_transmit_tcas_index = []             # 暂停发送tcas的目标机索引
         self.data_matlab = 'data_matlab.txt'
         self.tcas_transmit_distance = 18.52 #发送tcas的距离阈值
         self.own_takeoff_signal.connect(self.own_takeoff)
         self.target_takeoff_signal.connect(self.open_target_timer)
-        #定时器
+        self.variable = locals()
+        #定时器相关计数器
         self.count_own = 0    # 本机显示计数器
         self.count_own_transmit =0  #本机发送计数器
 
 
-        self.timer_own_transmit = QTimer()
-        self.timer_adsb_transmit = QTimer()
-        self.timer_tcas_transmit = QTimer()
-
-        self.variable = locals()
-        #self.ui.btn_test.clicked.connect(self.test)
-
     def stop_transmit_adsb(self):
+        '''
+        暂停发送ads-b数据
+        :return:
+        '''
         try:
             current_targetship_index = self.ui.tabWidget.currentIndex() + 1
-            self.timer_adsb_transmit.stop()
-            QMessageBox.information(self, '提示', str(current_targetship_index)+'号目标机停止发送ads_b!', QMessageBox.Ok)
+            btn_text =  self.findChild(QPushButton,"btn_stopsend_adsb_target"+str(current_targetship_index)).text()
+            if btn_text == '暂停发送ADS-B数据':
+                self.pause_transmit_adsb_index.append(current_targetship_index)
+                QMessageBox.information(self, '提示', str(current_targetship_index) + '号目标机暂停发送adsb!', QMessageBox.Ok)
+                self.findChild(QPushButton, "btn_stopsend_adsb_target" + str(current_targetship_index)).setText('恢复发送ADS-B数据')
+            elif btn_text == '恢复发送ADS-B数据':
+                self.pause_transmit_adsb_index.remove(current_targetship_index)
+                QMessageBox.information(self, '提示', str(current_targetship_index) + '号目标机恢复发送adsb!', QMessageBox.Ok)
+                self.findChild(QPushButton, "btn_stopsend_adsb_target" + str(current_targetship_index)).setText('暂停发送ADS-B数据')
+            print("暂停发送ads-b的目标机索引："+ str(self.pause_transmit_adsb_index))
+
         except:
             QMessageBox.information(self, '提示','停止发送失败！', QMessageBox.Ok)
 
     def stop_transmit_tcas(self):
         try:
             current_targetship_index = self.ui.tabWidget.currentIndex() + 1
-            self.timer_tcas_transmit.stop()
-            QMessageBox.information(self, '提示', str(current_targetship_index)+'号目标机停止发送tcas!', QMessageBox.Ok)
+            btn_text = self.findChild(QPushButton,"btn_stopsend_tcas_target"+str(current_targetship_index)).text()
+            if btn_text == '暂停发送TCAS数据':
+                self.pause_transmit_tcas_index.append(current_targetship_index)
+                QMessageBox.information(self, '提示', str(current_targetship_index) + '号目标机暂停发送tcas!', QMessageBox.Ok)
+                self.findChild(QPushButton, "btn_stopsend_tcas_target" + str(current_targetship_index)).setText('恢复发送TCAS数据')
+            elif btn_text == '恢复发送TCAS数据':
+                self.pause_transmit_tcas_index.remove(current_targetship_index)
+                QMessageBox.information(self, '提示', str(current_targetship_index) + '号目标机恢复发送tcas!', QMessageBox.Ok)
+                self.findChild(QPushButton, "btn_stopsend_tcas_target" + str(current_targetship_index)).setText('暂停发送TCAS数据')
+            print("暂停发送ads-b的目标机索引："+ str(self.pause_transmit_tcas_index))
         except:
             QMessageBox.information(self, '提示','停止发送失败！', QMessageBox.Ok)
 
@@ -423,7 +440,7 @@ class MainWindow(QMainWindow):
             lineEdit_Ground_Speed.setObjectName("txt_GroundSpeed_target"+str(target_plane_index))
             gridLayout_adsb.addWidget(lineEdit_Ground_Speed, 8, 2, 1, 1)
             #"停止发送ADS-B数据"button
-            btn_stop_sending_adsb = QPushButton('停止发送ADS-B数据', layout_adsb)
+            btn_stop_sending_adsb = QPushButton('暂停发送ADS-B数据', layout_adsb)
             btn_stop_sending_adsb.setObjectName("btn_stopsend_adsb_target"+str(target_plane_index))
             btn_stop_sending_adsb.clicked.connect(self.stop_transmit_adsb)
 
@@ -470,7 +487,7 @@ class MainWindow(QMainWindow):
             lineEdit_Relative_Distance.setObjectName("txt_Relative_Distance_target"+str(target_plane_index))
             gridLayout_tcas.addWidget(lineEdit_Relative_Distance, 3, 2, 1, 1)
             #"停止发送TCAS数据"button
-            btn_stop_sending_tcas = QPushButton('停止发送TCAS数据',groupBox_tcas)
+            btn_stop_sending_tcas = QPushButton('暂停发送TCAS数据',groupBox_tcas)
             btn_stop_sending_tcas.setGeometry(QRect(10, 318, 251, 28))
             btn_stop_sending_tcas.setObjectName("btn_stopsend_tcas_target"+str(target_plane_index))
             btn_stop_sending_tcas.clicked.connect(self.stop_transmit_tcas)
@@ -536,9 +553,11 @@ class MainWindow(QMainWindow):
 
                 #设置发送ads-b和tcas的timer
                 self.count_timer_adsb_transmit = 0
+                self.timer_adsb_transmit = QTimer()
                 self.timer_adsb_transmit.timeout.connect(self.target_ads_b_transmit)
                 self.timer_adsb_transmit.start(1000)
                 self.count_timer_tcas_transmit = 0
+                self.timer_tcas_transmit = QTimer()
                 self.timer_tcas_transmit.timeout.connect(self.target_tcas_transmit)
                 self.timer_tcas_transmit.start(1000)
 
@@ -631,6 +650,8 @@ class MainWindow(QMainWindow):
             self.timer_own_show = QTimer()  # 本机信息显示
             self.timer_own_show.timeout.connect(self.own_showinfo)
             self.timer_own_show.start(1000)
+
+            self.timer_own_transmit = QTimer()  # 本机数据发送
             self.timer_own_transmit.timeout.connect(self.own_transmit)
             self.timer_own_transmit.start(self.fre_transmit_ownship * 1000)
             # 地图模拟飞行
@@ -733,10 +754,10 @@ class MainWindow(QMainWindow):
                     f1.write(str(round(time,3))+'\t'+ num  +'\t'+str(type)+'\t'+str(lat)+'\t'+str(lon)+'\t'+str(alt)+'\t'+str(ew_v)+'\t'+str(ns_v)+'\t'+str(alt_rate)+'\t'+str(nacp)+'\t'+str(nacv)+'\t'+str(nic)+'\t'+str(sil)+'\t'+str(heading)+'\t'+ptoa+'\t'+vtoa+'\t'+ utoa+'\t'+_range+'\t'+bearing+'\t'+mode_s+'\n')
                 temp_byte = bytes(2048)
                 lenth = self.dll.Pack_Ownship_data(own_data_struct, temp_byte, 2048)
-                #print('本机数据打包长度：'+ str(lenth))
+                print('本机数据打包长度：'+ str(lenth))
                 #print(temp_byte.strip(b'\x00'))
                 self.socket_own.sendto(temp_byte.strip(b'\x00'), self.ip_port_own)
-                logging.info("本机发送数据：" + str(temp_byte.strip(b'\x00')))
+                #logging.info("本机发送数据：" + str(temp_byte.strip(b'\x00')))
              #lock.release()
         except:
             traceback.print_exc()
@@ -873,24 +894,21 @@ class MainWindow(QMainWindow):
         try:
             #确定一个ads_b发送周期内的ADSB_Data_Struct数量
             num = 0
-            target_index_list = []   #待发送ads-b数据的目标机索引序列
+            target_index_list = []
             for index, delaytime in self.delay_takeoff_targetship_all.items():
                 if self.count_timer_adsb_transmit >= delaytime:# 经过起飞延时，准备开始发送数据
                     if self.count_timer_adsb_transmit % self.fre_transmit_adsb_targetship_all[index] == 0 and self.type_target_all[index]!= 4:
-                        num += 1
                         target_index_list.append(index)
-            #print("待发送ads-b数据的目标机索引为："+str(target_index_list))
+            transmit_index_list = list(set(target_index_list).difference(self.pause_transmit_adsb_index)) #待发送ads-b数据的目标机索引序列
+            num = len(transmit_index_list)
+            print("待发送ads-b数据的目标机索引为："+str(transmit_index_list))
             # 开始打包ADS-B数据
-            # lock = threading.Lock()
-            # lock.acquire()
             logging.info("开始打包"+str(num)+"个目标机ADS-B数据....")
-            # 开始打包ADS-B数据
             if num > 0:
-                #print("开始打包"+str(num)+"个目标机ADS-B数据....")
                 ArrayType = ADSB_Data_Struct * num
                 array = ArrayType()
                 j = 0
-                for target_index in target_index_list:
+                for target_index in transmit_index_list:
                     if self.variable['target_count_transmit' + str(target_index)] >= len(self.V_SN_target_all[target_index-1]):
                         self.timer_adsb_transmit.stop()
                     else:
@@ -963,8 +981,8 @@ class MainWindow(QMainWindow):
                                 heading) + '\t' + str(round(ptoa, 3)) + '\t' + vtoa + '\t' + utoa + '\t' + _range + '\t' + bearing + '\t' + mode_s + '\n')
                         temp_byte = bytes(2048)
                         lenth = self.dll.Pack_ADSB_data(adsb_data_struct, 1, temp_byte, 2048)
+                        print("ADS-B数据打包长度："+str(lenth))
                         self.socket_adsb.sendto(temp_byte.strip(b'\x00'), self.ip_port_adsb)
-                        logging.info("目标机发送ADS-B数据：" + str(temp_byte.strip(b'\x00')))
                         import time
                         time.sleep(0.02)
                         array[j] = adsb_data_struct
@@ -996,18 +1014,18 @@ class MainWindow(QMainWindow):
                         float(self.ui.txt_Latitude_own.text()))
                     if relative_distance_xy <= self.tcas_transmit_distance and relative_distance_xy > 0:#相对本机位置小于18.52km时,发送
                         target_index_list.append(target_index)
-                        num += 1
+            transmit_index_list = list(set(target_index_list).difference(self.pause_transmit_tcas_index))#待发送tcas数据的目标机索引序列
+            num = len(transmit_index_list)
+
             # 开始打包TCAS数据
             if num > 0:
-                # lock = threading.Lock()
-                # lock.acquire()
-                #print("待发送tcas数据的目标机索引为：" + str(target_index_list))
-                #print("开始打包" + str(num) + "个目标机TCAS数据....")
+                print("待发送tcas数据的目标机索引为：" + str(target_index_list))
+                logging.info("待发送tcas数据的目标机索引为：" + str(target_index_list))
                 logging.info("开始打包" + str(num) + "个目标机TCAS数据....")
                 ArrayType = TCAS_Data_Struct * num
                 array = ArrayType()
                 j = 0
-                for target_index in target_index_list:
+                for target_index in transmit_index_list:
                     tcas_data_struct = TCAS_Data_Struct()
                     tcas_data_struct.Track_ID = self.data_targetship[target_index]['TCAS']['Track_ID'].encode()           #ICAO码
                     tcas_data_struct.Flight_24bit_addr = self.data_targetship[target_index]['TCAS']['Flight_24bit_addr_TCAS']
@@ -1022,8 +1040,9 @@ class MainWindow(QMainWindow):
                     tcas_data_struct.sec = round(float(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[-1])/1000000,3)
                     temp_byte = bytes(2048)
                     lenth = self.dll.Pack_TCAS_data(tcas_data_struct, 1, temp_byte, 2048)
+                    print("TCAS数据打包长度："+str(lenth))
                     self.socket_tcas.sendto(temp_byte.strip(b'\x00'), self.ip_port_tcas)
-                    logging.info("目标机发送ADS-B数据：" + str(temp_byte.strip(b'\x00')))
+                    #logging.info("目标机发送ADS-B数据：" + str(temp_byte.strip(b'\x00')))
                     import time
                     time.sleep(0.02)
                     array[j] = tcas_data_struct
