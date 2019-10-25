@@ -69,10 +69,10 @@ class MainWindow(QMainWindow):
         self.lngandlat_own_list = []            # 经纬度序列
 
         #目标机信息
-        self.num_targetship = 0     #目标机数量
-        self.data_targetship = {}   #目标机携带的所有信息 嵌套字典的字典
-        self.groundspeed_targetship_all  = []            # 目标机地速
-        self.Altitude_targetship_all = []                # 目标机压强高度
+        self.num_targetship = 0                         # 目标机数量
+        self.data_targetship = {}                       # 目标机携带的所有信息 嵌套字典的字典
+        self.groundspeed_targetship_all  = []           # 目标机地速
+        self.Altitude_targetship_all = []               # 目标机压强高度
         self.type_target_all = {}                       # 目标机类型序列
         self.delay_takeoff_targetship_all = {}          # 起飞延迟 单位ms  键为目标机索引
         #ADS-B
@@ -91,13 +91,13 @@ class MainWindow(QMainWindow):
         self.pause_transmit_adsb_index = []             # 暂停发送ads-b的目标机索引
         self.pause_transmit_tcas_index = []             # 暂停发送tcas的目标机索引
         self.data_matlab = 'data_matlab.txt'
-        self.tcas_transmit_distance = 18.52 #发送tcas的距离阈值
+        self.tcas_transmit_distance = 18.52             # 发送tcas的距离阈值 18.52km = 10nm
         self.own_takeoff_signal.connect(self.own_takeoff)
         self.target_takeoff_signal.connect(self.open_target_timer)
         self.variable = locals()
         #定时器相关计数器
-        self.count_own = 0    # 本机显示计数器
-        self.count_own_transmit =0  #本机发送计数器
+        self.count_own = 0                              # 本机显示计数器
+        self.count_own_transmit =0                      # 本机发送计数器
 
 
     def stop_transmit_adsb(self):
@@ -111,10 +111,20 @@ class MainWindow(QMainWindow):
             if btn_text == '暂停发送ADS-B数据':
                 self.pause_transmit_adsb_index.append(current_targetship_index)
                 QMessageBox.information(self, '提示', str(current_targetship_index) + '号目标机暂停发送adsb!', QMessageBox.Ok)
+                # 设置背景色提醒用户
+                self.findChild(QGroupBox, 'groupBox_adsb_target' + str(current_targetship_index)).setStyleSheet('''
+                background-color:#FFC0CB; font-size:14px;
+                ''')
                 self.findChild(QPushButton, "btn_stopsend_adsb_target" + str(current_targetship_index)).setText('恢复发送ADS-B数据')
+
+
             elif btn_text == '恢复发送ADS-B数据':
                 self.pause_transmit_adsb_index.remove(current_targetship_index)
                 QMessageBox.information(self, '提示', str(current_targetship_index) + '号目标机恢复发送adsb!', QMessageBox.Ok)
+                # 设置背景色提醒用户
+                self.findChild(QGroupBox, 'groupBox_adsb_target' + str(current_targetship_index)).setStyleSheet('''
+                background-color:#FFFFFF; font-size:14px;
+                ''')
                 self.findChild(QPushButton, "btn_stopsend_adsb_target" + str(current_targetship_index)).setText('暂停发送ADS-B数据')
             print("暂停发送ads-b的目标机索引："+ str(self.pause_transmit_adsb_index))
 
@@ -128,10 +138,18 @@ class MainWindow(QMainWindow):
             if btn_text == '暂停发送TCAS数据':
                 self.pause_transmit_tcas_index.append(current_targetship_index)
                 QMessageBox.information(self, '提示', str(current_targetship_index) + '号目标机暂停发送tcas!', QMessageBox.Ok)
+                # 设置背景色提醒用户
+                self.findChild(QGroupBox, 'groupBox_tcas_target' + str(current_targetship_index)).setStyleSheet('''
+                background-color:#FFC0CB; font-size:14px;
+                ''')
                 self.findChild(QPushButton, "btn_stopsend_tcas_target" + str(current_targetship_index)).setText('恢复发送TCAS数据')
             elif btn_text == '恢复发送TCAS数据':
                 self.pause_transmit_tcas_index.remove(current_targetship_index)
                 QMessageBox.information(self, '提示', str(current_targetship_index) + '号目标机恢复发送tcas!', QMessageBox.Ok)
+                # 设置背景色提醒用户
+                self.findChild(QGroupBox, 'groupBox_tcas_target' + str(current_targetship_index)).setStyleSheet('''
+                background-color:#FFFFFF; font-size:14px;
+                ''')
                 self.findChild(QPushButton, "btn_stopsend_tcas_target" + str(current_targetship_index)).setText('暂停发送TCAS数据')
             print("暂停发送ads-b的目标机索引："+ str(self.pause_transmit_tcas_index))
         except:
@@ -231,6 +249,20 @@ class MainWindow(QMainWindow):
                 if data_targetship:
                     self.data_targetship[current_targetship_index] = data_targetship
                     self.type_target_all[current_targetship_index] = data_targetship['Type']
+                    if data_targetship['Type'] == 1 or data_targetship['Type'] == 2:
+                        groupBox_adsb = self.findChild(QGroupBox,'groupBox_adsb_target' + str(current_targetship_index))
+                        groupBox_adsb.setTitle('ADS-B')
+                        groupBox_tcas = self.findChild(QGroupBox,'groupBox_tcas_target' + str(current_targetship_index))
+                        groupBox_tcas.setTitle('TCAS')
+                        self.findChild(QPushButton,'btn_stopsend_adsb_target' + str(current_targetship_index)).setEnabled(True)
+                        self.findChild(QPushButton,'btn_stopsend_tcas_target'+str(current_targetship_index)).setEnabled(True)
+                        # 设置背景色提醒用户
+                        self.findChild(QGroupBox, 'groupBox_tcas_target' + str(current_targetship_index)).setStyleSheet('''
+                        background-color:#FFFFFF; font-size:14px;
+                        ''')
+                        self.findChild(QGroupBox, 'groupBox_adsb_target' + str(current_targetship_index)).setStyleSheet('''
+                        background-color:#FFFFFF; font-size:14px;
+                        ''')
                     if data_targetship['Type'] == 3:
                         print('仅发ads-b')
                         # groupBox标题修改
@@ -238,7 +270,15 @@ class MainWindow(QMainWindow):
                         groupBox_adsb.setTitle('仅发ADS-B')
                         groupBox_tcas = self.findChild(QGroupBox,'groupBox_tcas_target' + str(current_targetship_index))
                         groupBox_tcas.setTitle('TCAS')
-
+                        self.findChild(QPushButton,'btn_stopsend_adsb_target' + str(current_targetship_index)).setEnabled(True)
+                        self.findChild(QPushButton,'btn_stopsend_tcas_target'+str(current_targetship_index)).setEnabled(False)
+                        # 设置背景色（淡红）提醒用户
+                        self.findChild(QGroupBox, 'groupBox_tcas_target' + str(current_targetship_index)).setStyleSheet('''
+                        background-color:#FFC0CB ; font-size:14px;
+                        ''')
+                        self.findChild(QGroupBox, 'groupBox_adsb_target' + str(current_targetship_index)).setStyleSheet('''
+                        background-color:#FFFFFF ; font-size:14px;
+                        ''')
                     if data_targetship['Type'] == 4:
                         print('仅发tcas')
                         # groupBox标题修改
@@ -246,6 +286,15 @@ class MainWindow(QMainWindow):
                         groupBox_adsb.setTitle('ADS-B')
                         groupBox_tcas = self.findChild(QGroupBox,'groupBox_tcas_target' + str(current_targetship_index))
                         groupBox_tcas.setTitle('仅发TCAS')
+                        self.findChild(QPushButton,'btn_stopsend_adsb_target' + str(current_targetship_index)).setEnabled(False)
+                        self.findChild(QPushButton,'btn_stopsend_tcas_target' + str(current_targetship_index)).setEnabled(True)
+                        # 设置背景色提醒用户
+                        self.findChild(QGroupBox, 'groupBox_tcas_target' + str(current_targetship_index)).setStyleSheet('''
+                        background-color:#FFFFFF; font-size:14px;
+                        ''')
+                        self.findChild(QGroupBox, 'groupBox_adsb_target' + str(current_targetship_index)).setStyleSheet('''
+                        background-color:#FFC0CB; font-size:14px;
+                        ''')
 
                     self.findChild(QLineEdit, "txt_ICAO_target" + str(current_targetship_index)).setText(
                         data_targetship['ADS-B']['ICAO'])
@@ -764,12 +813,14 @@ class MainWindow(QMainWindow):
 
     def open_target_timer(self,target_index):
         # 开启定时器动态显示目标机信息
-        target_timer = QTimer(self)
-        target_timer.setObjectName('target_timer' + str(target_index))
-        target_timer.setProperty('target_num', target_index)
-        target_timer.timeout.connect(self.target_showinfo)
-        target_timer.start(1000)
-        pass
+        try:
+            target_timer = QTimer(self)
+            target_timer.setObjectName('target_timer' + str(target_index))
+            target_timer.setProperty('target_num', target_index)
+            target_timer.timeout.connect(self.target_showinfo)
+            target_timer.start(1000)
+        except:
+            traceback.print_exc()
 
     #  目标机相关函数
     def target_takeoff(self,target_index):
