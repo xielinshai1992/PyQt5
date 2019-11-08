@@ -17,6 +17,7 @@ from PyQt5.QtWebEngineWidgets import *
 from math import cos, sin
 from geography_analysis import Geography_Analysis
 from c_api import Ownship_Data_Struct,ADSB_Data_Struct,TCAS_Data_Struct
+import qdarkstyle
 
 class MainWindow(QMainWindow):
     own_takeoff_signal = pyqtSignal()
@@ -29,7 +30,7 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.setFixedSize(1540, 880)
         #装载更多控件
-        url = os.getcwd() + '/tt.html'
+        url = os.getcwd() + '/map_a.html'
         self.browser = QWebEngineView()
         self.browser.load(QUrl.fromLocalFile(url))
         self.ui.horizontalLayout_3.addWidget(self.browser)
@@ -98,6 +99,7 @@ class MainWindow(QMainWindow):
         #定时器相关计数器
         self.count_own = 0                              # 本机显示计数器
         self.count_own_transmit =0                      # 本机发送计数器
+        #self.ui.groupBox_tcas_target1.setVisible(False)
 
 
     def stop_transmit_adsb(self):
@@ -618,7 +620,7 @@ class MainWindow(QMainWindow):
     def stop(self):
         try:
             #地图标识删除，button使能复原
-            self.browser.page().runJavaScript("removeMarkers();")
+            self.browser.page().runJavaScript("remove_overlay();")
             self.ui.btn_start.setEnabled(True)
             self.ui.btn_import_info_own.setEnabled(True)
             self.ui.btn_stop.setEnabled(False)
@@ -1144,6 +1146,7 @@ class MainWindow(QMainWindow):
 if __name__=='__main__':
     app = QApplication(sys.argv)
     logging.basicConfig(filename='output.log', format='%(asctime)s %(message)s',datefmt='%Y-%m-%d %H:%M:%S',level=logging.INFO)
-    win = MainWindow()
-    win.show()
+    form = MainWindow()
+    #form.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+    form.show()
     sys.exit(app.exec_())
