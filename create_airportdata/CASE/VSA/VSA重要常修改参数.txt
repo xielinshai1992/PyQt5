@@ -1,0 +1,6 @@
+有无TCAS（产不产生TCAS）
+warning staus：0、1、2
+NACp
+NACv
+SIL
+NIC

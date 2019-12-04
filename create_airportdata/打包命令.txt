@@ -1,1 +1,0 @@
-pyinstaller -D -w create_airportdata_form.py -p adsb_mainForm.py -p c_api.py -p geography_analysis.py --hidden-import adsb_mainForm --hidden-import c_api --hidden-import geography_analysis

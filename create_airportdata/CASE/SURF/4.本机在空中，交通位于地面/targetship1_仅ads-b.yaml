@@ -1,0 +1,62 @@
+#1号目标机 配置文件#
+#模拟航路：SURF应用场景  目标机先起飞
+#step：地面
+Type: 3
+APP: SURF
+ADS-B:
+  fre_transmit_adsb: 1   #ads-b数据发送频率 单位s
+  ICAO: 9543c1           #ICAO码
+  Flight_ID: '9C6187'      #航班号
+  Flight_24bit_addr: 0   #24位地址 默认为0
+  Aircraft_Category: 0   #飞机类别 默认为0
+  Altitude: 0        #压强高度 单位m
+  Radio_Altitude: 0      #几何高度 默认为0
+  North_South_Velocity: 0     #南北速度 单位km/h 初始化0
+  East_West_Velocity: 0       #东西速度 单位km/h 初始化0
+  Vertical_Speed: 0     #垂直速度 默认为0
+  Way_Point:            #所有航路点信息
+    point1:
+      - ZLXN          #目标机降落点
+      - 103.9640      #Longitude经度  单位deg
+      - 30.5969       #Latitude纬度   单位deg
+      - 0             #Heading_Track_Angle航向角  单位deg
+      - 0             #高度m
+    point2:
+      - ENH           #降落第一个滑行点
+      - 103.9633
+      - 30.5937
+      - 192.3391
+      - 0
+
+  Air_Ground_Sta: 0
+  Ground_Speed: 40     #地速 单位km/h
+  Flight_Length: 38.9    #飞机长度 单位m
+  Flight_Width: 35.8     #飞机宽度 单位m
+  NACV: 4    #速度不确定度 默认为6
+  NACp: 9    #位置不确定度 默认为0
+  NIC: 1     # 1 OR 0
+  SIL: 1     # 1 OR 0
+  SDA: 1
+  emergency_priority_sta: 1
+  data_link_version: 2
+  # TCAS信息
+  Track_ID: 1
+  Flight_24bit_addr_TCAS: 0    #24位地址
+  Altitude_TCAS: 12500         #压强高度 单位m
+  Vertical_Speed_TCAS: 0       #垂直速度
+  Bearing: 0                   #相对本机方位 单位deg
+  Range: 0                     #相对本机距离 单位km
+  Warning_Status: 1  # 1 or 0
+TCAS:
+  enable: 0                    #是否有Tcas数据 有为1 无为0
+  distance_to_own: 18.52       #目标机向本机发送Tcas数据的距离阈值 单位km 默认为10nm
+  fre_transmit_tcas: 1         #Tcas数据发送频率 单位s
+  Track_ID: '1CA321'
+  Flight_24bit_addr_TCAS: 0    #24位地址
+  Altitude_TCAS: 12500         #压强高度 单位m
+  Vertical_Speed_TCAS: 0       #垂直速度
+  Bearing: 0                   #相对本机方位 单位deg
+  Range: 0                     #相对本机距离 单位km
+  Warning_Status: 1            # 1 or 0
+extra:
+  delay_time: 0        #起飞延时 单位s

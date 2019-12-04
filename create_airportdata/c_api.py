@@ -66,6 +66,7 @@ class Ownship_Data_Struct(Structure):
                 ("Latitude", c_float),
                 ("Longitude", c_float),
                 ("Heading_Track_Angle", c_float),
+                ("Air_Ground_Sta",c_uint8),
                 ("Ground_Speed", c_uint16),
                 ("Flight_Length", c_uint16),
                 ("Flight_Width", c_uint16),

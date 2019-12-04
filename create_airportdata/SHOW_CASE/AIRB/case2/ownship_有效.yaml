@@ -1,0 +1,114 @@
+#本机 配置文件#
+#模拟航路：成都-北京
+APP: AIRB
+basic:
+  ICAO: 5843be           #ICAO码
+  Flight_ID: 'AU8894'     #航班号
+  Flight_24bit_addr: 0   #24位地址 默认为0
+  Altitude: 12500        #压强高度 单位m,默认为12500
+  Radio_Altitude: 0      #几何高度 默认为0
+  North_South_Velocity: 0     #南北速度 单位km/h 初始化0
+  East_West_Velocity: 0       #东西速度 单位km/h 初始化0
+  Vertical_Speed: 0     #垂直速度 默认为0
+  Way_Point:            #所有航路点信息
+    point1:
+      - SUBUL
+      - 106.710000
+      - 32.328333
+      - 0
+    point2:
+      - ONEBA
+      - 107.495000
+      - 32.810000
+      - 54
+    point3:
+      - NSH
+      - 108.311667
+      - 33.318333
+      - 53
+    point4:
+      - ZS
+      - 108.853333
+      - 34.221667
+      - 26
+    point5:
+      - OD
+      - 108.915000
+      - 34.598333
+      - 8
+    point6:
+      - MIZ
+      - 108.995000
+      - 34.820000
+      - 17
+    point7:
+      - WJC
+      - 109.376667
+      - 35.778333
+      - 18
+    point8:
+      - OKVUM
+      - 110.510000
+      - 36.473333
+      - 53
+    point9:
+      - XIVEP
+      - 112.658333
+      - 37.631667
+      - 55
+    point10:
+      - UBLAT
+      - 113.443333
+      - 38.05
+      - 56
+    point11:
+      - ISGOD
+      - 114.09
+      - 38.285
+      - 65
+    point12:
+      - AKLOL
+      - 114.4
+      - 38.396667
+      - 65
+    point13:
+      - OC
+      - 114.555
+      - 38.455
+      - 64
+    point14:
+      - UBTAB
+      - 114.675
+      - 38.496667
+      - 66
+    point15:
+      - SAKOD
+      - 115.163333
+      - 38.673333
+      - 65
+    point16:
+      - ENGIL
+      - 115.446667
+      - 38.775000
+      - 65
+    point17:
+      - JB
+      - 116.198333
+      - 39.043333
+      - 65
+    point18:
+      - ZBAA
+      - 116.598333
+      - 40.073333
+      - 17
+  Air_Ground_Sta: 0       #空地状态 0在空中，1在地面
+  Ground_Speed: 900      #地速 单位km/h
+  Flight_Length: 38.9     #飞机长度 单位m
+  Flight_Width: 35.8      #飞机宽度 单位m
+  NACV: 4    #速度不确定度 默认为6
+  NACp: 7    #位置不确定度 默认为0
+  NIC: 1
+  SIL: 2
+extra:
+  delay_time: 0          #起飞延迟 单位s
+  fre_transmit_data: 1     #本机数据发送频率 单位s

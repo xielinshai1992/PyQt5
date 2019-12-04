@@ -1,0 +1,34 @@
+#本机 配置文件#
+#模拟航路：成都-西安
+APP: VSA
+basic:
+  ICAO: 5843be           #ICAO码
+  Flight_ID: 'OW983A'     #航班号
+  Flight_24bit_addr: 0   #24位地址 默认为0
+  Altitude: 12500        #压强高度 单位m,默认为12500
+  Radio_Altitude: 0      #几何高度 默认为0
+  North_South_Velocity: 0     #南北速度 单位km/h 初始化0
+  East_West_Velocity: 0       #东西速度 单位km/h 初始化0
+  Vertical_Speed: 0     #垂直速度 默认为0
+  Way_Point:            #所有航路点信息
+    point1:
+      - SUBUL
+      - 106.710000
+      - 32.328333
+      - 0
+    point2:
+      - ONEBA
+      - 108.754
+      - 34.445
+      - 45
+  Air_Ground_Sta: 0       #空地状态 0在空中，1在地面
+  Ground_Speed: 2700      #地速 单位km/h
+  Flight_Length: 38.9     #飞机长度 单位m
+  Flight_Width: 35.8      #飞机宽度 单位m
+  NACV: 4    #速度不确定度 默认为6
+  NACp: 7    #位置不确定度 默认为0
+  NIC: 6
+  SIL: 1
+extra:
+  delay_time: 0          #起飞延迟 单位s
+  fre_transmit_data: 1     #本机数据发送频率 单位s
