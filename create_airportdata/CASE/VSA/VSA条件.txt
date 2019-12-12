@@ -1,4 +1,0 @@
-NACp>=6
-NACv>=1
-SIL>=1
-NIC>=6

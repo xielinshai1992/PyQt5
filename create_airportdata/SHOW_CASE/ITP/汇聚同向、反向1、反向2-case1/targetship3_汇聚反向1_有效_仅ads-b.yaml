@@ -37,7 +37,6 @@ ADS-B:
   SDA: 1
   emergency_priority_sta: 1
   data_link_version: 2
-  # TCAS信息
 TCAS:
   enable: 0                    #是否有Tcas数据 有为1 无为0
   distance_to_own: 18.52       #目标机向本机发送Tcas数据的距离阈值 单位km 默认为10nm
