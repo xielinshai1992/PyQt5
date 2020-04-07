@@ -1030,17 +1030,38 @@
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QLabel" name="label_2">
+      <widget class="QPushButton" name="btn_zoom_add_8">
        <property name="geometry">
         <rect>
-         <x>170</x>
-         <y>740</y>
-         <width>72</width>
-         <height>15</height>
+         <x>250</x>
+         <y>650</y>
+         <width>31</width>
+         <height>31</height>
         </rect>
        </property>
        <property name="text">
-        <string>TextLabel</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>pic/triangle-l.png</normaloff>pic/triangle-l.png</iconset>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="btn_zoom_reduce_8">
+       <property name="geometry">
+        <rect>
+         <x>400</x>
+         <y>650</y>
+         <width>31</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>pic/triangle-r.png</normaloff>pic/triangle-r.png</iconset>
        </property>
       </widget>
      </widget>

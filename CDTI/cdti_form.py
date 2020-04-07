@@ -36,9 +36,9 @@ class MainWindow(QMainWindow):
         pixmap_ownship =  QPixmap("pic/ownship.png")
         pixmap_border = QPixmap("pic/b.png") #外轮廓
         scaledPixmap_border = pixmap_border.scaled(640, 640, aspectRatioMode=Qt.KeepAspectRatioByExpanding)
-        pixmap_compass_transparent = QPixmap("pic/c.png") #透明罗盘
+        pixmap_compass_transparent = QPixmap("pic/罗盘-透明背景.png") #透明罗盘
         scaledPixmap_compass_transparent = pixmap_compass_transparent.scaled(640, 640, aspectRatioMode=Qt.KeepAspectRatio)
-        pixmap_compass_black = QPixmap("pic/d.png")    #背景色为黑色罗盘
+        pixmap_compass_black = QPixmap("pic/罗盘-黑色背景.png")    #背景色为黑色罗盘
         scaledPixmap_compass_black = pixmap_compass_black.scaled(640, 640, aspectRatioMode=Qt.KeepAspectRatio)
 
 
@@ -80,7 +80,7 @@ class MainWindow(QMainWindow):
         self.surf_ownship_item = surf_scene.addPixmap(pixmap_ownship)    #4
         #设置Item位置
         self.surf_ownship_item.setPos(320-15,320+17.5)
-        self.surf_border_Item.setPos(0, 0)
+        #self.surf_border_Item.setPos(0, 0)
         self.map_widgetItem.setPos(0,45)
         self.surf_compass_Item.setPos(0,45)
         #获取旋转中心 得到一个QPointF对象
