@@ -21,6 +21,7 @@ class MainWindow(QMainWindow):
         self.timer.timeout.connect(self.slotTimeout)
         self.timer.start(1000)
 
+
     def slotTimeout(self):
         self.rotateAngle = (self.rotateAngle+5)%360
         self.map_widgetItem.setRotation(self.rotateAngle)
@@ -31,7 +32,8 @@ class MainWindow(QMainWindow):
     def initUI(self):
         self.ui = cdti_mainform.Ui_MainWindow()
         self.ui.setupUi(self)
-
+        self.ui.btn_zoom_in_surf.clicked.connect(self.map_zoom_in)
+        self.ui.btn_zoom_out_surf.clicked.connect(self.map_zoom_out)
         #通用图片初始化
         pixmap_ownship =  QPixmap("pic/ownship.png")
         pixmap_border = QPixmap("pic/b.png") #外轮廓
@@ -138,6 +140,19 @@ class MainWindow(QMainWindow):
         self.itp_compass_Item.setTransformOriginPoint(centerPos)
         # self.vsa_compass_Item.setRotation(10)
 
+
+
+    def map_zoom_in(self):
+        # 放大一级视图
+        js_string_map_zoom_in = 'map.zoomIn();'
+        self.browser.page().runJavaScript(js_string_map_zoom_in)  # 初始化本机位置、标注、航线、移动
+
+
+    def map_zoom_out(self):
+        # 缩小一级视图
+        # 放大一级视图
+        js_string_map_zoom_in = 'map.zoomOut();'
+        self.browser.page().runJavaScript(js_string_map_zoom_in)  # 初始化本机位置、标注、航线、移动
 
 
 if __name__=='__main__':

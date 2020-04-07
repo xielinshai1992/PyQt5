@@ -39,7 +39,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab_AIRB">
      <attribute name="title">
@@ -407,7 +407,7 @@
          <string>OwnShip FID：</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="btn_zoom_add_4">
+       <widget class="QPushButton" name="btn_zoom_in_surf">
         <property name="geometry">
          <rect>
           <x>420</x>
@@ -424,7 +424,7 @@
           <normaloff>pic/+.png</normaloff>pic/+.png</iconset>
         </property>
        </widget>
-       <widget class="QPushButton" name="btn_zoom_reduce_4">
+       <widget class="QPushButton" name="btn_zoom_out_surf">
         <property name="geometry">
          <rect>
           <x>450</x>
