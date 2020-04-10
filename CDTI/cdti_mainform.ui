@@ -39,7 +39,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_AIRB">
      <attribute name="title">
@@ -48,8 +48,8 @@
      <widget class="QFrame" name="frame_2">
       <property name="geometry">
        <rect>
-        <x>680</x>
-        <y>20</y>
+        <x>670</x>
+        <y>-30</y>
         <width>641</width>
         <height>831</height>
        </rect>
@@ -126,6 +126,77 @@
        <property name="text">
         <string>ID               GROUNDSPEED KT</string>
        </property>
+      </widget>
+      <widget class="QWidget" name="formLayoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>390</y>
+         <width>51</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <layout class="QFormLayout" name="formLayout_targetair">
+        <property name="horizontalSpacing">
+         <number>0</number>
+        </property>
+        <property name="verticalSpacing">
+         <number>3</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="styleSheet">
+           <string notr="true">color:blue</string>
+          </property>
+          <property name="text">
+           <string>2725CA</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="styleSheet">
+           <string notr="true">color:blue</string>
+          </property>
+          <property name="text">
+           <string>-0</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="styleSheet">
+           <string notr="true">color:blue</string>
+          </property>
+          <property name="text">
+           <string>AIR</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="styleSheet">
+           <string notr="true">color:blue</string>
+          </property>
+          <property name="text">
+           <string>APPL:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap>pic/44.png</pixmap>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
      <widget class="QFrame" name="frame_airb">

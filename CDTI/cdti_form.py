@@ -15,6 +15,8 @@ class MainWindow(QMainWindow):
         self.surf_compass_Item = 0
         self.airb_compass_Item = 0
         self.vsa_compass_Item = 0
+        self.targetAir1_Item = 0
+        self.air1_text_Item = 0
         self.initUI()
         #设置定时器 每50ms旋转一次
         self.timer = QTimer(self)
@@ -27,6 +29,8 @@ class MainWindow(QMainWindow):
         self.map_widgetItem.setRotation(self.rotateAngle)
         self.airb_compass_Item.setRotation(self.rotateAngle)
         self.vsa_compass_Item.setRotation(self.rotateAngle)
+        self.targetAir1_Item.setPos(60+self.rotateAngle,60+self.rotateAngle)
+        self.air1_text_Item.setPos(60+self.rotateAngle,80+self.rotateAngle)
         #self.surf_compass_Item.setRotation(self.rotateAngle+45)
 
     def initUI(self):
@@ -42,7 +46,7 @@ class MainWindow(QMainWindow):
         scaledPixmap_compass_transparent = pixmap_compass_transparent.scaled(640, 640, aspectRatioMode=Qt.KeepAspectRatio)
         pixmap_compass_black = QPixmap("pic/罗盘-黑色背景.png")    #背景色为黑色罗盘
         scaledPixmap_compass_black = pixmap_compass_black.scaled(640, 640, aspectRatioMode=Qt.KeepAspectRatio)
-
+        pixmap_targetship1 = QPixmap("pic/11.png")   #目标机
 
         #airb
         self.ui.horizontalLayoutWidget_2.setGeometry(QRect(0, 0, 720, 720))
@@ -80,11 +84,20 @@ class MainWindow(QMainWindow):
         self.surf_border_Item = surf_scene.addPixmap(scaledPixmap_border) #2
         self.surf_compass_Item = surf_scene.addPixmap(scaledPixmap_compass_transparent) #3
         self.surf_ownship_item = surf_scene.addPixmap(pixmap_ownship)    #4
+        self.targetAir1_Item = surf_scene.addPixmap(pixmap_targetship1) #5
+        #初始化一架目标飞机（文本信息部分）        #6
+        frame_targetAir1 = QFrame()
+        frame_targetAir1.setStyleSheet("background-color:black")
+        frame_targetAir1.setLayout(self.ui.formLayout_targetair)
+        self.air1_text_Item = surf_scene.addWidget(frame_targetAir1)
+        self.air1_text_Item.setOpacity(0.9)
+
         #设置Item位置
         self.surf_ownship_item.setPos(320-15,320+17.5)
-        #self.surf_border_Item.setPos(0, 0)
         self.map_widgetItem.setPos(0,45)
         self.surf_compass_Item.setPos(0,45)
+        #self.targetAir1_Item.setPos(270,270)
+        #self.air1_text_Item.setPos(270,290)
         #获取旋转中心 得到一个QPointF对象
         centerPos_A = self.map_widgetItem.boundingRect().center()
         centerPos_B = self.surf_compass_Item.boundingRect().center()
@@ -95,6 +108,8 @@ class MainWindow(QMainWindow):
         # self.surf_compass_Item.setRotation(10)
         #设置item图层位置
         self.map_widgetItem.stackBefore(self.surf_border_Item)
+        self.targetAir1_Item.stackBefore(self.surf_ownship_item)
+        self.air1_text_Item.stackBefore(self.surf_ownship_item)
         self.ui.graphicsView_surf.setScene(surf_scene)
         self.ui.graphicsView_surf.setSceneRect(1, 1, 715, 715)
 
@@ -140,7 +155,16 @@ class MainWindow(QMainWindow):
         self.itp_compass_Item.setTransformOriginPoint(centerPos)
         # self.vsa_compass_Item.setRotation(10)
 
-
+    def setPos_targetAir(self,appl_type,air_id,x,y):
+        '''
+        设置目标机位置
+        :param appl_type: 应用名称
+        :param air_id: 目标机id
+        :param x: x轴方向坐标
+        :param y: y轴方向坐标
+        :return:
+        '''
+        pass
 
     def map_zoom_in(self):
         # 放大一级视图
