@@ -39,7 +39,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="tab_AIRB">
      <attribute name="title">
@@ -130,23 +130,23 @@
       <widget class="QWidget" name="formLayoutWidget">
        <property name="geometry">
         <rect>
-         <x>170</x>
-         <y>390</y>
-         <width>51</width>
-         <height>61</height>
+         <x>220</x>
+         <y>330</y>
+         <width>71</width>
+         <height>70</height>
         </rect>
        </property>
        <layout class="QFormLayout" name="formLayout_targetair">
         <property name="horizontalSpacing">
-         <number>0</number>
+         <number>1</number>
         </property>
         <property name="verticalSpacing">
-         <number>3</number>
+         <number>1</number>
         </property>
         <item row="0" column="0">
          <widget class="QLabel" name="label_2">
           <property name="styleSheet">
-           <string notr="true">color:blue</string>
+           <string notr="true">color:white</string>
           </property>
           <property name="text">
            <string>2725CA</string>
@@ -156,7 +156,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="label_3">
           <property name="styleSheet">
-           <string notr="true">color:blue</string>
+           <string notr="true">color:white</string>
           </property>
           <property name="text">
            <string>-0</string>
@@ -166,7 +166,7 @@
         <item row="2" column="0">
          <widget class="QLabel" name="label_4">
           <property name="styleSheet">
-           <string notr="true">color:blue</string>
+           <string notr="true">color:white</string>
           </property>
           <property name="text">
            <string>AIR</string>
@@ -176,7 +176,7 @@
         <item row="3" column="0">
          <widget class="QLabel" name="label_5">
           <property name="styleSheet">
-           <string notr="true">color:blue</string>
+           <string notr="true">color:white</string>
           </property>
           <property name="text">
            <string>APPL:</string>
@@ -185,11 +185,14 @@
         </item>
         <item row="3" column="1">
          <widget class="QLabel" name="label_6">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>pic/44.png</pixmap>
+           <pixmap>pic/appstatus1.png</pixmap>
           </property>
           <property name="scaledContents">
            <bool>true</bool>
@@ -310,7 +313,23 @@
          <string>OwnShip FID：</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="btn_zoom_add_5">
+       <widget class="QLabel" name="label_41">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>80</y>
+          <width>121</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:rgb(255, 255, 255)</string>
+        </property>
+        <property name="text">
+         <string>APPL Status：</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btn_zoom_in_airb">
         <property name="geometry">
          <rect>
           <x>420</x>
@@ -327,10 +346,10 @@
           <normaloff>pic/+.png</normaloff>pic/+.png</iconset>
         </property>
        </widget>
-       <widget class="QPushButton" name="btn_zoom_reduce_5">
+       <widget class="QPushButton" name="btn_zoom_out_airb">
         <property name="geometry">
          <rect>
-          <x>450</x>
+          <x>460</x>
           <y>60</y>
           <width>31</width>
           <height>31</height>
@@ -342,22 +361,6 @@
         <property name="icon">
          <iconset>
           <normaloff>pic/-.png</normaloff>pic/-.png</iconset>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_41">
-        <property name="geometry">
-         <rect>
-          <x>30</x>
-          <y>80</y>
-          <width>121</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color:rgb(255, 255, 255)</string>
-        </property>
-        <property name="text">
-         <string>APPL Status：</string>
         </property>
        </widget>
       </widget>
@@ -529,6 +532,22 @@
         </property>
        </widget>
       </widget>
+      <widget class="QLabel" name="label_67">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>680</y>
+         <width>21</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(255, 255, 255)</string>
+       </property>
+       <property name="text">
+        <string>-64</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QFrame" name="frame_3">
       <property name="geometry">
@@ -612,6 +631,134 @@
         <string>ID               GROUNDSPEED KT</string>
        </property>
       </widget>
+     </widget>
+     <widget class="QLabel" name="label_59">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>5</y>
+        <width>21</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:rgb(255, 255, 255)</string>
+      </property>
+      <property name="text">
+       <string>-64</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_60">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>5</y>
+        <width>21</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:rgb(255, 255, 255)</string>
+      </property>
+      <property name="text">
+       <string>-32</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_61">
+      <property name="geometry">
+       <rect>
+        <x>330</x>
+        <y>5</y>
+        <width>21</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:rgb(255, 255, 255)</string>
+      </property>
+      <property name="text">
+       <string>0</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_62">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>5</y>
+        <width>21</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:rgb(255, 255, 255)</string>
+      </property>
+      <property name="text">
+       <string>32</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_63">
+      <property name="geometry">
+       <rect>
+        <x>640</x>
+        <y>5</y>
+        <width>21</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:rgb(255, 255, 255)</string>
+      </property>
+      <property name="text">
+       <string>64</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_64">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>370</y>
+        <width>16</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:rgb(255, 255, 255)</string>
+      </property>
+      <property name="text">
+       <string>0</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_65">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>220</y>
+        <width>21</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:rgb(255, 255, 255)</string>
+      </property>
+      <property name="text">
+       <string>32</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_66">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>540</y>
+        <width>21</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:rgb(255, 255, 255)</string>
+      </property>
+      <property name="text">
+       <string>-32</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_VSA">
@@ -729,7 +876,23 @@
          <string>OwnShip FID：</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="btn_zoom_add_6">
+       <widget class="QLabel" name="label_46">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>80</y>
+          <width>121</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:rgb(255, 255, 255)</string>
+        </property>
+        <property name="text">
+         <string>APPL Status：</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btn_zoom_in_vsa">
         <property name="geometry">
          <rect>
           <x>420</x>
@@ -746,7 +909,7 @@
           <normaloff>pic/+.png</normaloff>pic/+.png</iconset>
         </property>
        </widget>
-       <widget class="QPushButton" name="btn_zoom_reduce_6">
+       <widget class="QPushButton" name="btn_zoom_out_vsa">
         <property name="geometry">
          <rect>
           <x>450</x>
@@ -761,22 +924,6 @@
         <property name="icon">
          <iconset>
           <normaloff>pic/-.png</normaloff>pic/-.png</iconset>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_46">
-        <property name="geometry">
-         <rect>
-          <x>30</x>
-          <y>80</y>
-          <width>121</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color:rgb(255, 255, 255)</string>
-        </property>
-        <property name="text">
-         <string>APPL Status：</string>
         </property>
        </widget>
       </widget>
@@ -980,7 +1127,23 @@
          <string>OwnShip FID：</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="btn_zoom_add_7">
+       <widget class="QLabel" name="label_51">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>80</y>
+          <width>121</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:rgb(255, 255, 255)</string>
+        </property>
+        <property name="text">
+         <string>APPL Status：</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btn_zoom_in_itp">
         <property name="geometry">
          <rect>
           <x>420</x>
@@ -997,7 +1160,7 @@
           <normaloff>pic/+.png</normaloff>pic/+.png</iconset>
         </property>
        </widget>
-       <widget class="QPushButton" name="btn_zoom_reduce_7">
+       <widget class="QPushButton" name="btn_zoom_out_itp">
         <property name="geometry">
          <rect>
           <x>450</x>
@@ -1012,22 +1175,6 @@
         <property name="icon">
          <iconset>
           <normaloff>pic/-.png</normaloff>pic/-.png</iconset>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_51">
-        <property name="geometry">
-         <rect>
-          <x>30</x>
-          <y>80</y>
-          <width>121</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color:rgb(255, 255, 255)</string>
-        </property>
-        <property name="text">
-         <string>APPL Status：</string>
         </property>
        </widget>
       </widget>
@@ -1082,12 +1229,12 @@
         <string>DISPLAY ALTITUDE RANGE:</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="img_itp_alt">
        <property name="geometry">
         <rect>
-         <x>20</x>
+         <x>0</x>
          <y>160</y>
-         <width>601</width>
+         <width>621</width>
          <height>481</height>
         </rect>
        </property>
@@ -1101,38 +1248,582 @@
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QPushButton" name="btn_zoom_add_8">
+      <widget class="QLabel" name="label_54">
        <property name="geometry">
         <rect>
-         <x>250</x>
-         <y>650</y>
-         <width>31</width>
-         <height>31</height>
+         <x>90</x>
+         <y>410</y>
+         <width>21</width>
+         <height>16</height>
         </rect>
        </property>
-       <property name="text">
-        <string/>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(255, 255, 255)</string>
        </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>pic/triangle-l.png</normaloff>pic/triangle-l.png</iconset>
+       <property name="text">
+        <string>64</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="btn_zoom_reduce_8">
+      <widget class="QLabel" name="label_55">
        <property name="geometry">
         <rect>
-         <x>400</x>
-         <y>650</y>
-         <width>31</width>
-         <height>31</height>
+         <x>210</x>
+         <y>410</y>
+         <width>21</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(255, 255, 255)</string>
+       </property>
+       <property name="text">
+        <string>32</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_56">
+       <property name="geometry">
+        <rect>
+         <x>435</x>
+         <y>410</y>
+         <width>21</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(255, 255, 255)</string>
+       </property>
+       <property name="text">
+        <string>32</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_57">
+       <property name="geometry">
+        <rect>
+         <x>550</x>
+         <y>410</y>
+         <width>21</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(255, 255, 255)</string>
+       </property>
+       <property name="text">
+        <string>64</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_58">
+       <property name="geometry">
+        <rect>
+         <x>325</x>
+         <y>410</y>
+         <width>21</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(255, 255, 255)</string>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="txt_itp_alt0">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>390</y>
+         <width>21</width>
+         <height>15</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(255, 255, 255)</string>
+       </property>
+       <property name="text">
+        <string>320</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="txt_itp_alt1">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>320</y>
+         <width>21</width>
+         <height>15</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(255, 255, 255)</string>
+       </property>
+       <property name="text">
+        <string>330</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="txt_itp_alt2">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>250</y>
+         <width>21</width>
+         <height>15</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(255, 255, 255)</string>
+       </property>
+       <property name="text">
+        <string>340</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="txt_itp_alt3">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>180</y>
+         <width>21</width>
+         <height>15</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(255, 255, 255)</string>
+       </property>
+       <property name="text">
+        <string>350</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="txt_itp_alt_1">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>460</y>
+         <width>21</width>
+         <height>15</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(255, 255, 255)</string>
+       </property>
+       <property name="text">
+        <string>310</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="txt_itp_alt_2">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>530</y>
+         <width>21</width>
+         <height>15</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(255, 255, 255)</string>
+       </property>
+       <property name="text">
+        <string>300</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="txt_itp_alt_3">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>600</y>
+         <width>21</width>
+         <height>15</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(255, 255, 255)</string>
+       </property>
+       <property name="text">
+        <string>290</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp500">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>180</y>
+         <width>16</width>
+         <height>16</height>
         </rect>
        </property>
        <property name="text">
         <string/>
        </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>pic/triangle-r.png</normaloff>pic/triangle-r.png</iconset>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_7">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>200</y>
+         <width>72</width>
+         <height>15</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp501">
+       <property name="geometry">
+        <rect>
+         <x>280</x>
+         <y>180</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp503">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>250</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp502">
+       <property name="geometry">
+        <rect>
+         <x>480</x>
+         <y>180</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp504">
+       <property name="geometry">
+        <rect>
+         <x>280</x>
+         <y>250</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp505">
+       <property name="geometry">
+        <rect>
+         <x>480</x>
+         <y>250</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp512">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>455</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp519">
+       <property name="geometry">
+        <rect>
+         <x>280</x>
+         <y>595</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp518">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>595</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp515">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>525</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp506">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>320</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp509">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>390</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp516">
+       <property name="geometry">
+        <rect>
+         <x>280</x>
+         <y>525</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp507">
+       <property name="geometry">
+        <rect>
+         <x>280</x>
+         <y>320</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp510">
+       <property name="geometry">
+        <rect>
+         <x>260</x>
+         <y>390</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/itp_air1.png</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp508">
+       <property name="geometry">
+        <rect>
+         <x>480</x>
+         <y>320</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp511">
+       <property name="geometry">
+        <rect>
+         <x>480</x>
+         <y>390</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp514">
+       <property name="geometry">
+        <rect>
+         <x>480</x>
+         <y>455</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp517">
+       <property name="geometry">
+        <rect>
+         <x>480</x>
+         <y>525</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp513">
+       <property name="geometry">
+        <rect>
+         <x>280</x>
+         <y>455</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/33.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="pic_air_itp520">
+       <property name="geometry">
+        <rect>
+         <x>460</x>
+         <y>595</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>pic/itp_air2.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QLabel" name="itp510_text">
+       <property name="geometry">
+        <rect>
+         <x>230</x>
+         <y>410</y>
+         <width>91</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(255, 255, 255)</string>
+       </property>
+       <property name="text">
+        <string>  2DJ123
+5.2NM -54KT</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="itp510_text_2">
+       <property name="geometry">
+        <rect>
+         <x>430</x>
+         <y>610</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(0, 255, 255)</string>
+       </property>
+       <property name="text">
+        <string>  1XLS13
+35.2NM +24KT</string>
        </property>
       </widget>
      </widget>

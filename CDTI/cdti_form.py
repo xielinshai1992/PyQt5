@@ -11,6 +11,7 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.rotateAngle = 0  # 每次旋转角度
+        self.count = 0
         self.map_widgetItem = 0
         self.surf_compass_Item = 0
         self.airb_compass_Item = 0
@@ -26,11 +27,12 @@ class MainWindow(QMainWindow):
 
     def slotTimeout(self):
         self.rotateAngle = (self.rotateAngle+5)%360
+        self.count +=5
         self.map_widgetItem.setRotation(self.rotateAngle)
         self.airb_compass_Item.setRotation(self.rotateAngle)
         self.vsa_compass_Item.setRotation(self.rotateAngle)
-        self.targetAir1_Item.setPos(60+self.rotateAngle,60+self.rotateAngle)
-        self.air1_text_Item.setPos(60+self.rotateAngle,80+self.rotateAngle)
+        self.targetAir1_Item.setPos(0+self.count,0+self.count)
+        self.air1_text_Item.setPos(0+self.count,20+self.count)
         #self.surf_compass_Item.setRotation(self.rotateAngle+45)
 
     def initUI(self):
@@ -46,7 +48,7 @@ class MainWindow(QMainWindow):
         scaledPixmap_compass_transparent = pixmap_compass_transparent.scaled(640, 640, aspectRatioMode=Qt.KeepAspectRatio)
         pixmap_compass_black = QPixmap("pic/罗盘-黑色背景.png")    #背景色为黑色罗盘
         scaledPixmap_compass_black = pixmap_compass_black.scaled(640, 640, aspectRatioMode=Qt.KeepAspectRatio)
-        pixmap_targetship1 = QPixmap("pic/11.png")   #目标机
+        pixmap_targetship1 = QPixmap("pic/air1.png")   #目标机
 
         #airb
         self.ui.horizontalLayoutWidget_2.setGeometry(QRect(0, 0, 720, 720))
@@ -72,22 +74,26 @@ class MainWindow(QMainWindow):
         #surf
         self.ui.horizontalLayoutWidget.setGeometry(QRect(0, 0, 720, 720))
         self.ui.graphicsView_surf = QGraphicsView(self.ui.centralwidget)
-        self.ui.graphicsView_surf.setStyleSheet("background: transparent")
+        self.ui.graphicsView_surf.setStyleSheet("padding: 0px; border: 0px;")
         self.ui.horizontalLayout.addWidget(self.ui.graphicsView_surf)
         url = os.getcwd() + '/map_surf.html'
         self.browser = QWebEngineView()
         self.browser.load(QUrl.fromLocalFile(url))
         self.browser.resize(640,640)
         surf_scene = QGraphicsScene(self)
-        #scene场景依次加入4个item
+        label_air_heading = QLabel("54.7")
+        label_air_heading.setStyleSheet("color:white;background-color:transparent")
+        #scene场景依次加入6个item
         self.map_widgetItem = surf_scene.addWidget(self.browser) # 1
         self.surf_border_Item = surf_scene.addPixmap(scaledPixmap_border) #2
         self.surf_compass_Item = surf_scene.addPixmap(scaledPixmap_compass_transparent) #3
         self.surf_ownship_item = surf_scene.addPixmap(pixmap_ownship)    #4
         self.targetAir1_Item = surf_scene.addPixmap(pixmap_targetship1) #5
+        self.surf_air_heading = surf_scene.addWidget(label_air_heading)
+
         #初始化一架目标飞机（文本信息部分）        #6
         frame_targetAir1 = QFrame()
-        frame_targetAir1.setStyleSheet("background-color:black")
+        frame_targetAir1.setStyleSheet("background-color:transparent")
         frame_targetAir1.setLayout(self.ui.formLayout_targetair)
         self.air1_text_Item = surf_scene.addWidget(frame_targetAir1)
         self.air1_text_Item.setOpacity(0.9)
@@ -96,6 +102,7 @@ class MainWindow(QMainWindow):
         self.surf_ownship_item.setPos(320-15,320+17.5)
         self.map_widgetItem.setPos(0,45)
         self.surf_compass_Item.setPos(0,45)
+        self.surf_air_heading.setPos(315,20)
         #self.targetAir1_Item.setPos(270,270)
         #self.air1_text_Item.setPos(270,290)
         #获取旋转中心 得到一个QPointF对象
@@ -110,6 +117,8 @@ class MainWindow(QMainWindow):
         self.map_widgetItem.stackBefore(self.surf_border_Item)
         self.targetAir1_Item.stackBefore(self.surf_ownship_item)
         self.air1_text_Item.stackBefore(self.surf_ownship_item)
+        self.targetAir1_Item.stackBefore(self.surf_border_Item)
+        self.air1_text_Item.stackBefore(self.surf_border_Item)
         self.ui.graphicsView_surf.setScene(surf_scene)
         self.ui.graphicsView_surf.setSceneRect(1, 1, 715, 715)
 
@@ -135,6 +144,26 @@ class MainWindow(QMainWindow):
         # self.vsa_compass_Item.setRotation(10)
 
         #itp
+        self.ui.pic_air_itp500.setVisible(False)
+        self.ui.pic_air_itp501.setVisible(False)
+        self.ui.pic_air_itp502.setVisible(False)
+        self.ui.pic_air_itp503.setVisible(False)
+        self.ui.pic_air_itp504.setVisible(False)
+        self.ui.pic_air_itp505.setVisible(False)
+        self.ui.pic_air_itp506.setVisible(False)
+        self.ui.pic_air_itp507.setVisible(False)
+        self.ui.pic_air_itp508.setVisible(False)
+        self.ui.pic_air_itp509.setVisible(False)
+        self.ui.pic_air_itp511.setVisible(False)
+        self.ui.pic_air_itp512.setVisible(False)
+        self.ui.pic_air_itp513.setVisible(False)
+        self.ui.pic_air_itp514.setVisible(False)
+        self.ui.pic_air_itp515.setVisible(False)
+        self.ui.pic_air_itp516.setVisible(False)
+        self.ui.pic_air_itp517.setVisible(False)
+        self.ui.pic_air_itp518.setVisible(False)
+        self.ui.pic_air_itp519.setVisible(False)
+
         self.ui.horizontalLayoutWidget_4.setGeometry(QRect(0, 0, 720, 720))
         self.ui.graphicsView_itp = QGraphicsView(self.ui.centralwidget)
         self.ui.graphicsView_itp.setStyleSheet("background: transparent")
@@ -177,6 +206,34 @@ class MainWindow(QMainWindow):
         # 放大一级视图
         js_string_map_zoom_in = 'map.zoomOut();'
         self.browser.page().runJavaScript(js_string_map_zoom_in)  # 初始化本机位置、标注、航线、移动
+
+
+    def set_targetAir_Info(self,air_id,is_visible,air_coordinate,air_rotation_angle,air_type_id,flight_number,speed,differ_attitude,air_ground_status,appl_status):
+        '''
+        设置单架目标机信息
+        :param air_id:飞机id Airb：100-109 surf：200-209 vsa：300-309 itp：400-409
+        :param is_visible:  true or false飞机是否可见
+        :param air_coordinate: 序列 飞机容器坐标
+        :param air_rotation_angle: 飞机旋转角度
+        :param air_type_id: 飞机样式id
+        :param flight_number: 航班号
+        :param speed: 地速
+        :param differ_attitude: 高度差
+        :param air_ground_status:地空状态  地面/空中
+        :param appl_status:应用状态 有效/无效
+        :return:
+        '''
+        pass
+
+    def set_OwnShip_Info(self,air_id,flight_number,longitude,latitude,attitude_range,p_attitude,course_angle,appl_status):
+
+
+        pass
+
+    def set_other_Info(self,):
+        pass
+
+
 
 
 if __name__=='__main__':
