@@ -491,6 +491,22 @@
         </layout>
        </widget>
       </widget>
+      <widget class="QLabel" name="airb_air_heading_txt">
+       <property name="geometry">
+        <rect>
+         <x>260</x>
+         <y>460</y>
+         <width>131</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:white;background-color:transparent</string>
+       </property>
+       <property name="text">
+        <string>airb_air_heading_txt</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QFrame" name="frame_airb">
       <property name="geometry">
@@ -633,7 +649,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>pic/+.png</normaloff>pic/+.png</iconset>
+          <normaloff>C:/Users/Administrator/.designer/backup/pic/+.png</normaloff>C:/Users/Administrator/.designer/backup/pic/+.png</iconset>
         </property>
        </widget>
        <widget class="QPushButton" name="btn_zoom_out_airb">
@@ -650,7 +666,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>pic/-.png</normaloff>pic/-.png</iconset>
+          <normaloff>C:/Users/Administrator/.designer/backup/pic/-.png</normaloff>C:/Users/Administrator/.designer/backup/pic/-.png</iconset>
         </property>
        </widget>
        <widget class="QLabel" name="airb_ownship_alt_txt">
@@ -1189,7 +1205,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>pic/+.png</normaloff>pic/+.png</iconset>
+          <normaloff>C:/Users/Administrator/.designer/backup/pic/+.png</normaloff>C:/Users/Administrator/.designer/backup/pic/+.png</iconset>
         </property>
        </widget>
        <widget class="QPushButton" name="btn_zoom_out_surf">
@@ -1206,7 +1222,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>pic/-.png</normaloff>pic/-.png</iconset>
+          <normaloff>C:/Users/Administrator/.designer/backup/pic/-.png</normaloff>C:/Users/Administrator/.designer/backup/pic/-.png</iconset>
         </property>
        </widget>
        <widget class="QLabel" name="label_36">
@@ -2087,6 +2103,22 @@
        <string>-32</string>
       </property>
      </widget>
+     <widget class="QLabel" name="surf_air_heading_txt">
+      <property name="geometry">
+       <rect>
+        <x>950</x>
+        <y>420</y>
+        <width>131</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:white;background-color:transparent</string>
+      </property>
+      <property name="text">
+       <string>surf_air_heading_txt</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_VSA">
      <attribute name="title">
@@ -2233,7 +2265,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>pic/+.png</normaloff>pic/+.png</iconset>
+          <normaloff>C:/Users/Administrator/.designer/backup/pic/+.png</normaloff>C:/Users/Administrator/.designer/backup/pic/+.png</iconset>
         </property>
        </widget>
        <widget class="QPushButton" name="btn_zoom_out_vsa">
@@ -2250,7 +2282,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>pic/-.png</normaloff>pic/-.png</iconset>
+          <normaloff>C:/Users/Administrator/.designer/backup/pic/-.png</normaloff>C:/Users/Administrator/.designer/backup/pic/-.png</iconset>
         </property>
        </widget>
        <widget class="QLabel" name="vsa_ownship_alt_txt">
@@ -3109,6 +3141,22 @@
        <string>ID      </string>
       </property>
      </widget>
+     <widget class="QLabel" name="vsa_air_heading_txt">
+      <property name="geometry">
+       <rect>
+        <x>1010</x>
+        <y>400</y>
+        <width>131</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:white;background-color:transparent</string>
+      </property>
+      <property name="text">
+       <string>vsa_air_heading_txt</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_ITP">
      <attribute name="title">
@@ -3255,7 +3303,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>pic/+.png</normaloff>pic/+.png</iconset>
+          <normaloff>C:/Users/Administrator/.designer/backup/pic/+.png</normaloff>C:/Users/Administrator/.designer/backup/pic/+.png</iconset>
         </property>
        </widget>
        <widget class="QPushButton" name="btn_zoom_out_itp">
@@ -3272,7 +3320,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>pic/-.png</normaloff>pic/-.png</iconset>
+          <normaloff>C:/Users/Administrator/.designer/backup/pic/-.png</normaloff>C:/Users/Administrator/.designer/backup/pic/-.png</iconset>
         </property>
        </widget>
        <widget class="QLabel" name="itp_time_txt">
@@ -3395,7 +3443,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap>pic/ITP.png</pixmap>
+        <pixmap>C:/Users/Administrator/.designer/backup/pic/ITP.png</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -4550,6 +4598,22 @@
       </property>
       <property name="text">
        <string>ownship_lat</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="itp_air_heading_txt">
+      <property name="geometry">
+       <rect>
+        <x>710</x>
+        <y>690</y>
+        <width>131</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:white;background-color:transparent</string>
+      </property>
+      <property name="text">
+       <string>itp_air_heading_txt</string>
       </property>
      </widget>
     </widget>

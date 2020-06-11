@@ -389,10 +389,15 @@ class MainWindow(QMainWindow):
         self.map_widgetItem.setPos(0, 45)
         self.surf_border_Item = self.surf_scene.addPixmap(scaledPixmap_border) #罗盘边框条目
         self.surf_compass_Item = self.surf_scene.addPixmap(scaledPixmap_compass_transparent) #罗盘条目
+        surf_compass_centerPos1 = self.surf_compass_Item.boundingRect().center()
+        self.surf_compass_Item.setTransformOriginPoint(surf_compass_centerPos1)
         self.surf_compass_Item.setPos(0,45)
         self.surf_ownship_item = self.surf_scene.addPixmap(pixmap_ownship)    #本机图标
         self.surf_ownship_item.setPos(320-15,320+17.5)
-
+        self.surf_air_heading_txt = QLabel("23.5")
+        self.surf_air_heading_txt.setStyleSheet("color:white;background-color:transparent")
+        surf_air_heading = self.surf_scene.addWidget(self.surf_air_heading_txt)  # 本机航向角
+        surf_air_heading.setPos(315, 20)
         #初始化五架目标飞机
         self.surf_targetair1_PixItem = self.surf_scene.addPixmap(pixmap_type1_targetship) #1号目标机图标
         surf_centerPos1 = self.surf_targetair1_PixItem.boundingRect().center()
@@ -503,9 +508,15 @@ class MainWindow(QMainWindow):
         # scene场景增加条目并设置位置
         self.airb_border_Item = self.airb_scene.addPixmap(scaledPixmap_border)  # 罗盘边框条目
         self.airb_compass_Item = self.airb_scene.addPixmap(scaledPixmap_compass_transparent)  # 罗盘条目
+        airb_compass_centerPos1 = self.airb_compass_Item.boundingRect().center()
+        self.airb_compass_Item.setTransformOriginPoint(airb_compass_centerPos1)
         self.airb_compass_Item.setPos(0, 45)
         self.airb_ownship_item = self.airb_scene.addPixmap(pixmap_ownship)  # 本机图标
         self.airb_ownship_item.setPos(320 - 15, 320 + 17.5)
+        self.airb_air_heading_txt = QLabel("23.5")
+        self.airb_air_heading_txt.setStyleSheet("color:white;background-color:transparent")
+        airb_air_heading = self.airb_scene.addWidget(self.airb_air_heading_txt)  # 本机航向角
+        airb_air_heading.setPos(315, 20)
 
         # 初始化五架目标飞机
         self.airb_targetair1_PixItem = self.airb_scene.addPixmap(pixmap_type1_targetship)  # 1号目标机图标
@@ -612,9 +623,15 @@ class MainWindow(QMainWindow):
         # scene场景增加条目并设置位置
         self.vsa_border_Item = self.vsa_scene.addPixmap(scaledPixmap_border)  # 罗盘边框条目
         self.vsa_compass_Item = self.vsa_scene.addPixmap(scaledPixmap_compass_transparent)  # 罗盘条目
+        vsa_compass_centerPos1 = self.vsa_compass_Item.boundingRect().center()
+        self.vsa_compass_Item.setTransformOriginPoint(vsa_compass_centerPos1)
         self.vsa_compass_Item.setPos(0, 45)
         self.vsa_ownship_item = self.vsa_scene.addPixmap(pixmap_ownship)  # 本机图标
         self.vsa_ownship_item.setPos(320 - 15, 320 + 17.5)
+        self.vsa_air_heading_txt = QLabel("23.5")
+        self.vsa_air_heading_txt.setStyleSheet("color:white;background-color:transparent")
+        vsa_air_heading = self.vsa_scene.addWidget(self.vsa_air_heading_txt)  # 本机航向角
+        vsa_air_heading.setPos(315, 20)
 
         # 初始化五架目标飞机
         self.vsa_targetair1_PixItem = self.vsa_scene.addPixmap(pixmap_type1_targetship)  # 1号目标机图标
@@ -720,10 +737,15 @@ class MainWindow(QMainWindow):
         # scene场景增加条目并设置位置
         self.itp_border_Item = self.itp_scene.addPixmap(scaledPixmap_border)  # 罗盘边框条目
         self.itp_compass_Item = self.itp_scene.addPixmap(scaledPixmap_compass_transparent)  # 罗盘条目
+        itp_compass_centerPos1 = self.itp_compass_Item.boundingRect().center()
+        self.itp_compass_Item.setTransformOriginPoint(itp_compass_centerPos1)
         self.itp_compass_Item.setPos(0, 45)
         self.itp_ownship_item = self.itp_scene.addPixmap(pixmap_ownship)  # 本机图标
         self.itp_ownship_item.setPos(320 - 15, 320 + 17.5)
-
+        self.itp_air_heading_txt = QLabel("23.5")
+        self.itp_air_heading_txt.setStyleSheet("color:white;background-color:transparent")
+        itp_air_heading = self.itp_scene.addWidget(self.itp_air_heading_txt)  # 本机航向角
+        itp_air_heading.setPos(315, 20)
         # 初始化五架目标飞机
         self.itp_targetair1_PixItem = self.itp_scene.addPixmap(pixmap_type1_targetship)  # 1号目标机图标
         itp_centerPos1 = self.itp_targetair1_PixItem.boundingRect().center()
@@ -838,6 +860,7 @@ class MainWindow(QMainWindow):
         '''
         target_x_list = []  # 目标机x轴坐标序列
         target_y_list = []  # 目标机y轴坐标序列
+
         if info:
            print("接收到UA发送数据，开始解析")
            print(info)
@@ -892,22 +915,10 @@ class MainWindow(QMainWindow):
                            self.itp_air5_text_Item.setVisible(item[2])
                    if item[1] == 46224:  # 设置文本
                        if self.map_wigdetId[item[0]] == 'surf_ownship_angle_txt':#设置本机航向角
-                           surf_air_heading_txt = QLabel(str(item[2].decode()))
-                           airb_air_heading_txt = QLabel(str(item[2].decode()))
-                           vsa_air_heading_txt = QLabel(str(item[2].decode()))
-                           itp_air_heading_txt = QLabel(str(item[2].decode()))
-                           surf_air_heading_txt.setStyleSheet("color:white;background-color:transparent")
-                           airb_air_heading_txt.setStyleSheet("color:white;background-color:transparent")
-                           vsa_air_heading_txt.setStyleSheet("color:white;background-color:transparent")
-                           itp_air_heading_txt.setStyleSheet("color:white;background-color:transparent")
-                           surf_air_heading = self.surf_scene.addWidget(surf_air_heading_txt)  # 本机航向角
-                           airb_air_heading = self.airb_scene.addWidget(airb_air_heading_txt)  # 本机航向角
-                           vsa_air_heading = self.vsa_scene.addWidget(vsa_air_heading_txt)  # 本机航向角
-                           itp_air_heading = self.itp_scene.addWidget(itp_air_heading_txt)  # 本机航向角
-                           surf_air_heading.setPos(315, 20)
-                           airb_air_heading.setPos(315, 20)
-                           vsa_air_heading.setPos(315, 20)
-                           itp_air_heading.setPos(315, 20)
+                           self.surf_air_heading_txt.setText(str(item[2].decode()))
+                           self.airb_air_heading_txt.setText(str(item[2].decode()))
+                           self.vsa_air_heading_txt.setText(str(item[2].decode()))
+                           self.itp_air_heading_txt.setText(str(item[2].decode()))
                        if 'surf_target1_id_txt' == self.map_wigdetId[item[0]]:#设置1号目标机id
                            surf_mywidget = self.surf_frametxt_targetAir1.findChild(QLabel,self.map_wigdetId[item[0]])
                            surf_mywidget.setText(str(item[2].decode()))
@@ -1096,27 +1107,19 @@ class MainWindow(QMainWindow):
                            vsa_pic_widget.setPixmap(QPixmap("pic/appstatus" + str(item[2]) + ".png"))
                            itp_pic_widget.setPixmap(QPixmap("pic/appstatus" + str(item[2]) + ".png"))
                        if 'surf_target4_applstatus_bitmap' == self.map_wigdetId[item[0]]:
-                           surf_pic_widget = self.surf_frametxt_targetAir4.findChild(QLabel,
-                                                                                     self.map_wigdetId[item[0]])
-                           airb_pic_widget = self.airb_frametxt_targetAir4.findChild(QLabel,
-                                                                                     "airb_target4_applstatus_bitmap")
-                           vsa_pic_widget = self.vsa_frametxt_targetAir4.findChild(QLabel,
-                                                                                   "vsa_target4_applstatus_bitmap")
-                           itp_pic_widget = self.itp_frametxt_targetAir4.findChild(QLabel,
-                                                                                   "itp_target4_applstatus_bitmap")
+                           surf_pic_widget = self.surf_frametxt_targetAir4.findChild(QLabel,self.map_wigdetId[item[0]])
+                           airb_pic_widget = self.airb_frametxt_targetAir4.findChild(QLabel,"airb_target4_applstatus_bitmap")
+                           vsa_pic_widget = self.vsa_frametxt_targetAir4.findChild(QLabel,"vsa_target4_applstatus_bitmap")
+                           itp_pic_widget = self.itp_frametxt_targetAir4.findChild(QLabel,"itp_target4_applstatus_bitmap")
                            surf_pic_widget.setPixmap(QPixmap("pic/appstatus" + str(item[2]) + ".png"))
                            airb_pic_widget.setPixmap(QPixmap("pic/appstatus" + str(item[2]) + ".png"))
                            vsa_pic_widget.setPixmap(QPixmap("pic/appstatus" + str(item[2]) + ".png"))
                            itp_pic_widget.setPixmap(QPixmap("pic/appstatus" + str(item[2]) + ".png"))
                        if 'surf_target5_applstatus_bitmap' == self.map_wigdetId[item[0]]:
-                           surf_pic_widget = self.surf_frametxt_targetAir5.findChild(QLabel,
-                                                                                     self.map_wigdetId[item[0]])
-                           airb_pic_widget = self.airb_frametxt_targetAir5.findChild(QLabel,
-                                                                                     "airb_target5_applstatus_bitmap")
-                           vsa_pic_widget = self.vsa_frametxt_targetAir5.findChild(QLabel,
-                                                                                   "vsa_target5_applstatus_bitmap")
-                           itp_pic_widget = self.itp_frametxt_targetAir5.findChild(QLabel,
-                                                                                   "itp_target5_applstatus_bitmap")
+                           surf_pic_widget = self.surf_frametxt_targetAir5.findChild(QLabel,self.map_wigdetId[item[0]])
+                           airb_pic_widget = self.airb_frametxt_targetAir5.findChild(QLabel,"airb_target5_applstatus_bitmap")
+                           vsa_pic_widget = self.vsa_frametxt_targetAir5.findChild(QLabel,"vsa_target5_applstatus_bitmap")
+                           itp_pic_widget = self.itp_frametxt_targetAir5.findChild(QLabel,"itp_target5_applstatus_bitmap")
                            surf_pic_widget.setPixmap(QPixmap("pic/appstatus" + str(item[2]) + ".png"))
                            airb_pic_widget.setPixmap(QPixmap("pic/appstatus" + str(item[2]) + ".png"))
                            vsa_pic_widget.setPixmap(QPixmap("pic/appstatus" + str(item[2]) + ".png"))
@@ -1153,6 +1156,11 @@ class MainWindow(QMainWindow):
                            self.vsa_targetair5_PixItem.setPixmap(pixmap_targetship)
                            self.itp_targetair5_PixItem.setPixmap(pixmap_targetship)
                    if item[1] ==  45760: # 设置旋转角
+                       if 'surf_compass_bitmap' == self.map_wigdetId[item[0]]:
+                           self.surf_compass_Item.setRotation(int(item[2].decode()))
+                           self.airb_compass_Item.setRotation(int(item[2].decode()))
+                           self.vsa_compass_Item.setRotation(int(item[2].decode()))
+                           self.itp_compass_Item.setRotation(int(item[2].decode()))
                        if 'surf_targetshow_bitmap1' == self.map_wigdetId[item[0]]:
                            self.surf_targetair1_PixItem.setRotation(int(item[2].decode()))
                            self.airb_targetair1_PixItem.setRotation(int(item[2].decode()))
