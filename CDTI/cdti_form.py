@@ -265,10 +265,6 @@ class MainWindow(QMainWindow):
         self.targetAir1_Item = 0
         self.surf_air1_text_Item = 0
         self.initUI()
-        #设置定时器 每50ms旋转一次
-        #self.timer = QTimer(self)
-        #self.timer.timeout.connect(self.slotTimeout)
-        #self.timer.start(1000)
         timer_a = QTimer(self)
         timer_a.timeout.connect(self.update_time)
         timer_a.start()
@@ -276,6 +272,10 @@ class MainWindow(QMainWindow):
         self.myWorker.signal_a.connect(self.update_cdti_ui)
         self.myWorker.start()
         print("打开UDP通信端口，开始接收UA发送数据...")
+        self.cdti_to_ua_in_data = CDTI_TO_UA_WIDGET_EVENT_DATA()
+        self.cdti_to_ua_out_data = CDTI_TO_UA_WIDGET_EVENT_DATA()
+        self.ui.btn_zoom_in_surf.clicked.connect(self.send_data1_to_ua)
+        self.ui.btn_zoom_out_surf.clicked.connect(self.send_data2_to_ua)
 
     def update_time(self):
         Seconds = int(datetime.datetime.now().strftime('%H:%M:%S:%f').split(':')[2])  #
@@ -298,7 +298,6 @@ class MainWindow(QMainWindow):
         self.targetAir1_Item.setPos(0+self.count,0+self.count)
         self.surf_air1_text_Item.setPos(0 + self.count, 20 + self.count)
         #self.surf_compass_Item.setRotation(self.rotateAngle+45)
-
 
     def setQLabelVisible(self,widget_id,is_Visible):
         '''
@@ -349,8 +348,15 @@ class MainWindow(QMainWindow):
         self.ui.widget_airb.setVisible(False)
         self.ui.widget_surf.setVisible(False)
         self.ui.widget_vsa.setVisible(False)
-        #self.ui.pushButton_test.clicked.connect(self.mytest)
-
+        self.ui.btn_zoom_in_surf.setIcon(QIcon("pic/+.png"))
+        self.ui.btn_zoom_in_airb.setIcon(QIcon("pic/+.png"))
+        self.ui.btn_zoom_in_vsa.setIcon(QIcon("pic/+.png"))
+        self.ui.btn_zoom_in_itp.setIcon(QIcon("pic/+.png"))
+        self.ui.btn_zoom_out_surf.setIcon(QIcon("pic/-.png"))
+        self.ui.btn_zoom_out_airb.setIcon(QIcon("pic/-.png"))
+        self.ui.btn_zoom_out_vsa.setIcon(QIcon("pic/-.png"))
+        self.ui.btn_zoom_out_itp.setIcon(QIcon("pic/-.png"))
+        self.ui.img_itp_alt.setPixmap(QPixmap("pic/ITP.png"))
         #通用图片初始化
         pixmap_ownship =  QPixmap("pic/ownship.png") #本机图标
         pixmap_border = QPixmap("pic/b.png") #罗盘外轮廓
@@ -1255,6 +1261,48 @@ class MainWindow(QMainWindow):
                    print("更新界面UI有错误，请检查~")
                    continue
 
+    def send_data1_to_ua(self):
+        try:
+            self.pack_CDTI_TO_UA_DATA(self.cdti_to_ua_in_data,1)
+            buf = self.cdti_to_ua_in_data.encode()
+            print("待发送的字节:" + str(buf))
+            IP_PORT = ('127.0.0.1', 8002)
+            socket_661 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
+            socket_661.sendto(buf, IP_PORT)
+        except:
+            print("发送数据出错")
+
+
+    def send_data2_to_ua(self):
+        try:
+            self.pack_CDTI_TO_UA_DATA(self.cdti_to_ua_out_data,2)
+            buf = self.cdti_to_ua_out_data.encode()
+            print("待发送的字节:" + str(buf))
+            IP_PORT = ('127.0.0.1', 8002)
+            socket_661 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
+            socket_661.sendto(buf, IP_PORT)
+        except:
+            print("发送数据出错")
+
+    def pack_CDTI_TO_UA_DATA(self,data,widget_id):
+        try:
+            data.A661_BEGIN_BLOCK = int('B0', 16)
+            data.LayerIdent = 2
+            data.ContextNumber = 1
+            data.BlockSize = 24
+            surf_map_in_widget_event_paramater = A661_NOTIFY_WIDGET_EVENT_12BYTE()
+            surf_map_in_widget_event_paramater.A661_NOTIFY_WIDGET_EVENT = int('CC01',16)
+            surf_map_in_widget_event_paramater.CommandSize = 12
+            surf_map_in_widget_event_paramater.WidgetIdent = widget_id
+            surf_map_in_widget_event_paramater.EventOrigin = int('CCD1 ',16)
+            surf_map_in_widget_event_paramater.EventID =  int('E060',16)  #button按钮点击
+            surf_map_in_widget_event_paramater.UnusedPad = '00'.encode()
+            data.Compass_InOut_Click_Envent = surf_map_in_widget_event_paramater
+            data.A661_END_BLOCK = int('D0', 16)
+            data.Unused1 = '000'.encode()
+            return data
+        except:
+            print("数据打包出错~")
 
 
 if __name__=='__main__':

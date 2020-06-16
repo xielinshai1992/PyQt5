@@ -491,22 +491,6 @@
         </layout>
        </widget>
       </widget>
-      <widget class="QLabel" name="airb_air_heading_txt">
-       <property name="geometry">
-        <rect>
-         <x>260</x>
-         <y>460</y>
-         <width>131</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">color:white;background-color:transparent</string>
-       </property>
-       <property name="text">
-        <string>airb_air_heading_txt</string>
-       </property>
-      </widget>
      </widget>
      <widget class="QFrame" name="frame_airb">
       <property name="geometry">
@@ -2103,22 +2087,6 @@
        <string>-32</string>
       </property>
      </widget>
-     <widget class="QLabel" name="surf_air_heading_txt">
-      <property name="geometry">
-       <rect>
-        <x>950</x>
-        <y>420</y>
-        <width>131</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color:white;background-color:transparent</string>
-      </property>
-      <property name="text">
-       <string>surf_air_heading_txt</string>
-      </property>
-     </widget>
     </widget>
     <widget class="QWidget" name="tab_VSA">
      <attribute name="title">
@@ -3139,22 +3107,6 @@
       </property>
       <property name="text">
        <string>ID      </string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="vsa_air_heading_txt">
-      <property name="geometry">
-       <rect>
-        <x>1010</x>
-        <y>400</y>
-        <width>131</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color:white;background-color:transparent</string>
-      </property>
-      <property name="text">
-       <string>vsa_air_heading_txt</string>
       </property>
      </widget>
     </widget>
@@ -4600,22 +4552,6 @@
        <string>ownship_lat</string>
       </property>
      </widget>
-     <widget class="QLabel" name="itp_air_heading_txt">
-      <property name="geometry">
-       <rect>
-        <x>710</x>
-        <y>690</y>
-        <width>131</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color:white;background-color:transparent</string>
-      </property>
-      <property name="text">
-       <string>itp_air_heading_txt</string>
-      </property>
-     </widget>
     </widget>
    </widget>
   </widget>
@@ -4625,7 +4561,7 @@
      <x>0</x>
      <y>0</y>
      <width>1380</width>
-     <height>23</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

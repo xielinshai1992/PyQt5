@@ -1,22 +1,50 @@
-from c_api import UA_TO_CDTI_DATA,A661_CMD_SET_PARAMATER_12BYTE,A661_CMD_SET_PARAMATER_16BYTE
+from a661_api import UA_TO_CDTI_DATA,A661_CMD_SET_PARAMATER_12BYTE,A661_CMD_SET_PARAMATER_16BYTE,CDTI_TO_UA_WIDGET_EVENT_DATA
 import socket
+import threading
+
+class MyThread(threading.Thread):
+    def __init__(self):
+        # 注意：一定要显式的调用父类的初始化函数。
+        super(MyThread, self).__init__()
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.s.bind(("127.0.0.1", 8002))  # 绑定服务器的ip和端口
+        print("开始监听CDTI端发送的数据...")
+
+    def run(self):
+        while True:
+            buffer = self.s.recv(4096)  # 一次接收最大字节长度
+            receive_Data = CDTI_TO_UA_WIDGET_EVENT_DATA()
+            receive_Data.decode(buffer)
+            print(receive_Data.A661_BEGIN_BLOCK)
+            print(receive_Data.LayerIdent)
+            print(receive_Data.ContextNumber)
+            print(receive_Data.BlockSize)
+            print(receive_Data.Compass_InOut_Click_Envent.A661_NOTIFY_WIDGET_EVENT)
+            print(receive_Data.Compass_InOut_Click_Envent.CommandSize)
+            print(receive_Data.Compass_InOut_Click_Envent.WidgetIdent)
+            print(receive_Data.Compass_InOut_Click_Envent.EventOrigin)
+            print(receive_Data.Compass_InOut_Click_Envent.EventID)
+            print(receive_Data.Compass_InOut_Click_Envent.UnusedPad)
+            print(receive_Data.A661_END_BLOCK)
+            print(receive_Data.Unused1)
+
 #构造测试数据
 global ua_to_cdti_data
 ua_to_cdti_data = UA_TO_CDTI_DATA()
-compass_rotate_angle = '26' #罗盘旋转角
-compass_step = '54' #罗盘步长
+compass_rotate_angle = '35' #罗盘旋转角
+compass_step = '51' #罗盘步长
 ownship_id =  'AC9733'  #本机航班号
 ownship_alt = '28000'   #本机飞行高度
 ownship_lon = '36.1'   #本机经度
-ownship_lat = '72.4'  #本机纬度
+ownship_lat = '37.4'  #本机纬度
 ownship_alt_range = '30000'     #本机高度范围
-ownship_angle = '52.4'     #本机航向角
+ownship_angle = '42.8'     #本机航向角
 ownship_appstatus = 2   #本机应用状态
 airport_map_rotate_angle = '35' #机场地图旋转角
 
 target1_visible = 1
 target1_pic = 1
-target1_rotate_angle = '15'
+target1_rotate_angle = '0'
 target1_x = '150'
 target1_y = '400'
 target1_flightId = '1KKU3C'
@@ -27,18 +55,18 @@ target1_AppStatus = 1
 
 target2_visible = 1
 target2_pic = 4
-target2_rotate_angle = '23'
+target2_rotate_angle = '0'
 target2_x = '250'
 target2_y = '420'
-target2_flightId = '2YBJ6M'
+target2_flightId = '2IJQ6M'
 target2_Speed = '900'
 target2_Alt_dif = '50'
 target2_Status = 'AIR'
-target2_AppStatus = 1
+target2_AppStatus = 2
 
 target3_visible = 1
 target3_pic = 3
-target3_rotate_angle = '21'
+target3_rotate_angle = '0'
 target3_x = '350'
 target3_y = '440'
 target3_flightId = '3YBJ6M'
@@ -49,7 +77,7 @@ target3_AppStatus = 1
 
 target4_visible = 1
 target4_pic = 2
-target4_rotate_angle = '19'
+target4_rotate_angle = '0'
 target4_x = '450'
 target4_y = '460'
 target4_flightId = '4MS761'
@@ -60,17 +88,14 @@ target4_AppStatus = 2
 
 target5_visible = 1
 target5_pic = 1
-target5_rotate_angle = '34'
+target5_rotate_angle = '0'
 target5_x = '550'
 target5_y = '380'
 target5_flightId = '5SAQW'
 target5_Speed = '800'
 target5_Alt_dif = '100'
 target5_Status = 'AIR'
-target5_AppStatus = 2
-
-def init():
-    pass
+target5_AppStatus = 1
 
 def pack():
 
@@ -632,10 +657,11 @@ def pack():
 
 
 
-if __name__ == '__main__':
-    init()
-    pack()
 
+if __name__ == '__main__':
+    work_a = MyThread()
+    work_a.start()
+    pack()
     buf = ua_to_cdti_data.encode()
     print("待发送的字节:" + str(ua_to_cdti_data.encode()))
     IP_PORT = ('127.0.0.1', 8001)

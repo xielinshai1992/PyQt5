@@ -2,6 +2,32 @@
 from ctypes import *
 
 
+class A661_NOTIFY_WIDGET_EVENT_12BYTE(Structure):
+    _pack_ = 1
+    _fields_ = [("A661_NOTIFY_WIDGET_EVENT", c_ushort),
+                ("CommandSize", c_ushort),
+                ("WidgetIdent", c_ushort),
+                ("EventOrigin", c_ushort),
+                ("EventID", c_ushort),
+                ("UnusedPad", c_char * 2)]
+
+class CDTI_TO_UA_WIDGET_EVENT_DATA(Structure):
+    _pack_ = 1  #1字节对齐
+    _fields_ = [("A661_BEGIN_BLOCK", c_char),
+                ("LayerIdent", c_char),
+                ("ContextNumber",c_ushort),
+                ("BlockSize",c_ulong),
+                ("Compass_InOut_Click_Envent",A661_NOTIFY_WIDGET_EVENT_12BYTE),
+                ("A661_END_BLOCK", c_char),
+                ("Unused1", c_char * 3)]
+    def encode(self):
+        return string_at(addressof(self), sizeof(self))
+
+    def decode(self, data):
+        memmove(addressof(self), data, sizeof(self))
+        return len(data)
+
+
 class A661_CMD_SET_PARAMATER_12BYTE(Structure):
     _pack_ = 1
     _fields_ = [("A661_CMD_SET_PARAMETER", c_ushort),
@@ -86,7 +112,7 @@ class UA_TO_CDTI_DATA(Structure):
                 ("Target5_Alt_dif_PARAMATER", A661_CMD_SET_PARAMATER_16BYTE),
                 ("Target5_Status_PARAMATER", A661_CMD_SET_PARAMATER_16BYTE),
                 ("Target5_AppStatus_PARAMATER", A661_CMD_SET_PARAMATER_12BYTE),
-                ("A661_END_BLOCK",c_uint8),
+                ("A661_END_BLOCK",c_char),
                 ("Unused1",c_char*3)
                 ]
     def encode(self):
