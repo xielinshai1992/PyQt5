@@ -32,11 +32,12 @@ class MyThread(threading.Thread):
 global ua_to_cdti_data
 ua_to_cdti_data = UA_TO_CDTI_DATA()
 
-compass_rotate_angle = 35    #罗盘旋转角
+compass_rotate_angle = 0    #罗盘旋转角
 compass_step = 32            #罗盘步长
 ownship_toa_time = 64965.176  #toa时间
 ownship_id =  'AC9733'       #本机航班号
-ownship_alt =  27000         #本机飞行高度
+ownship_alt =  31999
+#本机飞行高度
 ownship_lon = 103.956214      #本机经度
 ownship_lat = 30.567821     #本机纬度
 ownship_alt_range = 30000    #本机高度范围
@@ -65,85 +66,6 @@ target1_itp_forward = 1
 target1_itp_geometry_status = 1
 
 
-# target2_visible = 0
-# target2_pic = 0
-# target2_rotate_angle = 0
-# target2_x = 0
-# target2_y = 0
-# target2_flightId = ''
-# target2_Speed = 0
-# target2_Alt_dif = 0
-# target2_Status = 0   # 1=AIR 2=GROUND
-# target2_AppStatus = 0 # '0b1001' airb有效、surf无效、vsa无效、itp有效
-# target2_lon = 0
-# target2_lat = 0
-# target2_vsa_horizontal_distance = 0
-# target2_vsa_velocity1 =0
-# target2_vsa_velocity2 = 0
-# target2_itp_distance =0  #16bytes
-# target2_itp_distance_rate =0 #16byte
-# target2_itp_forward = 0    #12bytes
-# target2_itp_geometry_status = 0  #12bytes
-#
-# target3_visible = 0
-# target3_pic = 0
-# target3_rotate_angle = 0
-# target3_x = 0
-# target3_y = 0
-# target3_flightId = ''
-# target3_Speed = 0
-# target3_Alt_dif =0
-# target3_Status = 0  # 1=AIR 2=GROUND
-# target3_AppStatus =  0 # '0b1101' airb有效、surf无效、vsa无效、itp有效
-# target3_lon = 0
-# target3_lat = 0
-# target3_vsa_horizontal_distance =0
-# target3_vsa_velocity1 = 0
-# target3_vsa_velocity2 = 0
-# target3_itp_distance = 0 #16bytes
-# target3_itp_distance_rate = 0   #16byte
-# target3_itp_forward = 0    #12bytes
-# target3_itp_geometry_status = 0  #12bytes
-#
-# target4_visible =0
-# target4_pic = 0
-# target4_rotate_angle = 0
-# target4_x = 0
-# target4_y = 0
-# target4_flightId = ''
-# target4_Speed = 0
-# target4_Alt_dif =0
-# target4_Status =  0   # 1=AIR 2=GROUND
-# target4_AppStatus = 0 # '0b0000' airb无效、surf无效、vsa无效、itp无效
-# target4_lon = 0
-# target4_lat = 0
-# target4_vsa_horizontal_distance =0
-# target4_vsa_velocity1 = 0
-# target4_vsa_velocity2 = 0
-# target4_itp_distance = 0   #16bytes
-# target4_itp_distance_rate =0  #16byte
-# target4_itp_forward =0    #12bytes
-# target4_itp_geometry_status =0  #12bytes
-#
-# target5_visible = 0
-# target5_pic = 0
-# target5_rotate_angle = 0
-# target5_x = 0
-# target5_y = 0
-# target5_flightId = ''
-# target5_Speed = 0
-# target5_Alt_dif = 0
-# target5_Status =  0   # 1=AIR 2=GROUND
-# target5_AppStatus = 0
-# target5_lon = 0
-# target5_lat = 0
-# target5_vsa_horizontal_distance = 0
-# target5_vsa_velocity1 = 0
-# target5_vsa_velocity2 = 0
-# target5_itp_distance = 0     #16bytes
-# target5_itp_distance_rate = 0  #16byte
-# target5_itp_forward = 0   #12bytes
-# target5_itp_geometry_status = 0  #12bytes
 target2_visible = 1
 target2_pic = 4
 target2_rotate_angle = 13
@@ -224,6 +146,85 @@ target5_itp_distance_rate = 4.8  #16byte
 target5_itp_forward = 2     #12bytes
 target5_itp_geometry_status = 1  #12bytes
 
+# target2_visible = 0
+# target2_pic = 0
+# target2_rotate_angle = 0
+# target2_x = 0
+# target2_y = 0
+# target2_flightId = ''
+# target2_Speed = 0
+# target2_Alt_dif = 0
+# target2_Status = 0   # 1=AIR 2=GROUND
+# target2_AppStatus = 0 # '0b1001' airb有效、surf无效、vsa无效、itp有效
+# target2_lon = 0
+# target2_lat = 0
+# target2_vsa_horizontal_distance = 0
+# target2_vsa_velocity1 =0
+# target2_vsa_velocity2 = 0
+# target2_itp_distance =0  #16bytes
+# target2_itp_distance_rate =0 #16byte
+# target2_itp_forward = 0    #12bytes
+# target2_itp_geometry_status = 0  #12bytes
+#
+# target3_visible = 0
+# target3_pic = 0
+# target3_rotate_angle = 0
+# target3_x = 0
+# target3_y = 0
+# target3_flightId = ''
+# target3_Speed = 0
+# target3_Alt_dif =0
+# target3_Status = 0  # 1=AIR 2=GROUND
+# target3_AppStatus =  0 # '0b1101' airb有效、surf无效、vsa无效、itp有效
+# target3_lon = 0
+# target3_lat = 0
+# target3_vsa_horizontal_distance =0
+# target3_vsa_velocity1 = 0
+# target3_vsa_velocity2 = 0
+# target3_itp_distance = 0 #16bytes
+# target3_itp_distance_rate = 0   #16byte
+# target3_itp_forward = 0    #12bytes
+# target3_itp_geometry_status = 0  #12bytes
+#
+# target4_visible =0
+# target4_pic = 0
+# target4_rotate_angle = 0
+# target4_x = 0
+# target4_y = 0
+# target4_flightId = ''
+# target4_Speed = 0
+# target4_Alt_dif =0
+# target4_Status =  0   # 1=AIR 2=GROUND
+# target4_AppStatus = 0 # '0b0000' airb无效、surf无效、vsa无效、itp无效
+# target4_lon = 0
+# target4_lat = 0
+# target4_vsa_horizontal_distance =0
+# target4_vsa_velocity1 = 0
+# target4_vsa_velocity2 = 0
+# target4_itp_distance = 0   #16bytes
+# target4_itp_distance_rate =0  #16byte
+# target4_itp_forward =0    #12bytes
+# target4_itp_geometry_status =0  #12bytes
+#
+# target5_visible = 0
+# target5_pic = 0
+# target5_rotate_angle = 0
+# target5_x = 0
+# target5_y = 0
+# target5_flightId = ''
+# target5_Speed = 0
+# target5_Alt_dif = 0
+# target5_Status =  0   # 1=AIR 2=GROUND
+# target5_AppStatus = 0
+# target5_lon = 0
+# target5_lat = 0
+# target5_vsa_horizontal_distance = 0
+# target5_vsa_velocity1 = 0
+# target5_vsa_velocity2 = 0
+# target5_itp_distance = 0     #16bytes
+# target5_itp_distance_rate = 0  #16byte
+# target5_itp_forward = 0   #12bytes
+# target5_itp_geometry_status = 0  #12bytes
 
 def pack():
 
@@ -1213,6 +1214,6 @@ if __name__ == '__main__':
     pack()
     buf = ua_to_cdti_data.encode()
     print("待发送的字节:" + str(ua_to_cdti_data.encode()))
-    IP_PORT = ('127.0.0.1', 8001)
+    IP_PORT = ('127.0.0.1', 8006)
     socket_661 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
     socket_661.sendto(buf, IP_PORT)
