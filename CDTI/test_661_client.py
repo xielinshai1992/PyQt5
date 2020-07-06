@@ -42,10 +42,10 @@ ownship_lon = 103.956214      #本机经度
 ownship_lat = 30.567821     #本机纬度
 ownship_alt_range = 30000    #本机高度范围
 ownship_angle = 34.612     #本机航向角
-ownship_appstatus = 7 # '0b1111' airb有效、surf有效、vsa有效、itp有效#本机应用状态
+ownship_appstatus = 15 # '0b0111' airb有效、surf有效、vsa有效、itp有效#本机应用状态
 
 target1_visible = 1
-target1_pic = 1
+target1_pic = 302
 target1_rotate_angle = 0
 target1_x = 150
 target1_y = 400
@@ -67,7 +67,7 @@ target1_itp_geometry_status = 1
 
 
 target2_visible = 1
-target2_pic = 4
+target2_pic = 302
 target2_rotate_angle = 13
 target2_x = 250
 target2_y = 420
@@ -87,7 +87,7 @@ target2_itp_forward = 1    #12bytes
 target2_itp_geometry_status = 0  #12bytes
 
 target3_visible = 1
-target3_pic = 3
+target3_pic = 302
 target3_rotate_angle = 12
 target3_x = 350
 target3_y = 440
@@ -107,7 +107,7 @@ target3_itp_forward = 1      #12bytes
 target3_itp_geometry_status = 0  #12bytes
 
 target4_visible = 1
-target4_pic = 2
+target4_pic = 302
 target4_rotate_angle = 15
 target4_x = 450
 target4_y = 460
@@ -127,7 +127,7 @@ target4_itp_forward = 2      #12bytes
 target4_itp_geometry_status = 1  #12bytes
 
 target5_visible = 1
-target5_pic = 1
+target5_pic = 362
 target5_rotate_angle = 6
 target5_x = 550
 target5_y = 380
