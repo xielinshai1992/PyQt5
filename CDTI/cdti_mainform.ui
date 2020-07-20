@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>1380</width>
-    <height>950</height>
+    <height>900</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>1380</width>
-    <height>950</height>
+    <height>900</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>1380</width>
-    <height>950</height>
+    <height>910</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -39,7 +39,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_AIRB">
      <attribute name="title">
@@ -524,7 +524,7 @@
          <x>0</x>
          <y>710</y>
          <width>641</width>
-         <height>111</height>
+         <height>101</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -575,7 +575,7 @@
         <property name="geometry">
          <rect>
           <x>380</x>
-          <y>70</y>
+          <y>60</y>
           <width>51</width>
           <height>16</height>
          </rect>
@@ -623,7 +623,7 @@
         <property name="geometry">
          <rect>
           <x>420</x>
-          <y>60</y>
+          <y>50</y>
           <width>31</width>
           <height>31</height>
          </rect>
@@ -640,7 +640,7 @@
         <property name="geometry">
          <rect>
           <x>460</x>
-          <y>60</y>
+          <y>50</y>
           <width>31</width>
           <height>31</height>
          </rect>
@@ -696,7 +696,7 @@
         <property name="geometry">
          <rect>
           <x>140</x>
-          <y>80</y>
+          <y>70</y>
           <width>31</width>
           <height>21</height>
          </rect>
@@ -1112,7 +1112,7 @@
          <x>0</x>
          <y>710</y>
          <width>641</width>
-         <height>111</height>
+         <height>101</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -1163,7 +1163,7 @@
         <property name="geometry">
          <rect>
           <x>380</x>
-          <y>70</y>
+          <y>60</y>
           <width>51</width>
           <height>16</height>
          </rect>
@@ -1194,8 +1194,8 @@
        <widget class="QPushButton" name="btn_zoom_in_surf">
         <property name="geometry">
          <rect>
-          <x>420</x>
-          <y>60</y>
+          <x>430</x>
+          <y>50</y>
           <width>31</width>
           <height>31</height>
          </rect>
@@ -1211,8 +1211,8 @@
        <widget class="QPushButton" name="btn_zoom_out_surf">
         <property name="geometry">
          <rect>
-          <x>450</x>
-          <y>60</y>
+          <x>470</x>
+          <y>50</y>
           <width>31</width>
           <height>31</height>
          </rect>
@@ -1277,7 +1277,7 @@
         <property name="geometry">
          <rect>
           <x>140</x>
-          <y>80</y>
+          <y>70</y>
           <width>31</width>
           <height>21</height>
          </rect>
@@ -2156,7 +2156,7 @@
          <x>0</x>
          <y>710</y>
          <width>641</width>
-         <height>111</height>
+         <height>101</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -2207,7 +2207,7 @@
         <property name="geometry">
          <rect>
           <x>380</x>
-          <y>70</y>
+          <y>60</y>
           <width>51</width>
           <height>16</height>
          </rect>
@@ -2254,8 +2254,8 @@
        <widget class="QPushButton" name="btn_zoom_in_vsa">
         <property name="geometry">
          <rect>
-          <x>420</x>
-          <y>60</y>
+          <x>430</x>
+          <y>50</y>
           <width>31</width>
           <height>31</height>
          </rect>
@@ -2271,8 +2271,8 @@
        <widget class="QPushButton" name="btn_zoom_out_vsa">
         <property name="geometry">
          <rect>
-          <x>450</x>
-          <y>60</y>
+          <x>470</x>
+          <y>50</y>
           <width>31</width>
           <height>31</height>
          </rect>
@@ -2328,7 +2328,7 @@
         <property name="geometry">
          <rect>
           <x>140</x>
-          <y>80</y>
+          <y>70</y>
           <width>31</width>
           <height>21</height>
          </rect>
@@ -3434,7 +3434,7 @@
          <x>0</x>
          <y>710</y>
          <width>641</width>
-         <height>111</height>
+         <height>101</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -3485,7 +3485,7 @@
         <property name="geometry">
          <rect>
           <x>380</x>
-          <y>70</y>
+          <y>60</y>
           <width>51</width>
           <height>16</height>
          </rect>
@@ -3532,8 +3532,8 @@
        <widget class="QPushButton" name="btn_zoom_in_itp">
         <property name="geometry">
          <rect>
-          <x>420</x>
-          <y>60</y>
+          <x>430</x>
+          <y>50</y>
           <width>31</width>
           <height>31</height>
          </rect>
@@ -3549,8 +3549,8 @@
        <widget class="QPushButton" name="btn_zoom_out_itp">
         <property name="geometry">
          <rect>
-          <x>450</x>
-          <y>60</y>
+          <x>470</x>
+          <y>50</y>
           <width>31</width>
           <height>31</height>
          </rect>
@@ -3580,7 +3580,7 @@
         <property name="geometry">
          <rect>
           <x>140</x>
-          <y>80</y>
+          <y>70</y>
           <width>31</width>
           <height>21</height>
          </rect>

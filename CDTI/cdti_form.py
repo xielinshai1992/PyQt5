@@ -361,7 +361,9 @@ class MainWindow(QMainWindow):
         self.vsa_compass_Item = 0
         self.targetAir1_Item = 0
         self.surf_air1_text_Item = 0
-        self.ip_port_toUA = ('172.20.0.103', 8010)
+        self.ip_port_toUA = ('127.0.0.1', 8010)
+        #self.ip_port_toUA = ('192.168.253.2', 8010)
+
         self.initUI()
 
         # timer_a = QTimer(self)
@@ -373,8 +375,6 @@ class MainWindow(QMainWindow):
         print("打开UDP通信端口，开始接收UA发送数据...")
         self.cdti_to_ua_in_data = CDTI_TO_UA_WIDGET_EVENT_DATA()
         self.cdti_to_ua_out_data = CDTI_TO_UA_WIDGET_EVENT_DATA()
-        self.ui.btn_zoom_in_surf.clicked.connect(self.send_data1_to_ua)
-        self.ui.btn_zoom_out_surf.clicked.connect(self.send_data2_to_ua)
         self.ui.btn_zoom_in_airb.clicked.connect(self.send_data1_to_ua)
         self.ui.btn_zoom_out_airb.clicked.connect(self.send_data2_to_ua)
         self.ui.btn_zoom_in_vsa.clicked.connect(self.send_data1_to_ua)
@@ -392,42 +392,6 @@ class MainWindow(QMainWindow):
         self.ui.surf_time_txt.setText(str(time))
         self.ui.vsa_time_txt.setText(str(time))
         self.ui.itp_time_txt.setText(str(time))
-
-
-    def slotTimeout(self):
-        self.rotateAngle = (self.rotateAngle+5)%360
-        self.count +=5
-        self.map_widgetItem.setRotation(self.rotateAngle)
-        self.airb_compass_Item.setRotation(self.rotateAngle)
-        self.vsa_compass_Item.setRotation(self.rotateAngle)
-        self.targetAir1_Item.setPos(0+self.count,0+self.count)
-        self.surf_air1_text_Item.setPos(0 + self.count, 20 + self.count)
-        #self.surf_compass_Item.setRotation(self.rotateAngle+45)
-
-    def setQLabelVisible(self,widget_id,is_Visible):
-        '''
-        设置Qlabel控件是否可见
-        :param widget_id: Qlabel控件id
-        :param is_Visible:bool类型，true可见 false不可见
-        :return:
-        '''
-        mywidget = self.findChild(QLabel,widget_id)
-        if mywidget:
-            mywidget.setVisible(is_Visible)
-        pass
-
-
-    def setQLabelText(self,widget_id,text_string):
-        '''
-        设置Qlabel控件文本
-        :param widget_id:Qlabel控件id
-        :param text_string:文本内容
-        :return:
-        '''
-        mywidget = self.findChild(QLabel,widget_id)
-        if mywidget:
-            mywidget.setText(text_string)
-        pass
 
     def initUI(self):
         self.ui = cdti_mainform.Ui_MainWindow()
@@ -456,8 +420,7 @@ class MainWindow(QMainWindow):
         scaledPixmap_border = pixmap_border.scaled(640, 640, aspectRatioMode=Qt.KeepAspectRatioByExpanding)
         pixmap_compass_transparent = QPixmap("pic/罗盘-透明背景.png") #透明罗盘
         scaledPixmap_compass_transparent = pixmap_compass_transparent.scaled(640, 640, aspectRatioMode=Qt.KeepAspectRatio)
-        pixmap_compass_black = QPixmap("pic/罗盘-黑色背景.png")    #背景色为黑色罗盘
-        scaledPixmap_compass_black = pixmap_compass_black.scaled(640, 640, aspectRatioMode=Qt.KeepAspectRatio)
+
         pixmap_type1_targetship = QPixmap("pic/air1.png")  # 1号类型目标机图标
         pixmap_type2_targetship = QPixmap("pic/air2.png")  # 2号类型目标机图标
         pixmap_type3_targetship = QPixmap("pic/air3.png")  # 3号类型目标机图标
@@ -471,11 +434,13 @@ class MainWindow(QMainWindow):
         pixmap_type11_targetship = QPixmap("pic/air11.png")  # 11号类型目标机图标
         pixmap_type12_targetship = QPixmap("pic/air12.png")  # 12号类型目标机图标
 
+        from PyQt5.QtGui import QPainter
         #surf
         #通用部分开始
         self.ui.horizontalLayoutWidget.setGeometry(QRect(0, 0, 720, 720))
         self.ui.graphicsView_surf = QGraphicsView(self.ui.centralwidget)
         self.ui.graphicsView_surf.setStyleSheet("padding: 0px; border: 0px;")
+        self.ui.graphicsView_surf.setRenderHint(QPainter.TextAntialiasing)
         self.ui.horizontalLayout.addWidget(self.ui.graphicsView_surf)
         url = os.getcwd() + '/map_surf.html'
         self.browser = QWebEngineView()
@@ -935,14 +900,14 @@ class MainWindow(QMainWindow):
         self.ui.itp_ownship_lon_txt.setText("")
         self.ui.itp_ownship_lat_txt.setText("")
         self.ui.itp_ownship_altrange_txt.setText("")
+
     def map_zoom_in(self):
-            # 放大一级视图
-            js_string_map_zoom_in = 'map.zoomIn();'
-            self.browser.page().runJavaScript(js_string_map_zoom_in)  # 初始化本机位置、标注、航线、移动
+        # 放大一级视图
+        js_string_map_zoom_in = 'map.zoomIn();'
+        self.browser.page().runJavaScript(js_string_map_zoom_in)  # 初始化本机位置、标注、航线、移动
 
     def map_zoom_out(self):
         # 缩小一级视图
-        # 放大一级视图
         js_string_map_zoom_in = 'map.zoomOut();'
         self.browser.page().runJavaScript(js_string_map_zoom_in)  # 初始化本机位置、标注、航线、移动
 
@@ -1032,58 +997,32 @@ class MainWindow(QMainWindow):
            max_id_index = max(temp)
            num_target = int(max_id_index/20)
            print(str(num_target)+"架目标机")
-           if num_target>=1: #存在目标机则界面对应控件 显示
-               for i in range(1,num_target+1):
-                   #罗盘飞机图标和飞机文本 显示
-                   eval("self.airb_targetair"+str(i)+"_PixItem.setVisible(True)")
-                   eval("self.airb_air" + str(i) + "_text_Item.setVisible(True)")
-                   eval("self.vsa_targetair"+str(i)+"_PixItem.setVisible(True)")
-                   eval("self.vsa_air" + str(i) + "_text_Item.setVisible(True)")
-                   eval("self.itp_targetair"+str(i)+"_PixItem.setVisible(True)")
-                   eval("self.itp_air" + str(i) + "_text_Item.setVisible(True)")
-                   # Target Info 显示
-                   eval("self.ui.airb_targetair"+str(i)+"_id_info.setVisible(True)")
-                   eval("self.ui.airb_target" + str(i) + "_speed_txt.setVisible(True)")
-                   eval("self.ui.surf_targetair"+str(i)+"_id_info.setVisible(True)")
-                   eval("self.ui.surf_target" + str(i) + "_speed_txt.setVisible(True)")
-                   eval("self.ui.vsa_targetair"+str(i)+"_id_info.setVisible(True)")
-                   eval("self.ui.vsa_target" + str(i) + "_speed_txt.setVisible(True)")
-                   eval("self.ui.vsa_target"+str(i)+"_dis_txt.setVisible(True)")
-                   eval("self.ui.vsa_target" + str(i) + "_v1_txt.setVisible(True)")
-                   eval("self.ui.vsa_target" + str(i) + "_v2_txt.setVisible(True)")
-                   # Itp区域 显示
-                   eval("self.ui.frame_itp_target" + str(i) + ".setVisible(True)")
-
-           for item in info:
-               break_flag += 1
-               try:
-                   if break_flag >1 and item[0] == 0:
-                       break
-
+           if num_target == 0:#仅绘制本机信息
+               for item in info:
                    if item[1] == 46224:  # 设置文本
                        if 'ownship_toa_time' == map_wigdetId[item[0]]:
                            self.ui.airb_time_txt.setText(str(round(item[2], 3)))
                            self.ui.surf_time_txt.setText(str(round(item[2], 3)))
                            self.ui.vsa_time_txt.setText(str(round(item[2], 3)))
                            self.ui.itp_time_txt.setText(str(round(item[2], 3)))
-                       if 'ownship_id_txt' == map_wigdetId[item[0]]: #本机ID
+                       if 'ownship_id_txt' == map_wigdetId[item[0]]:  # 本机ID
                            self.ui.surf_ownship_id_txt.setText(str(item[2].decode()))
                            self.ui.airb_ownship_id_txt.setText(str(item[2].decode()))
                            self.ui.vsa_ownship_id_txt.setText(str(item[2].decode()))
                            self.ui.itp_ownship_id_txt.setText(str(item[2].decode()))
-                       if 'ownship_lon_txt' == map_wigdetId[item[0]]: #本机经度
+                       if 'ownship_lon_txt' == map_wigdetId[item[0]]:  # 本机经度
                            self.ui.airb_ownship_lon_txt.setText(str(round(float(item[2]), 6)))
                            self.ui.surf_ownship_lon_txt.setText(str(round(float(item[2]), 6)))
                            self.ui.vsa_ownship_lon_txt.setText(str(round(float(item[2]), 6)))
                            self.ui.itp_ownship_lon_txt.setText(str(round(float(item[2]), 6)))
-                       if 'ownship_lat_txt' == map_wigdetId[item[0]]: #本机纬度
+                       if 'ownship_lat_txt' == map_wigdetId[item[0]]:  # 本机纬度
                            self.ui.airb_ownship_lat_txt.setText(str(round(float(item[2]), 6)))
                            self.ui.surf_ownship_lat_txt.setText(str(round(float(item[2]), 6)))
                            self.ui.vsa_ownship_lat_txt.setText(str(round(float(item[2]), 6)))
                            self.ui.itp_ownship_lat_txt.setText(str(round(float(item[2]), 6)))
                        if 'ownship_altrange_txt' == map_wigdetId[item[0]]:
-                           self.ui.airb_ownship_altrange_txt.setText(str(item[2])+ "ft")
-                           self.ui.surf_ownship_altrange_txt.setText(str(item[2])+ "ft")
+                           self.ui.airb_ownship_altrange_txt.setText(str(item[2]) + "ft")
+                           self.ui.surf_ownship_altrange_txt.setText(str(item[2]) + "ft")
                            self.ui.vsa_ownship_altrange_txt.setText(str(item[2]) + "ft")
                            self.ui.itp_ownship_altrange_txt.setText(str(item[2]) + "ft")
                        if 'ownship_alt_txt' == map_wigdetId[item[0]]:
@@ -1091,7 +1030,7 @@ class MainWindow(QMainWindow):
                            self.ui.surf_ownship_alt_txt.setText(str(item[2]))
                            self.ui.vsa_ownship_alt_txt.setText(str(item[2]))
                            self.ui.itp_ownship_alt_txt.setText(str(item[2]))
-                           itp_own_alt =  int((item[2]+500)/1000)*10
+                           itp_own_alt = int((item[2] + 500) / 1000) * 10
                            self.ui.itp_own_alt.setText(str(itp_own_alt))
                            self.ui.itp_own_alt1.setText(str(itp_own_alt - 30))
                            self.ui.itp_own_alt2.setText(str(itp_own_alt - 20))
@@ -1099,79 +1038,18 @@ class MainWindow(QMainWindow):
                            self.ui.itp_own_alt4.setText(str(itp_own_alt + 10))
                            self.ui.itp_own_alt5.setText(str(itp_own_alt + 20))
                            self.ui.itp_own_alt6.setText(str(itp_own_alt + 30))
-                       if 'ownship_angle_txt' == map_wigdetId[item[0]]:#设置本机航向角
+                       if 'ownship_angle_txt' == map_wigdetId[item[0]]:  # 设置本机航向角
                            self.surf_air_heading_txt.setText(str(item[2]))
                            self.airb_air_heading_txt.setText(str(item[2]))
                            self.vsa_air_heading_txt.setText(str(item[2]))
                            self.itp_air_heading_txt.setText(str(item[2]))
-                       for i in range(1,6):
-                           if eval("'target"+str(i)+"_lon'") == map_wigdetId[item[0]]:#目标机经纬度
-                               target_lon_list.append(item[2])
-                           if eval("'target"+str(i)+"_lat'") == map_wigdetId[item[0]]:#目标机经纬度
-                               target_lat_list.append(item[2])
-                           if eval("'target"+str(i)+"_id_txt'") == map_wigdetId[item[0]]:#设置目标机id
-                               eval("self.ui.airb_target"+str(i)+"_id_txt").setText(str(item[2].decode()))
-                               eval("self.ui.surf_target" + str(i) + "_id_txt").setText(str(item[2].decode()))
-                               eval("self.ui.vsa_target" + str(i) + "_id_txt").setText(str(item[2].decode()))
-                               eval("self.ui.itp_target" + str(i) + "_id_txt").setText(str(item[2].decode()))
-                               eval("self.ui.surf_targetair"+str(i)+"_id_info").setText(str(item[2].decode()))
-                               eval("self.ui.airb_targetair" + str(i) + "_id_info").setText(str(item[2].decode()))
-                               eval("self.ui.vsa_targetair" + str(i) + "_id_info").setText(str(item[2].decode()))
-                               eval("self.ui.itp_alt_target" + str(i) + "_id").setText(str(item[2].decode()))
-                           if eval("'target"+str(i)+"_altdif_txt'") == map_wigdetId[item[0]]: #目标机高度差
-                               current_alt = int(self.ui.itp_ownship_alt_txt.text())+ item[2]
-                               target_itp_y.append(int(current_alt / 100))
-                               target_alt_dif_list.append(item[2])
-                               if item[2]>0:
-                                   eval("self.ui.airb_target"+ str(i) + "_altdif_txt").setText("+"+str(item[2]))
-                                   eval("self.ui.surf_target"+ str(i) + "_altdif_txt").setText("+"+str(item[2]))
-                                   eval("self.ui.vsa_target" + str(i) + "_altdif_txt").setText("+"+str(item[2]))
-                                   eval("self.ui.itp_target" + str(i) + "_altdif_txt").setText("+"+str(item[2]))
-                               else:
-                                   eval("self.ui.airb_target" + str(i) + "_altdif_txt").setText(str(item[2]))
-                                   eval("self.ui.surf_target" + str(i) + "_altdif_txt").setText(str(item[2]))
-                                   eval("self.ui.vsa_target" + str(i) + "_altdif_txt").setText(str(item[2]))
-                                   eval("self.ui.itp_target" + str(i) + "_altdif_txt").setText(str(item[2]))
-                           if eval("'target"+str(i)+"_airstatus_txt'") == map_wigdetId[item[0]]:#目标机空地状态
-                               if item[2] == 1:#AIR
-                                   target_air_ground_status_list.append("AIR")
-                               elif item[2] == 2:#GROUND
-                                   target_air_ground_status_list.append("GROUND")
-                                   eval("self.ui.airb_target"+ str(i) + "_airstatus_txt").setText("GROUND")
-                                   eval("self.ui.vsa_target" + str(i) + "_airstatus_txt").setText("GROUND")
-                                   eval("self.ui.itp_target" + str(i) + "_airstatus_txt").setText("GROUND")
-                           if eval("'target"+str(i)+"_speed_txt'") == map_wigdetId[item[0]]: #目标机地速差
-                               eval("self.ui.surf_target"+ str(i) + "_speed_txt").setText(str(round(item[2],6)))
-                               eval("self.ui.airb_target"+ str(i) + "_speed_txt").setText(str(round(item[2],6)))
-                               eval("self.ui.vsa_target" + str(i) + "_speed_txt").setText(str(round(item[2],6)))
-                           if eval("'target"+str(i)+"_vsa_dis'")== map_wigdetId[item[0]]:#VSA距离
-                               eval("self.ui.vsa_target"+str(i)+"_dis_txt").setText(str(round(item[2],3)))
-                           if eval("'target"+str(i)+"_vsa_velocity'")== map_wigdetId[item[0]]:#VSA速度
-                               eval("self.ui.vsa_target"+str(i)+"_v1_txt").setText(str(round(item[2], 3)))
-                               eval("self.ui.vsa_target"+str(i)+"_v2_txt").setText(str(round(item[2], 3)))
-                           if eval("'target"+str(i)+"_itp_dis'")== map_wigdetId[item[0]]:#ITP距离
-                               eval("self.ui.itp_alt_target"+str(i)+"_dis").setText(str(round(item[2],1))+"NM")
-                               target_itp_x.append(round(item[2], 1))
-                           if eval("'target"+str(i)+"_itp_dis_rate'")== map_wigdetId[item[0]]:#ITP距离变化率
-                               eval("self.ui.itp_alt_target"+str(i)+"_dis_rate").setText(str(int(item[2]))+"KT")
-                               target_itp_x.append(round(item[2], 1))
-                           if eval("'target" + str(i) + "_itp_geometry_status'") == map_wigdetId[item[0]]:#itp有效
-                               if item[2] == 1:  # ITP有效
-                                   eval("self.ui.itp_bitmap_target"+str(i)).setPixmap(QPixmap("pic/itp_air2.png"))
-                                   eval("self.ui.itp_alt_target"+str(i)+"_id").setStyleSheet("color:rgb(0, 255, 255)")
-                                   eval("self.ui.itp_alt_target"+str(i)+"_dis").setStyleSheet("color:rgb(0, 255, 255)")
-                                   eval("self.ui.itp_alt_target" + str(i) + "_dis_rate").setStyleSheet("color:rgb(0, 255, 255)")
-                               else:
-                                   eval("self.ui.itp_bitmap_target" + str(i)).setPixmap(QPixmap("pic/itp_air1.png"))
-                           if eval("'target" + str(i) + "_itp_forward'") == map_wigdetId[item[0]]:#1相对本机前 2相对本机后
-                               target_itp_x_forward.append(item[2])
                        if 'compass_step' == map_wigdetId[item[0]]:
                            compass_step = int(item[2])
-                           one_pixel_itp_x = float(compass_step/115)
-                           self.ui.itp_own_dis1.setText(str(2 *compass_step))
+                           one_pixel_itp_x = float(compass_step / 115)
+                           self.ui.itp_own_dis1.setText(str(2 * compass_step))
                            self.ui.itp_own_dis2.setText(str(compass_step))
                            self.ui.itp_own_dis3.setText(str(compass_step))
-                           self.ui.itp_own_dis4.setText(str(2 *compass_step))
+                           self.ui.itp_own_dis4.setText(str(2 * compass_step))
                            self.ui.surf_compass_step.setText(str(compass_step))
                            self.ui.airb_compass_step.setText(str(compass_step))
                            self.ui.vsa_compass_step.setText(str(compass_step))
@@ -1206,40 +1084,14 @@ class MainWindow(QMainWindow):
                        vsa_app_status = '{:04b}'.format(item[2])[-3]
                        itp_app_status = '{:04b}'.format(item[2])[-4]
                        if 'ownship_applstatus' == map_wigdetId[item[0]]:
-                           self.ui.airb_ownship_applstatus_bitmap.setPixmap(QPixmap("pic/appstatus" + str(airb_app_status) + ".png"))
-                           self.ui.surf_ownship_applstatus_bitmap.setPixmap(QPixmap("pic/appstatus" + str(surf_app_status) + ".png"))
-                           self.ui.vsa_ownship_applstatus_bitmap.setPixmap(QPixmap("pic/appstatus" + str(vsa_app_status) + ".png"))
-                           self.ui.itp_ownship_applstatus_bitmap.setPixmap(QPixmap("pic/appstatus" + str(itp_app_status) + ".png"))
-                       for i in range(1,6):
-                           if eval("'target"+str(i)+"_applstatus_bitmap'") == map_wigdetId[item[0]]:
-                               target_surf_app_status_list.append(surf_app_status)
-                               eval("self.ui.airb_target"+str(i)+"_applstatus_bitmap").setPixmap(QPixmap("pic/appstatus" + str(airb_app_status) + ".png"))
-                               eval("self.ui.surf_target" + str(i) + "_applstatus_bitmap").setPixmap(
-                                   QPixmap("pic/appstatus" + str(surf_app_status) + ".png"))
-                               eval("self.ui.vsa_target" + str(i) + "_applstatus_bitmap").setPixmap(
-                                   QPixmap("pic/appstatus" + str(vsa_app_status) + ".png"))
-                               eval("self.ui.itp_target" + str(i) + "_applstatus_bitmap").setPixmap(
-                                   QPixmap("pic/appstatus" + str(itp_app_status) + ".png"))
-                   if item[1] == 46272: #设置目标机图标
-                       for i in range(1,6):
-                           if eval("'target"+str(i)+"_bitmap'") == map_wigdetId[item[0]]:
-                               airb_value = item[2] & int('0xf',16)
-                               surf_value = (item[2] >> 4) & int('0xf',16)
-                               vsa_value = (item[2] >> 8) & int('0xf',16)
-                               itp_value  = (item[2] >> 12) & int('0xf',16)
-                               print(airb_value)
-                               print(surf_value)
-                               print(vsa_value)
-                               print(itp_value)
-                               pixmap_airb_targetship = QPixmap("pic/air" + str(airb_value) + ".png")  # 1号类型目标机图标
-                               pixmap_surf_targetship = QPixmap("pic/air" + str(surf_value) + ".png")  # 1号类型目标机图标
-                               pixmap_vsa_targetship = QPixmap("pic/air" + str(vsa_value) + ".png")  # 1号类型目标机图标
-                               pixmap_itp_targetship = QPixmap("pic/air" + str(itp_value) + ".png")  # 1号类型目标机图标
-                               eval("self.airb_targetair"+  str(i)+"_PixItem.setPixmap(pixmap_airb_targetship)")
-                               eval("self.surf_targetair" + str(i) + "_PixItem.setPixmap(pixmap_surf_targetship)")
-                               eval("self.vsa_targetair" + str(i) + "_PixItem.setPixmap(pixmap_vsa_targetship)")
-                               eval("self.itp_targetair" + str(i) + "_PixItem.setPixmap(pixmap_itp_targetship)")
-                               target_pic_surf_type.append(surf_value)
+                           self.ui.airb_ownship_applstatus_bitmap.setPixmap(
+                               QPixmap("pic/appstatus" + str(airb_app_status) + ".png"))
+                           self.ui.surf_ownship_applstatus_bitmap.setPixmap(
+                               QPixmap("pic/appstatus" + str(surf_app_status) + ".png"))
+                           self.ui.vsa_ownship_applstatus_bitmap.setPixmap(
+                               QPixmap("pic/appstatus" + str(vsa_app_status) + ".png"))
+                           self.ui.itp_ownship_applstatus_bitmap.setPixmap(
+                               QPixmap("pic/appstatus" + str(itp_app_status) + ".png"))
                    if item[1] == 45760: # 设置旋转角
                        if 'compass_bitmap' == map_wigdetId[item[0]]:
                            ownship_angle = item[2]
@@ -1247,102 +1099,310 @@ class MainWindow(QMainWindow):
                            self.airb_compass_Item.setRotation(360 - int(item[2]))
                            self.vsa_compass_Item.setRotation(360 - int(item[2]))
                            self.itp_compass_Item.setRotation(360 - int(item[2]))
-                       for i in range(1,6):
-                           if eval("'target"+str(i)+"_bitmap'") == map_wigdetId[item[0]]:
-                               target_angle_list.append(item[2])
-                               eval("self.airb_targetair" + str(i) + "_PixItem").setRotation(int(item[2]))
-                               eval("self.surf_targetair" + str(i) + "_PixItem").setRotation(int(item[2]))
-                               eval("self.vsa_targetair" + str(i) + "_PixItem").setRotation(int(item[2]))
-                               eval("self.itp_targetair" + str(i) + "_PixItem").setRotation(int(item[2]))
-                   if item[1] == 45824: # 设置目标机X轴坐标
-                       for i in range(1, 6):
-                           if eval("'target" + str(i) + "_bitmap'") == map_wigdetId[item[0]]:
-                               target_x_list.append(int(item[2]))
-                   if item[1] == 45840: # 设置目标机Y轴坐标
-                       for i in range(1, 6):
-                           if eval("'target" + str(i) + "_bitmap'") == map_wigdetId[item[0]]:
-                               target_y_list.append(int(item[2]))
-               except:
-                   import traceback
-                   traceback.print_exc()
-                   print("更新界面UI有错误，请检查~")
-                   continue
-           #设置目标机位置
-           print(target_x_list)
-           print(target_y_list)
-           one_pixel_itp_y = 1 / 7
-           own_alt = int(int(self.ui.itp_ownship_alt_txt.text()) / 100)
-           # print(target_itp_y)
-           # print(target_itp_x)
-           # print(target_itp_x_forward)
-           # print(one_pixel_itp_x)
-           for i in range(0,num_target):
-               # 绘制罗盘中目标机图标和文本位置
-               eval('self.airb_targetair'+str(i+1)+'_PixItem.setPos(target_x_list[i], target_y_list[i])')
-               eval('self.airb_air' + str(i+1) + '_text_Item.setPos(target_x_list[i], target_y_list[i]+20)')
-               eval('self.vsa_targetair'+str(i+1)+'_PixItem.setPos(target_x_list[i], target_y_list[i])')
-               eval('self.vsa_air' + str(i+1) + '_text_Item.setPos(target_x_list[i], target_y_list[i]+20)')
-               eval('self.itp_targetair'+str(i+1)+'_PixItem.setPos(target_x_list[i], target_y_list[i])')
-               eval('self.itp_air' + str(i+1) + '_text_Item.setPos(target_x_list[i], target_y_list[i]+20)')
-               # 绘制Itp区域
-               if target_itp_x_forward[i] == 1:#相对本机前
-                   eval("self.ui.frame_itp_target"+str(i+1) + ".setGeometry(QRect(275 + int( target_itp_x[i]/one_pixel_itp_x), 380 - int((target_itp_y[i]- own_alt) / one_pixel_itp_y),121, 81))")
-               else: #相对本机后
-                   eval("self.ui.frame_itp_target" + str(i+1) + ".setGeometry(QRect(275 - int( target_itp_x[i]/one_pixel_itp_x), 380 - int((target_itp_y[i] - own_alt) / one_pixel_itp_y),121, 81))")
-           #绘制surf区域
-           # step1: 移动地图,将地图中心点变更为本机坐标点
-           own_lon = round(float(self.ui.surf_ownship_lon_txt.text()), 6)
-           own_lat = round(float(self.ui.surf_ownship_lat_txt.text()), 6)
-           js_string_move_map = '''move_map(%f,%f);''' % (own_lon, own_lat)
-           self.browser.page().runJavaScript(js_string_move_map)  # 初始化本机位置、标注、航线、移动
-           # step2: 地图角度旋转 按照本机航向旋转
-           ownship_angle =   float(self.surf_air_heading_txt.text())
-           self.map_widgetItem.setRotation(-ownship_angle)
-           print(target_pic_surf_type)
-           print(target_lon_list)
-           print(target_lat_list)
-           print(target_alt_dif_list)
-           print(target_air_ground_status_list)
-           print(target_surf_app_status_list)
-           print(target_angle_list)
+           if num_target >=1: #存在目标机
+               for i in range(1,num_target+1):
+                   #罗盘飞机图标和飞机文本 显示
+                   eval("self.airb_targetair"+str(i)+"_PixItem.setVisible(True)")
+                   eval("self.airb_air" + str(i) + "_text_Item.setVisible(True)")
+                   eval("self.vsa_targetair"+str(i)+"_PixItem.setVisible(True)")
+                   eval("self.vsa_air" + str(i) + "_text_Item.setVisible(True)")
+                   eval("self.itp_targetair"+str(i)+"_PixItem.setVisible(True)")
+                   eval("self.itp_air" + str(i) + "_text_Item.setVisible(True)")
+                   # Target Info 显示
+                   eval("self.ui.airb_targetair"+str(i)+"_id_info.setVisible(True)")
+                   eval("self.ui.airb_target" + str(i) + "_speed_txt.setVisible(True)")
+                   eval("self.ui.surf_targetair"+str(i)+"_id_info.setVisible(True)")
+                   eval("self.ui.surf_target" + str(i) + "_speed_txt.setVisible(True)")
+                   eval("self.ui.vsa_targetair"+str(i)+"_id_info.setVisible(True)")
+                   eval("self.ui.vsa_target" + str(i) + "_speed_txt.setVisible(True)")
+                   eval("self.ui.vsa_target"+str(i)+"_dis_txt.setVisible(True)")
+                   eval("self.ui.vsa_target" + str(i) + "_v1_txt.setVisible(True)")
+                   eval("self.ui.vsa_target" + str(i) + "_v2_txt.setVisible(True)")
+                   # Itp区域 显示
+                   eval("self.ui.frame_itp_target" + str(i) + ".setVisible(True)")
+               for item in info:
+                   break_flag += 1
+                   try:
+                       if break_flag >1 and item[0] == 0:
+                           break
+                       if item[1] == 46224:  # 设置文本
+                           if 'ownship_toa_time' == map_wigdetId[item[0]]:
+                               self.ui.airb_time_txt.setText(str(round(item[2], 3)))
+                               self.ui.surf_time_txt.setText(str(round(item[2], 3)))
+                               self.ui.vsa_time_txt.setText(str(round(item[2], 3)))
+                               self.ui.itp_time_txt.setText(str(round(item[2], 3)))
+                           if 'ownship_id_txt' == map_wigdetId[item[0]]: #本机ID
+                               self.ui.surf_ownship_id_txt.setText(str(item[2].decode()))
+                               self.ui.airb_ownship_id_txt.setText(str(item[2].decode()))
+                               self.ui.vsa_ownship_id_txt.setText(str(item[2].decode()))
+                               self.ui.itp_ownship_id_txt.setText(str(item[2].decode()))
+                           if 'ownship_lon_txt' == map_wigdetId[item[0]]: #本机经度
+                               self.ui.airb_ownship_lon_txt.setText(str(round(float(item[2]), 6)))
+                               self.ui.surf_ownship_lon_txt.setText(str(round(float(item[2]), 6)))
+                               self.ui.vsa_ownship_lon_txt.setText(str(round(float(item[2]), 6)))
+                               self.ui.itp_ownship_lon_txt.setText(str(round(float(item[2]), 6)))
+                           if 'ownship_lat_txt' == map_wigdetId[item[0]]: #本机纬度
+                               self.ui.airb_ownship_lat_txt.setText(str(round(float(item[2]), 6)))
+                               self.ui.surf_ownship_lat_txt.setText(str(round(float(item[2]), 6)))
+                               self.ui.vsa_ownship_lat_txt.setText(str(round(float(item[2]), 6)))
+                               self.ui.itp_ownship_lat_txt.setText(str(round(float(item[2]), 6)))
+                           if 'ownship_altrange_txt' == map_wigdetId[item[0]]:
+                               self.ui.airb_ownship_altrange_txt.setText(str(item[2])+ "ft")
+                               self.ui.surf_ownship_altrange_txt.setText(str(item[2])+ "ft")
+                               self.ui.vsa_ownship_altrange_txt.setText(str(item[2]) + "ft")
+                               self.ui.itp_ownship_altrange_txt.setText(str(item[2]) + "ft")
+                           if 'ownship_alt_txt' == map_wigdetId[item[0]]:
+                               self.ui.airb_ownship_alt_txt.setText(str(item[2]))
+                               self.ui.surf_ownship_alt_txt.setText(str(item[2]))
+                               self.ui.vsa_ownship_alt_txt.setText(str(item[2]))
+                               self.ui.itp_ownship_alt_txt.setText(str(item[2]))
+                               itp_own_alt =  int((item[2]+500)/1000)*10
+                               self.ui.itp_own_alt.setText(str(itp_own_alt))
+                               self.ui.itp_own_alt1.setText(str(itp_own_alt - 30))
+                               self.ui.itp_own_alt2.setText(str(itp_own_alt - 20))
+                               self.ui.itp_own_alt3.setText(str(itp_own_alt - 10))
+                               self.ui.itp_own_alt4.setText(str(itp_own_alt + 10))
+                               self.ui.itp_own_alt5.setText(str(itp_own_alt + 20))
+                               self.ui.itp_own_alt6.setText(str(itp_own_alt + 30))
+                           if 'ownship_angle_txt' == map_wigdetId[item[0]]:#设置本机航向角
+                               self.surf_air_heading_txt.setText(str(item[2]))
+                               self.airb_air_heading_txt.setText(str(item[2]))
+                               self.vsa_air_heading_txt.setText(str(item[2]))
+                               self.itp_air_heading_txt.setText(str(item[2]))
+                           for i in range(1,6):
+                               if eval("'target"+str(i)+"_lon'") == map_wigdetId[item[0]]:#目标机经纬度
+                                   target_lon_list.append(item[2])
+                               if eval("'target"+str(i)+"_lat'") == map_wigdetId[item[0]]:#目标机经纬度
+                                   target_lat_list.append(item[2])
+                               if eval("'target"+str(i)+"_id_txt'") == map_wigdetId[item[0]]:#设置目标机id
+                                   eval("self.ui.airb_target"+str(i)+"_id_txt").setText(str(item[2].decode()))
+                                   eval("self.ui.surf_target" + str(i) + "_id_txt").setText(str(item[2].decode()))
+                                   eval("self.ui.vsa_target" + str(i) + "_id_txt").setText(str(item[2].decode()))
+                                   eval("self.ui.itp_target" + str(i) + "_id_txt").setText(str(item[2].decode()))
+                                   eval("self.ui.surf_targetair"+str(i)+"_id_info").setText(str(item[2].decode()))
+                                   eval("self.ui.airb_targetair" + str(i) + "_id_info").setText(str(item[2].decode()))
+                                   eval("self.ui.vsa_targetair" + str(i) + "_id_info").setText(str(item[2].decode()))
+                                   eval("self.ui.itp_alt_target" + str(i) + "_id").setText(str(item[2].decode()))
+                               if eval("'target"+str(i)+"_altdif_txt'") == map_wigdetId[item[0]]: #目标机高度差
+                                   current_alt = int(self.ui.itp_ownship_alt_txt.text())+ item[2]*100
+                                   target_itp_y.append(int(current_alt / 100))
+                                   target_alt_dif_list.append(item[2])
+                                   if item[2]>0:
+                                       eval("self.ui.airb_target"+ str(i) + "_altdif_txt").setText("+"+str(item[2]))
+                                       eval("self.ui.surf_target"+ str(i) + "_altdif_txt").setText("+"+str(item[2]))
+                                       eval("self.ui.vsa_target" + str(i) + "_altdif_txt").setText("+"+str(item[2]))
+                                       eval("self.ui.itp_target" + str(i) + "_altdif_txt").setText("+"+str(item[2]))
+                                   else:
+                                       eval("self.ui.airb_target" + str(i) + "_altdif_txt").setText(str(item[2]))
+                                       eval("self.ui.surf_target" + str(i) + "_altdif_txt").setText(str(item[2]))
+                                       eval("self.ui.vsa_target" + str(i) + "_altdif_txt").setText(str(item[2]))
+                                       eval("self.ui.itp_target" + str(i) + "_altdif_txt").setText(str(item[2]))
+                               if eval("'target"+str(i)+"_airstatus_txt'") == map_wigdetId[item[0]]:#目标机空地状态
+                                   if item[2] == 1:#AIR
+                                       target_air_ground_status_list.append("AIR")
+                                   elif item[2] == 2:#GROUND
+                                       target_air_ground_status_list.append("GROUND")
+                                       eval("self.ui.airb_target"+ str(i) + "_airstatus_txt").setText("GROUND")
+                                       eval("self.ui.vsa_target" + str(i) + "_airstatus_txt").setText("GROUND")
+                                       eval("self.ui.itp_target" + str(i) + "_airstatus_txt").setText("GROUND")
+                               if eval("'target"+str(i)+"_speed_txt'") == map_wigdetId[item[0]]: #目标机地速差
+                                   eval("self.ui.surf_target"+ str(i) + "_speed_txt").setText(str(round(item[2],6)))
+                                   eval("self.ui.airb_target"+ str(i) + "_speed_txt").setText(str(round(item[2],6)))
+                                   eval("self.ui.vsa_target" + str(i) + "_speed_txt").setText(str(round(item[2],6)))
+                               if eval("'target"+str(i)+"_vsa_dis'")== map_wigdetId[item[0]]:#VSA距离
+                                   eval("self.ui.vsa_target"+str(i)+"_dis_txt").setText(str(round(item[2],3)))
+                               if eval("'target"+str(i)+"_vsa_velocity'")== map_wigdetId[item[0]]:#VSA速度
+                                   eval("self.ui.vsa_target"+str(i)+"_v1_txt").setText(str(round(item[2], 3)))
+                                   eval("self.ui.vsa_target"+str(i)+"_v2_txt").setText(str(round(item[2], 3)))
+                               if eval("'target"+str(i)+"_itp_dis'")== map_wigdetId[item[0]]:#ITP距离
+                                   eval("self.ui.itp_alt_target"+str(i)+"_dis").setText(str(round(item[2],1))+"NM")
+                                   target_itp_x.append(round(item[2], 1))
+                               if eval("'target"+str(i)+"_itp_dis_rate'")== map_wigdetId[item[0]]:#ITP距离变化率
+                                   eval("self.ui.itp_alt_target"+str(i)+"_dis_rate").setText(str(int(item[2]))+"KT")
+                                   target_itp_x.append(round(item[2], 1))
+                               if eval("'target" + str(i) + "_itp_geometry_status'") == map_wigdetId[item[0]]:#itp有效
+                                   if item[2] == 1:  # ITP有效
+                                       eval("self.ui.itp_bitmap_target"+str(i)).setPixmap(QPixmap("pic/itp_air2.png"))
+                                       eval("self.ui.itp_alt_target"+str(i)+"_id").setStyleSheet("color:rgb(0, 255, 255)")
+                                       eval("self.ui.itp_alt_target"+str(i)+"_dis").setStyleSheet("color:rgb(0, 255, 255)")
+                                       eval("self.ui.itp_alt_target" + str(i) + "_dis_rate").setStyleSheet("color:rgb(0, 255, 255)")
+                                   else:
+                                       eval("self.ui.itp_bitmap_target" + str(i)).setPixmap(QPixmap("pic/itp_air1.png"))
+                               if eval("'target" + str(i) + "_itp_forward'") == map_wigdetId[item[0]]:#1相对本机前 2相对本机后
+                                   target_itp_x_forward.append(item[2])
+                           if 'compass_step' == map_wigdetId[item[0]]:
+                               compass_step = int(item[2])
+                               one_pixel_itp_x = float(compass_step/115)
+                               self.ui.itp_own_dis1.setText(str(2 *compass_step))
+                               self.ui.itp_own_dis2.setText(str(compass_step))
+                               self.ui.itp_own_dis3.setText(str(compass_step))
+                               self.ui.itp_own_dis4.setText(str(2 *compass_step))
+                               self.ui.surf_compass_step.setText(str(compass_step))
+                               self.ui.airb_compass_step.setText(str(compass_step))
+                               self.ui.vsa_compass_step.setText(str(compass_step))
+                               self.ui.itp_compass_step.setText(str(compass_step))
+                               self.ui.surf_compass_step1.setText(str(-2 * compass_step))
+                               self.ui.surf_compass_step2.setText(str(-1 * compass_step))
+                               self.ui.surf_compass_step3.setText(str(1 * compass_step))
+                               self.ui.surf_compass_step4.setText(str(2 * compass_step))
+                               self.ui.surf_compass_step5.setText(str(-1 * compass_step))
+                               self.ui.surf_compass_step6.setText(str(-2 * compass_step))
+                               self.ui.airb_compass_step1.setText(str(-2 * compass_step))
+                               self.ui.airb_compass_step2.setText(str(-1 * compass_step))
+                               self.ui.airb_compass_step3.setText(str(1 * compass_step))
+                               self.ui.airb_compass_step4.setText(str(2 * compass_step))
+                               self.ui.airb_compass_step5.setText(str(-1 * compass_step))
+                               self.ui.airb_compass_step6.setText(str(-2 * compass_step))
+                               self.ui.vsa_compass_step1.setText(str(-2 * compass_step))
+                               self.ui.vsa_compass_step2.setText(str(-1 * compass_step))
+                               self.ui.vsa_compass_step3.setText(str(1 * compass_step))
+                               self.ui.vsa_compass_step4.setText(str(2 * compass_step))
+                               self.ui.vsa_compass_step5.setText(str(-1 * compass_step))
+                               self.ui.vsa_compass_step6.setText(str(-2 * compass_step))
+                               self.ui.itp_compass_step1.setText(str(-2 * compass_step))
+                               self.ui.itp_compass_step2.setText(str(-1 * compass_step))
+                               self.ui.itp_compass_step3.setText(str(1 * compass_step))
+                               self.ui.itp_compass_step4.setText(str(2 * compass_step))
+                               self.ui.itp_compass_step5.setText(str(-1 * compass_step))
+                               self.ui.itp_compass_step6.setText(str(-2 * compass_step))
+                       if item[1] == 45808:  # 设置飞机应用状态图片
+                           airb_app_status = '{:04b}'.format(item[2])[-1]
+                           surf_app_status = '{:04b}'.format(item[2])[-2]
+                           vsa_app_status = '{:04b}'.format(item[2])[-3]
+                           itp_app_status = '{:04b}'.format(item[2])[-4]
+                           if 'ownship_applstatus' == map_wigdetId[item[0]]:
+                               self.ui.airb_ownship_applstatus_bitmap.setPixmap(QPixmap("pic/appstatus" + str(airb_app_status) + ".png"))
+                               self.ui.surf_ownship_applstatus_bitmap.setPixmap(QPixmap("pic/appstatus" + str(surf_app_status) + ".png"))
+                               self.ui.vsa_ownship_applstatus_bitmap.setPixmap(QPixmap("pic/appstatus" + str(vsa_app_status) + ".png"))
+                               self.ui.itp_ownship_applstatus_bitmap.setPixmap(QPixmap("pic/appstatus" + str(itp_app_status) + ".png"))
+                           for i in range(1, 6):
+                               if eval("'target"+str(i)+"_applstatus_bitmap'") == map_wigdetId[item[0]]:
+                                   target_surf_app_status_list.append(surf_app_status)
+                                   eval("self.ui.airb_target"+str(i)+"_applstatus_bitmap").setPixmap(QPixmap("pic/appstatus" + str(airb_app_status) + ".png"))
+                                   eval("self.ui.surf_target" + str(i) + "_applstatus_bitmap").setPixmap(
+                                       QPixmap("pic/appstatus" + str(surf_app_status) + ".png"))
+                                   eval("self.ui.vsa_target" + str(i) + "_applstatus_bitmap").setPixmap(
+                                       QPixmap("pic/appstatus" + str(vsa_app_status) + ".png"))
+                                   eval("self.ui.itp_target" + str(i) + "_applstatus_bitmap").setPixmap(
+                                       QPixmap("pic/appstatus" + str(itp_app_status) + ".png"))
+                       if item[1] == 46272: #设置目标机图标
+                           for i in range(1, 6):
+                               if eval("'target"+str(i)+"_bitmap'") == map_wigdetId[item[0]]:
+                                   airb_value = item[2] & int('0xf',16)
+                                   surf_value = (item[2] >> 4) & int('0xf',16)
+                                   vsa_value = (item[2] >> 8) & int('0xf',16)
+                                   itp_value  = (item[2] >> 12) & int('0xf',16)
+                                   print(str(i)+"号目标机飞机图标依次为："+str(airb_value)+str(surf_value)+str(vsa_value)+str(itp_value))
 
-           for i in range(0, num_target):
-               if target_pic_surf_type and target_lon_list and target_lat_list:
-                   if target_lon_list[i] == 0.0 and target_lat_list[i] ==0.0:#仅tcas surf无法显示目标机
-                       angle_temp = 0.0 #方位角
-                       dis_temp = 0.0 #相对距离 km
-                       dx = abs(target_x_list[i] - 315)
-                       dy = abs(target_y_list[i] - 320.5)
-                       dxy = sqrt(dx**2+dy**2)
-                       angle_temp = atan(dx/dy)* 180 / pi
-                       dis_temp = compass_step * 1.852 * dxy/270
-                       own_lon = float(self.ui.surf_ownship_lon_txt.text())
-                       own_lat =  float(self.ui.surf_ownship_lat_txt.text())
-                       print("angle_temp：" + str(angle_temp))
-                       print("dis_temp：" + str(dis_temp))
-                       ga = Geography_Analysis()
-                       target_lon,target_lat = ga.get_lngAndlat(own_lon,own_lat,angle_temp,dis_temp)
-                       print(target_lon,target_lat)
-                       js_string1 = '''update_target_pic(%d,%d,%f,%f,%d);''' % (
-                       i + 1, target_pic_surf_type[i], target_lon, target_lat,
-                       ownship_angle + target_angle_list[i])
-                       self.browser.page().runJavaScript(js_string1)  # 更新目标机目标
-                       if target_alt_dif_list and target_air_ground_status_list and target_surf_app_status_list:
-                           js_string2 = '''update_target_info(%d,'%s','%s','%s',%d,%f,%f);'''%(i+1,eval('self.ui.surf_targetair'+str(i+1)+'_id_info.text()'),str(target_alt_dif_list[i]),target_air_ground_status_list[i],int(target_surf_app_status_list[i]),target_lon, target_lat)
-                           print(js_string2)
-                           self.browser.page().runJavaScript(js_string2)  # 更新目标机航班号...
-                   else: #正常情况
-                       js_string1 = '''update_target_pic(%d,%d,%f,%f,%d);'''%(i+1,target_pic_surf_type[i],target_lon_list[i], target_lat_list[i],ownship_angle+target_angle_list[i])
-                       print(js_string1)
-                       self.browser.page().runJavaScript(js_string1)  # 更新目标机目标
-                       if target_alt_dif_list and target_air_ground_status_list and target_surf_app_status_list:
-                           js_string2 = '''update_target_info(%d,'%s','%s','%s',%d,%f,%f);'''%(i+1,eval('self.ui.surf_targetair'+str(i+1)+'_id_info.text()'),str(target_alt_dif_list[i]),target_air_ground_status_list[i],int(target_surf_app_status_list[i]),target_lon_list[i], target_lat_list[i])
-                           print(js_string2)
-                           self.browser.page().runJavaScript(js_string2)  # 更新目标机航班号、空地状态、应用状态
+                                   pixmap_airb_targetship = QPixmap("pic/air" + str(airb_value) + ".png")  # 1号类型目标机图标
+                                   pixmap_surf_targetship = QPixmap("pic/air" + str(surf_value) + ".png")  # 1号类型目标机图标
+                                   pixmap_vsa_targetship = QPixmap("pic/air" + str(vsa_value) + ".png")  # 1号类型目标机图标
+                                   pixmap_itp_targetship = QPixmap("pic/air" + str(itp_value) + ".png")  # 1号类型目标机图标
+                                   eval("self.airb_targetair"+  str(i)+"_PixItem.setPixmap(pixmap_airb_targetship)")
+                                   eval("self.surf_targetair" + str(i) + "_PixItem.setPixmap(pixmap_surf_targetship)")
+                                   eval("self.vsa_targetair" + str(i) + "_PixItem.setPixmap(pixmap_vsa_targetship)")
+                                   eval("self.itp_targetair" + str(i) + "_PixItem.setPixmap(pixmap_itp_targetship)")
+                                   target_pic_surf_type.append(surf_value)
+                       if item[1] == 45760: # 设置旋转角
+                           if 'compass_bitmap' == map_wigdetId[item[0]]:
+                               ownship_angle = item[2]
+                               self.surf_compass_Item.setRotation(360 - int(item[2]))
+                               self.airb_compass_Item.setRotation(360 - int(item[2]))
+                               self.vsa_compass_Item.setRotation(360 - int(item[2]))
+                               self.itp_compass_Item.setRotation(360 - int(item[2]))
+                           for i in range(1, 6):
+                               if eval("'target"+str(i)+"_bitmap'") == map_wigdetId[item[0]]:
+                                   target_angle_list.append(item[2])
+                                   eval("self.airb_targetair" + str(i) + "_PixItem").setRotation(int(item[2]))
+                                   eval("self.surf_targetair" + str(i) + "_PixItem").setRotation(int(item[2]))
+                                   eval("self.vsa_targetair" + str(i) + "_PixItem").setRotation(int(item[2]))
+                                   eval("self.itp_targetair" + str(i) + "_PixItem").setRotation(int(item[2]))
+                       if item[1] == 45824: # 设置目标机X轴坐标
+                           for i in range(1, 6):
+                               if eval("'target" + str(i) + "_bitmap'") == map_wigdetId[item[0]]:
+                                   target_x_list.append(int(item[2]))
+                       if item[1] == 45840: # 设置目标机Y轴坐标
+                           for i in range(1, 6):
+                               if eval("'target" + str(i) + "_bitmap'") == map_wigdetId[item[0]]:
+                                   target_y_list.append(int(item[2]))
+                   except:
+                       import traceback
+                       traceback.print_exc()
+                       print("更新界面UI有错误，请检查~")
+                       continue
+               #设置目标机位置
+               print(target_x_list)
+               print(target_y_list)
+               one_pixel_itp_y = 1 / 7
+               own_alt = int(int(self.ui.itp_ownship_alt_txt.text()) / 100)
+               for i in range(0,num_target):
+                   # 绘制罗盘中目标机图标和文本位置
+                   eval('self.airb_targetair'+str(i+1)+'_PixItem.setPos(target_x_list[i], target_y_list[i])')
+                   eval('self.airb_air' + str(i+1) + '_text_Item.setPos(target_x_list[i], target_y_list[i]+20)')
+                   eval('self.vsa_targetair'+str(i+1)+'_PixItem.setPos(target_x_list[i], target_y_list[i])')
+                   eval('self.vsa_air' + str(i+1) + '_text_Item.setPos(target_x_list[i], target_y_list[i]+20)')
+                   eval('self.itp_targetair'+str(i+1)+'_PixItem.setPos(target_x_list[i], target_y_list[i])')
+                   eval('self.itp_air' + str(i+1) + '_text_Item.setPos(target_x_list[i], target_y_list[i]+20)')
+                   # 绘制Itp区域
+                   if target_itp_x_forward[i] == 1:#相对本机前
+                       eval("self.ui.frame_itp_target"+str(i+1) + ".setGeometry(QRect(275 + int( target_itp_x[i]/one_pixel_itp_x), 380 - int((target_itp_y[i]- own_alt) / one_pixel_itp_y),121, 81))")
+                   else: #相对本机后
+                       eval("self.ui.frame_itp_target" + str(i+1) + ".setGeometry(QRect(275 - int( target_itp_x[i]/one_pixel_itp_x), 380 - int((target_itp_y[i] - own_alt) / one_pixel_itp_y),121, 81))")
+               #绘制surf区域
+               # step1: 移动地图,将地图中心点变更为本机坐标点
+               own_lon = round(float(self.ui.surf_ownship_lon_txt.text()), 6)
+               own_lat = round(float(self.ui.surf_ownship_lat_txt.text()), 6)
+               js_string_move_map = '''move_map(%f,%f);''' % (own_lon, own_lat)
+               self.browser.page().runJavaScript(js_string_move_map)  # 初始化本机位置、标注、航线、移动
+               #step2: 地图角度旋转 按照本机航向旋转
+               ownship_angle =   float(self.surf_air_heading_txt.text())
+               self.map_widgetItem.setRotation(-ownship_angle)
+               print(target_pic_surf_type)
+               print(target_lon_list)
+               print(target_lat_list)
+               print(target_alt_dif_list)
+               print(target_air_ground_status_list)
+               print(target_surf_app_status_list)
+               print(target_angle_list)
+               for i in range(0, num_target):
+                   if target_pic_surf_type and target_lon_list and target_lat_list:
+                       if target_lon_list[i] == 0.0 and target_lat_list[i] == 0.0:#仅tcas surf无法显示目标机
+                           angle_temp = 0.0 #方位角
+                           dis_temp = 0.0 #相对距离 km
+                           #(320 - 15, 320 + 17.5)
+                           dx = abs(target_x_list[i] - 305)
+                           dy = abs(target_y_list[i] - 337.5)
+                           dxy = sqrt(dx**2+dy**2)
+                           angle_temp = atan(dx/dy)* 180 / pi
+                           dis_temp = compass_step * 1.852 * dxy/800
+                           own_lon = float(self.ui.surf_ownship_lon_txt.text())
+                           own_lat = float(self.ui.surf_ownship_lat_txt.text())
+                           print("angle_temp：" + str(angle_temp))
+                           print("dis_temp：" + str(dis_temp))
+                           ga = Geography_Analysis()
+                           target_lon,target_lat = ga.get_lngAndlat(own_lon,own_lat,angle_temp,dis_temp)
+                           print(target_lon,target_lat)
+                           js_string1 = '''update_target_pic(%d,%d,%f,%f,%d);''' % (
+                           i + 1, target_pic_surf_type[i], target_lon, target_lat,ownship_angle+target_angle_list[i])
+                           print(js_string1)
+                           self.browser.page().runJavaScript(js_string1)  # 更新目标机目标
+                           if target_alt_dif_list and target_air_ground_status_list and target_surf_app_status_list:
+                               js_string2 = '''update_target_info(%d,'%s','%s','%s',%d,%f,%f,%d);'''%(i+1,eval('self.ui.surf_targetair'+str(i+1)+'_id_info.text()'),str(target_alt_dif_list[i]),target_air_ground_status_list[i],int(target_surf_app_status_list[i]),target_lon, target_lat,ownship_angle)
+                               print(js_string2)
+                               self.browser.page().runJavaScript(js_string2)  # 更新目标机航班号...
+                       else: #正常情况
+                           js_string1 = '''update_target_pic(%d,%d,%f,%f,%d);'''%(i+1,target_pic_surf_type[i],target_lon_list[i], target_lat_list[i],ownship_angle+target_angle_list[i])
+                           print(js_string1)
+                           self.browser.page().runJavaScript(js_string1)  # 更新目标机目标
+                           if target_alt_dif_list and target_air_ground_status_list and target_surf_app_status_list:
+                               js_string2 = '''update_target_info(%d,'%s','%s','%s',%d,%f,%f,%d);'''%(i+1,eval('self.ui.surf_targetair'+str(i+1)+'_id_info.text()'),str(target_alt_dif_list[i]),target_air_ground_status_list[i],int(target_surf_app_status_list[i]),target_lon_list[i], target_lat_list[i],ownship_angle)
+                               print(js_string2)
+                               self.browser.page().runJavaScript(js_string2)  # 更新目标机航班号、空地状态、应用状态
 
     def send_data1_to_ua(self):
         try:
             self.pack_CDTI_TO_UA_DATA(self.cdti_to_ua_in_data,0)
+            buf = bytes(168)
             buf = self.cdti_to_ua_in_data.encode()
             print("待发送的字节:" + str(buf))
             socket_661 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
@@ -1353,6 +1413,7 @@ class MainWindow(QMainWindow):
     def send_data2_to_ua(self):
         try:
             self.pack_CDTI_TO_UA_DATA(self.cdti_to_ua_out_data,1)
+            buf = bytes(168)
             buf = self.cdti_to_ua_out_data.encode()
             print("待发送的字节:" + str(buf))
             socket_661 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)

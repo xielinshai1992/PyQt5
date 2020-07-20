@@ -9,7 +9,7 @@ class A661_NOTIFY_WIDGET_EVENT_12BYTE(Structure):
                 ("WidgetIdent", c_ushort),
                 ("EventOrigin", c_ushort),
                 ("EventID", c_ushort),
-                ("UnusedPad", c_char * 2)]
+                ("UnusedPad", c_char * 146)]
 
 class CDTI_TO_UA_WIDGET_EVENT_DATA(Structure):
     _pack_ = 1  #1字节对齐
@@ -124,3 +124,4 @@ class UA_TO_CDTI_DATA(Structure):
         memmove(addressof(self), data, sizeof(self))
         return len(data)
 print(sizeof(UA_TO_CDTI_DATA))
+print(sizeof(CDTI_TO_UA_WIDGET_EVENT_DATA))

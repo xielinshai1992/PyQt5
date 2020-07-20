@@ -122,11 +122,12 @@ class Geography_Analysis():
 
 
 
-ga = Geography_Analysis()
-# print(ga.get_lngAndlat(105.5880000,30.54105,90.918,10))
+#ga = Geography_Analysis()
+# print(ga.geodistance(104.833,30.846,104.078,30.583))
 # print(ga.getDegree(103.9581,30.5829,103.9571 ,30.5868))
 # print(ga.get_lngAndlat(106.710000,32.328333,46,16.668))
-# print(ga.getDegree(32.513 ,106.885, 34.207, 108.524))  #1号目标机
+#print(ga.getDegree(103.962467,30.564525	,103.969222,30.580445 ))  #1号目标机
 # print(ga.getDegree(33.07, 107.02 , 32.68, 109.02))  #2号目标机
 # print(ga.getDegree(31.85 , 106.77   ,32.08, 79.24))  #4号目标机
 # print(ga.getDegree(29.72 , 106.64,30.035, 108.646667))  #3号目标机
+# print(ga.geodistance(105.5880000,30.54,104.078,30.583))

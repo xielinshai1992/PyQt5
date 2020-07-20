@@ -79,3 +79,6 @@ class Ownship_Data_Struct(Structure):
                 ("NIC", c_uint8),
                 ("SIL", c_uint8)
                 ]
+print(sizeof(Ownship_Data_Struct))
+print(sizeof(ADSB_Data_Struct))
+print(sizeof(TCAS_Data_Struct))
