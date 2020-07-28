@@ -106,7 +106,7 @@ class MainWindow(QMainWindow):
         self.variable = locals()
         #定时器相关计数器
         self.count_own = 0                              # 本机显示计数器
-        self.count_own_transmit =0                      # 本机发送计数器
+        self.count_own_transmit = 0                      # 本机发送计数器
         #self.ui.groupBox_tcas_target1.setVisible(False)
 
     def stop_transmit_adsb(self):
@@ -210,6 +210,41 @@ class MainWindow(QMainWindow):
                 url = os.getcwd() + '/map_a.html'
                 self.browser.load(QUrl.fromLocalFile(url))
             if self.data_ownship:
+
+                #初始化变量清零
+                self.voyage_distance_ownship_list = []  # 本机航路距离列表 N个航路点有N-1条航路
+                self.voyage_time_ownship_list = []  # 本机航路时间列表
+                self.groundspeed_ownship = 0  # 本机地速
+                self.fre_transmit_ownship = 0  # 数据发送频率 单位s
+                self.delay_takeoff_ownship = 0  # 起飞延迟 单位s
+                self.Heading_Track_Angle_own_list = []  # 本机航向角序列
+                self.V_SN_own_list = []  # 南北速度序列
+                self.V_EW_own_list = []  # 东西速度序列
+                self.lng_own_list = []  # 经度序列
+                self.lat_own_list = []  # 纬度序列
+                self.lngandlat_own_list = []  # 经纬度序列
+
+                # 目标机信息
+                self.num_targetship = 0  # 目标机数量
+                self.data_targetship = {}  # 目标机携带的所有信息 嵌套字典的字典
+                self.groundspeed_targetship_all = []  # 目标机地速
+                self.Altitude_targetship_all = []  # 目标机压强高度
+                self.type_target_all = {}  # 目标机类型序列
+                self.delay_takeoff_targetship_all = {}  # 起飞延迟 单位ms  键为目标机索引
+                # ADS-B
+                self.fre_transmit_adsb_targetship_all = {}  # ADS-B数据发送频率 单位s
+                self.Heading_Track_Angle_target_all = []  # 航向角序列  嵌套序列
+                self.V_SN_target_all = []  # 南北速度序列    嵌套序列
+                self.V_EW_target_all = []  # 东西速度序列    嵌套序列
+                self.lng_target_all = []  # 经度序列        嵌套序列
+                self.lat_target_all = []  # 纬度序列        嵌套序列
+                self.lngandlat_target_all = []  # 经纬度序列      嵌套序列
+                # TCAS
+                self.tcas_fre_transmit_target_all = {}  # TCAS数据发送频率
+                self.Altitude_targetship_Tcas_all = []  # 目标机Tcas压强高度
+
+
+
                 self.ui.txt_ICAO_own.setText(self.data_ownship['basic']['ICAO'])
                 self.ui.txt_FlightID_own.setText(self.data_ownship['basic']['Flight_ID'])
                 self.ui.txt_Altitude_own.setText(str(self.data_ownship['basic']['Altitude']))
@@ -581,6 +616,8 @@ class MainWindow(QMainWindow):
             if self.ui.tabWidget.count() == int+1:  #仅在用户点击最后一个标签页时关闭
                 if self.data_targetship.get(self.ui.tabWidget.count()):
                     del self.data_targetship[self.ui.tabWidget.count()]
+                    del self.tcas_fre_transmit_target_all[self.ui.tabWidget.count()]
+                    del self.delay_takeoff_targetship_all[self.ui.tabWidget.count()]
                 self.ui.tabWidget.removeTab(int)
                 self.findChild(QFrame, 'frame_target' + str(int + 1)).deleteLater()
             else:
@@ -641,35 +678,36 @@ class MainWindow(QMainWindow):
         try:
             #地图标识删除，button使能复原
             self.browser.page().runJavaScript("remove_overlay();")
+            self.browser.page().runJavaScript("airport_polygon();")
             self.ui.btn_start.setEnabled(True)
             self.ui.btn_import_info_own.setEnabled(True)
             self.ui.btn_stop.setEnabled(False)
             for i in range(1, self.num_targetship+1):
                 self.findChild(QPushButton, 'btn_import_info_target' + str(i)).setEnabled(True)
             #界面参数清零
-            self.ui.txt_ICAO_own.setText("")
-            self.ui.txt_FlightID_own.setText("")
-            self.ui.txt_Altitude_own.setText("")
-            self.ui.txt_V_SN_own.setText("")
-            self.ui.txt_V_EW_own.setText("")
-            self.ui.txt_Latitude_own.setText("")
-            self.ui.txt_Longitude_own.setText("")
-            self.ui.txt_Heading_Track_Angle_own.setText("")
-            self.ui.txt_GroundSpeed_own.setText("")
-            for i in range(1, self.num_targetship + 1):
-                self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(i)).setText("")
-                self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(i)).setText("")
-                self.findChild(QLineEdit, "txt_ICAO_target" + str(i)).setText("")
-                self.findChild(QLineEdit, "txt_FlightID_target" + str(i)).setText("")
-                self.findChild(QLineEdit, "txt_Altitude_target" + str(i)).setText("")
-                self.findChild(QLineEdit, "txt_V_SN_target" + str(i)).setText("")
-                self.findChild(QLineEdit, "txt_V_EW_target" + str(i)).setText("")
-                self.findChild(QLineEdit, "txt_Latitude_target" + str(i)).setText("")
-                self.findChild(QLineEdit, "txt_Longitude_target" + str(i)).setText("")
-                self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(i)).setText("")
-                self.findChild(QLineEdit, "txt_GroundSpeed_target" + str(i)).setText("")
-                self.findChild(QLineEdit, "txt_Track_ID_target" + str(i)).setText("")
-                self.findChild(QLineEdit, "txt_Tcas_Altitude_target" + str(i)).setText("")
+            # self.ui.txt_ICAO_own.setText("")
+            # self.ui.txt_FlightID_own.setText("")
+            # self.ui.txt_Altitude_own.setText("")
+            # self.ui.txt_V_SN_own.setText("")
+            # self.ui.txt_V_EW_own.setText("")
+            # self.ui.txt_Latitude_own.setText("")
+            # self.ui.txt_Longitude_own.setText("")
+            # self.ui.txt_Heading_Track_Angle_own.setText("")
+            # self.ui.txt_GroundSpeed_own.setText("")
+            # for i in range(1, self.num_targetship + 1):
+            #     self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(i)).setText("")
+            #     self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(i)).setText("")
+            #     self.findChild(QLineEdit, "txt_ICAO_target" + str(i)).setText("")
+            #     self.findChild(QLineEdit, "txt_FlightID_target" + str(i)).setText("")
+            #     self.findChild(QLineEdit, "txt_Altitude_target" + str(i)).setText("")
+            #     self.findChild(QLineEdit, "txt_V_SN_target" + str(i)).setText("")
+            #     self.findChild(QLineEdit, "txt_V_EW_target" + str(i)).setText("")
+            #     self.findChild(QLineEdit, "txt_Latitude_target" + str(i)).setText("")
+            #     self.findChild(QLineEdit, "txt_Longitude_target" + str(i)).setText("")
+            #     self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(i)).setText("")
+            #     self.findChild(QLineEdit, "txt_GroundSpeed_target" + str(i)).setText("")
+            #     self.findChild(QLineEdit, "txt_Track_ID_target" + str(i)).setText("")
+            #     self.findChild(QLineEdit, "txt_Tcas_Altitude_target" + str(i)).setText("")
             #关闭所有定时器(4台目标机情况下有8个定时器)
             self.timer_own_transmit.stop()
             self.timer_adsb_transmit.stop()
@@ -693,37 +731,37 @@ class MainWindow(QMainWindow):
             self.socket_adsb.close()
             # 初始化变量清零
             # 本机信息
-            self.data_ownship = {}  # 本机数据
-            self.voyage_distance_ownship_list = []  # 本机航路距离列表 N个航路点有N-1条航路
-            self.voyage_time_ownship_list = []  # 本机航路时间列表
-            self.groundspeed_ownship = 0  # 本机地速
-            self.fre_transmit_ownship = 0  # 数据发送频率 单位s
-            self.delay_takeoff_ownship = 0  # 起飞延迟 单位s
-            self.Heading_Track_Angle_own_list = []  # 本机航向角序列
-            self.V_SN_own_list = []  # 南北速度序列
-            self.V_EW_own_list = []  # 东西速度序列
-            self.lng_own_list = []  # 经度序列
-            self.lat_own_list = []  # 纬度序列
-            self.lngandlat_own_list = []  # 经纬度序列
-
-            # 目标机信息
-            self.num_targetship = 0  # 目标机数量
-            self.data_targetship = {}  # 目标机携带的所有信息 嵌套字典的字典
-            self.groundspeed_targetship_all = []  # 目标机地速
-            self.Altitude_targetship_all = []  # 目标机压强高度
-            self.type_target_all = {}  # 目标机类型序列
-            self.delay_takeoff_targetship_all = {}  # 起飞延迟 单位ms  键为目标机索引
-            # ADS-B
-            self.fre_transmit_adsb_targetship_all = {}  # ADS-B数据发送频率 单位s
-            self.Heading_Track_Angle_target_all = []  # 航向角序列  嵌套序列
-            self.V_SN_target_all = []  # 南北速度序列    嵌套序列
-            self.V_EW_target_all = []  # 东西速度序列    嵌套序列
-            self.lng_target_all = []  # 经度序列        嵌套序列
-            self.lat_target_all = []  # 纬度序列        嵌套序列
-            self.lngandlat_target_all = []  # 经纬度序列      嵌套序列
-            # TCAS
-            self.tcas_fre_transmit_target_all = {}  # TCAS数据发送频率
-            self.Altitude_targetship_Tcas_all = []  # 目标机Tcas压强高度
+            # self.data_ownship = {}  # 本机数据
+            # self.voyage_distance_ownship_list = []  # 本机航路距离列表 N个航路点有N-1条航路
+            # self.voyage_time_ownship_list = []  # 本机航路时间列表
+            # self.groundspeed_ownship = 0  # 本机地速
+            # self.fre_transmit_ownship = 0  # 数据发送频率 单位s
+            # self.delay_takeoff_ownship = 0  # 起飞延迟 单位s
+            # self.Heading_Track_Angle_own_list = []  # 本机航向角序列
+            # self.V_SN_own_list = []  # 南北速度序列
+            # self.V_EW_own_list = []  # 东西速度序列
+            # self.lng_own_list = []  # 经度序列
+            # self.lat_own_list = []  # 纬度序列
+            # self.lngandlat_own_list = []  # 经纬度序列
+            #
+            # # 目标机信息
+            # self.num_targetship = 0  # 目标机数量
+            # self.data_targetship = {}  # 目标机携带的所有信息 嵌套字典的字典
+            # self.groundspeed_targetship_all = []  # 目标机地速
+            # self.Altitude_targetship_all = []  # 目标机压强高度
+            # self.type_target_all = {}  # 目标机类型序列
+            # self.delay_takeoff_targetship_all = {}  # 起飞延迟 单位ms  键为目标机索引
+            # # ADS-B
+            # self.fre_transmit_adsb_targetship_all = {}  # ADS-B数据发送频率 单位s
+            # self.Heading_Track_Angle_target_all = []  # 航向角序列  嵌套序列
+            # self.V_SN_target_all = []  # 南北速度序列    嵌套序列
+            # self.V_EW_target_all = []  # 东西速度序列    嵌套序列
+            # self.lng_target_all = []  # 经度序列        嵌套序列
+            # self.lat_target_all = []  # 纬度序列        嵌套序列
+            # self.lngandlat_target_all = []  # 经纬度序列      嵌套序列
+            # # TCAS
+            # self.tcas_fre_transmit_target_all = {}  # TCAS数据发送频率
+            # self.Altitude_targetship_Tcas_all = []  # 目标机Tcas压强高度
         except:
             traceback.print_exc()
 
@@ -825,7 +863,7 @@ class MainWindow(QMainWindow):
                 own_data_struct.Longitude = round(self.ga.degTorad(self.lng_own_list[self.count_own_transmit]), 6)             #经度
                 Heading_own = round(self.ga.degTorad(self.Heading_Track_Angle_own_list[self.count_own_transmit]), 6)           #航向角
                 own_data_struct.Heading_Track_Angle = Heading_own
-                own_data_struct.Air_Ground_Sta =self.Air_Ground_Sta_own
+                own_data_struct.Air_Ground_Sta = self.Air_Ground_Sta_own
                 own_data_struct.Ground_Speed = int(float(self.data_ownship['basic']['Ground_Speed'] * 1000/3600))               #地速
                 own_data_struct.Flight_Length = int(self.data_ownship['basic']['Flight_Length'] * 1000)
                 own_data_struct.Flight_Width = int(self.data_ownship['basic']['Flight_Width'] * 1000)
@@ -1060,9 +1098,7 @@ class MainWindow(QMainWindow):
             # 确定一个tcas发送周期内的TCAS_Data_Struct数量
             num = 0
             target_index_list = [] #待发送tcas数据的目标机索引序列
-            print(self.tcas_fre_transmit_target_all)
             for target_index, fre in self.tcas_fre_transmit_target_all.items():
-                print(target_index,fre)
                 if self.count_timer_tcas_transmit % fre == 0 and self.type_target_all[target_index] != 3:
                     relative_distance_xy = self.ga.geodistance(
                         float(self.findChild(QLineEdit, 'txt_Longitude_target' + str(target_index)).text()),
