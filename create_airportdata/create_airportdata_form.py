@@ -1031,12 +1031,18 @@ class MainWindow(QMainWindow):
             num = len(transmit_index_list)
             print("待发送ads-b数据的目标机索引为："+str(transmit_index_list))
             # 开始打包ADS-B数据
-            logging.info("开始打包"+str(num)+"个目标机ADS-B数据....")
-            if num > 0:
-                ArrayType = ADSB_Data_Struct * num
+            temp_num_list = [] #每一帧数据代表多少架目标机序列
+            for i in range(int(num/8)):
+                temp_num_list.append(8)
+            temp_num_list.append(num % 8)
+            print("temp_num_adsb_list:"+str(temp_num_list))
+            j = 0
+            for item_num in temp_num_list:
+                ArrayType = ADSB_Data_Struct * item_num
                 array = ArrayType()
-                j = 0
-                for target_index in transmit_index_list:
+                k = 0
+                for i in range(1, item_num+1):
+                    target_index = j*8+i
                     if self.variable['target_count_transmit' + str(target_index)] >= len(self.V_SN_target_all[target_index-1]):
                         self.timer_adsb_transmit.stop()
                     else:
@@ -1080,16 +1086,17 @@ class MainWindow(QMainWindow):
                         adsb_data_struct.SAD = self.data_targetship[target_index]['ADS-B']['SDA']
                         adsb_data_struct.emergency_priority_sta = self.data_targetship[target_index]['ADS-B']['emergency_priority_sta']
                         adsb_data_struct.data_link_version = self.data_targetship[target_index]['ADS-B']['data_link_version']
-                        array[j] = adsb_data_struct
-                        j+=1
+                        array[k] = adsb_data_struct
+                        k += 1
                 temp_byte = bytes(1208)
-                lenth = self.dll.Pack_ADSB_data(array, num, temp_byte, 2048)
+                print("开始打包" + str(item_num) + "个目标机ADS-B数据....")
+                lenth = self.dll.Pack_ADSB_data(array, item_num, temp_byte, 2048)
                 print('目标机ADS-B数据打包长度：' + str(lenth))
-                #UDP发送数据
+                # UDP发送数据
                 self.socket_adsb.sendto(temp_byte, self.ip_port_adsb)
-                print('目标机ADS-B数据发送长度：'+str(len(temp_byte)))
-                logging.info("目标机发送ADS-B数据：" + str(temp_byte.strip(b'\x00')))
-            self.count_timer_adsb_transmit +=1
+                print('目标机ADS-B数据发送长度：' + str(len(temp_byte)))
+                j += 1
+            self.count_timer_adsb_transmit += 1
         except:
             traceback.print_exc()
 
@@ -1109,16 +1116,20 @@ class MainWindow(QMainWindow):
                         target_index_list.append(target_index)
             transmit_index_list = list(set(target_index_list).difference(self.pause_transmit_tcas_index))#待发送tcas数据的目标机索引序列
             num = len(transmit_index_list)
-
+            print("待发送tcas数据的目标机索引为：" + str(target_index_list))
             # 开始打包TCAS数据
-            if num > 0:
-                print("待发送tcas数据的目标机索引为：" + str(target_index_list))
-                logging.info("待发送tcas数据的目标机索引为：" + str(target_index_list))
-                logging.info("开始打包" + str(num) + "个目标机TCAS数据....")
-                ArrayType = TCAS_Data_Struct * num
+            temp_num_list = [] #每一帧数据代表多少架目标机序列
+            for i in range(int(num/8)):
+                temp_num_list.append(8)
+            temp_num_list.append(num % 8)
+            print("temp_num_tcas_list:"+str(temp_num_list))
+            j = 0
+            for item_num in temp_num_list:
+                ArrayType = TCAS_Data_Struct * item_num
                 array = ArrayType()
-                j = 0
-                for target_index in transmit_index_list:
+                k = 0
+                for i in range(1, item_num+1):
+                    target_index = j*8+i
                     tcas_data_struct = TCAS_Data_Struct()
                     tcas_data_struct.Track_ID = self.data_targetship[target_index]['TCAS']['Track_ID'].encode()           #ICAO码
                     tcas_data_struct.Flight_24bit_addr = self.data_targetship[target_index]['TCAS']['Flight_24bit_addr_TCAS']
@@ -1139,20 +1150,17 @@ class MainWindow(QMainWindow):
                     tcas_data_struct.Mintes = self.current_transmit_mintes
                     tcas_data_struct.Hours = self.current_transmit_hours
                     tcas_data_struct.sec = self.current_transmit_sec
-                    # temp_byte = bytes(2048)
-                    # lenth = self.dll.Pack_TCAS_data(tcas_data_struct, 1, temp_byte, 2048)
-                    # print("TCAS数据打包长度："+str(lenth))
-                    # self.socket_tcas.sendto(temp_byte.strip(b'\x00'), self.ip_port_tcas)
-                    # logging.info("目标机发送ADS-B数据：" + str(temp_byte.strip(b'\x00')))
                     import time
                     time.sleep(0.02)
-                    array[j] = tcas_data_struct
-                    j+=1
+                    array[k] = tcas_data_struct
+                    k+=1
                 temp_byte = bytes(520)
-                print('目标机TCAS数据打包长度：' + str(self.dll.Pack_TCAS_data(array,num, temp_byte, 2048)))
+                print("开始打包" + str(item_num) + "个目标机TCAS数据....")
+                print('目标机TCAS数据打包长度：' + str(self.dll.Pack_TCAS_data(array,item_num, temp_byte, 2048)))
                 #UDP发送数据
                 self.socket_tcas.sendto(temp_byte, self.ip_port_tcas)
                 print("TCAS数据发送长度：" + str(len(temp_byte)))
+                j+=1
             self.count_timer_tcas_transmit += 1
         except:
             traceback.print_exc()
