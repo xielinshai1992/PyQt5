@@ -93,7 +93,7 @@ class MainWindow(QMainWindow):
         self.lat_target_all = []                        # 纬度序列        嵌套序列
         self.lngandlat_target_all = []                  # 经纬度序列      嵌套序列
         #TCAS
-        self.tcas_fre_transmit_target_all = {}          # TCAS数据发送频率
+        self.tcas_fre_transmit_target_a8ll = {}          # TCAS数据发送频率
         self.Altitude_targetship_Tcas_all = []          # 目标机Tcas压强高度
 
         #全局
@@ -630,8 +630,8 @@ class MainWindow(QMainWindow):
         try:
             # 创建socket
             ip = '127.0.0.1'
-            #ip = '192.168.253.2'
-            self.ip_port_own = (ip, 8000)
+            #ip = '192.168.100.105'
+            self.ip_port_own =  (ip, 8000)
             self.socket_own  = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
             self.ip_port_tcas = (ip, 8001)
             self.socket_tcas = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
