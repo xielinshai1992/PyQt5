@@ -100,7 +100,7 @@ class MainWindow(QMainWindow):
         self.pause_transmit_adsb_index = []             # 暂停发送ads-b的目标机索引
         self.pause_transmit_tcas_index = []             # 暂停发送tcas的目标机索引
         self.data_matlab = 'data_matlab.txt'
-        self.tcas_transmit_distance = 18.52*2                 # 发送tcas的距离阈值 18.52km = 10nm
+        self.tcas_transmit_distance = 18.52                 # 发送tcas的距离阈值 18.52km = 10nm
         self.own_takeoff_signal.connect(self.own_takeoff)
         self.target_takeoff_signal.connect(self.open_target_timer)
         self.variable = locals()
@@ -111,7 +111,7 @@ class MainWindow(QMainWindow):
 
         ArrayType = ADSB_Data_Struct * 30
         self.array_ads_b = ArrayType()
-        self.own_data_struct = Ownship_Data_Struct();
+        self.own_data_struct = Ownship_Data_Struct()
 
     def stop_transmit_adsb(self):
         '''
@@ -992,8 +992,8 @@ class MainWindow(QMainWindow):
                             str(relative_distance_xyz))
                     if current_type == 2: #tcas与ads-b不关联
                         r = round((sqrt(5403064+pow(relative_distance_xy+2325, 2)*4.6225)+284)/1000 ,3)
-                        random_deg = random.uniform(0,360)
-                        tcas_lng, tcas_lat = self.ga.get_lngAndlat(current_adsb_lng,current_adsb_lat,20,r)
+                        random_deg = random.uniform(0,20)
+                        tcas_lng, tcas_lat = self.ga.get_lngAndlat(current_adsb_lng,current_adsb_lat,random_deg,r)
                         relative_distance_xyz = round(self.ga.geodistance_with_height(float(tcas_lng), float(tcas_lat),
                                                                                       float(current_tcas_height) / 1000,
                                                                                       float(current_own_lng),
@@ -1013,9 +1013,12 @@ class MainWindow(QMainWindow):
                             str(relative_distance_xyz))
 
                     if tcas_lng and tcas_lat:
-                        temp_direction = float(self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(target_index)).text())
-                        print("temp_direction：" + str(temp_direction))
-                        temp_direction =  temp_direction -float(current_own_Heading_Track_Angle)
+                        # temp_direction = float(self.findChild(QLineEdit, "txt_Heading_Track_Angle_target" + str(target_index)).text())
+                        # print("temp_direction：" + str(temp_direction))
+                        # temp_direction =  temp_direction -float(current_own_Heading_Track_Angle)
+                        temp_direction = self.ga.getDegree(float(current_own_lat), float(current_own_lng),
+                                                           float(tcas_lat), float(tcas_lng))
+                        temp_direction = float(current_own_Heading_Track_Angle) - temp_direction
                         if temp_direction < 0:
                             temp_direction += 360
                         temp_direction = round(temp_direction,3)
@@ -1114,13 +1117,8 @@ class MainWindow(QMainWindow):
             target_index_list = [] #待发送tcas数据的目标机索引序列
             for target_index, fre in self.tcas_fre_transmit_target_all.items():
                 if self.count_timer_tcas_transmit % fre == 0 and self.type_target_all[target_index] != 3:
-                    # relative_distance_xy = self.ga.geodistance(
-                    #     float(self.findChild(QLineEdit, 'txt_Longitude_target' + str(target_index)).text()),
-                    #     float(self.findChild(QLineEdit, 'txt_Latitude_target' + str(target_index)).text()),
-                    #     float(self.ui.txt_Longitude_own.text()),
-                    #     float(self.ui.txt_Latitude_own.text()))
-                    current_adsb_lng = self.ga.radTodeg(self.array_ads_b[target_index - 1].Longitude)  # TCAS经度坐标
-                    current_adsb_lat = self.ga.radTodeg(self.array_ads_b[target_index - 1].Latitude)  # TCAS纬度坐标
+                    current_adsb_lng = self.ga.radTodeg(self.array_ads_b[target_index - 1].Longitude)  # adsb经度坐标
+                    current_adsb_lat = self.ga.radTodeg(self.array_ads_b[target_index - 1].Latitude)  # adsb纬度坐标
                     current_own_lng = self.ga.radTodeg(self.own_data_struct.Longitude)
                     current_own_lat = self.ga.radTodeg(self.own_data_struct.Latitude)
                     relative_distance_xy = self.ga.geodistance(float(current_adsb_lng), float(current_adsb_lat),
@@ -1150,19 +1148,53 @@ class MainWindow(QMainWindow):
                     tcas_data_struct.Vertical_Speed = int(self.data_targetship[target_index]['TCAS']['Vertical_Speed_TCAS'] * 1000 /3600)
                     tcas_data_struct.Bearing = round(self.ga.degTorad(float(self.findChild(QLineEdit, "txt_Relative_Direction_target" + str(target_index)).text())),6)  # 单位弧度# range:0-2pi
                     #tcas_data_struct.Range = round(float(self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_index)).text())*1000,6) #相对本机距离 单位m
-                    tcas_lng = self.ga.radTodeg(self.array_ads_b[target_index - 1].Longitude)  # TCAS经度坐标
-                    tcas_lat = self.ga.radTodeg(self.array_ads_b[target_index - 1].Latitude)  # TCAS纬度坐标
+                    adbs_lng = self.ga.radTodeg(self.array_ads_b[target_index - 1].Longitude)  # TCAS经度坐标
+                    adbs_lat = self.ga.radTodeg(self.array_ads_b[target_index - 1].Latitude)  # TCAS纬度坐标
                     current_own_lng = self.ga.radTodeg(self.own_data_struct.Longitude)
                     current_own_lat = self.ga.radTodeg(self.own_data_struct.Latitude)
                     current_tcas_height = tcas_data_struct.Altitude
                     current_own_height = self.own_data_struct.Altitude
 
-                    relative_distance_xyz = round(self.ga.geodistance_with_height(float(tcas_lng), float(tcas_lat),
-                                                                                  float(current_tcas_height) / 1000,
-                                                                                  float(current_own_lng),
-                                                                                  float(current_own_lat),
-                                                                                  float(current_own_height) / 1000), 3)
-                    tcas_data_struct.Range = relative_distance_xyz * 1000
+                    # ads-b相对本机距离
+                    relative_distance_xy = self.ga.geodistance(float(adbs_lng), float(adbs_lat),
+                                                               float(current_own_lng), float(current_own_lat))
+
+                    current_type = self.type_target_all[target_index]
+                    if current_type == 1: #tcas与adsb关联且为最佳源
+                        tcas_lng = adbs_lng   #TCAS经度坐标
+                        tcas_lat = adbs_lat   #TCAS纬度坐标
+                        relative_distance_xyz = round(self.ga.geodistance_with_height(float(tcas_lng), float(tcas_lat),
+                                                                                      float(current_tcas_height)/1000,
+                                                                                      float(current_own_lng),
+                                                                                      float(current_own_lat),
+                                                                                      float(current_own_height)/1000),3)
+                        tcas_data_struct.Range = relative_distance_xyz * 1000
+                    if current_type == 2: #tcas与ads-b不关联
+                        # r = round((sqrt(5403064 + pow(relative_distance_xy + 2325, 2) * 4.6225) + 284) / 1000, 3)
+                        # tcas_lng, tcas_lat = self.ga.get_lngAndlat(current_adsb_lng, current_adsb_lat, 5, r)
+                        # relative_distance_xyz = round(self.ga.geodistance_with_height(float(tcas_lng), float(tcas_lat),
+                        #                                                               float(current_tcas_height) / 1000,
+                        #                                                               float(current_own_lng),
+                        #                                                               float(current_own_lat),
+                        #                                                               float(current_own_height) / 1000),3)
+                        #
+                        # temp_direction = self.ga.getDegree(float(current_own_lat), float(current_own_lng),
+                        #                                    float(tcas_lat), float(tcas_lng))
+                        # current_own_Heading_Track_Angle = self.ui.txt_Heading_Track_Angle_own.text()
+                        # temp_direction = float(current_own_Heading_Track_Angle) - temp_direction
+                        # tcas_data_struct.Bearing = temp_direction
+                        #tcas_data_struct.Range = relative_distance_xyz * 1000
+                        tcas_data_struct.Range = round(float(self.findChild(QLineEdit, "txt_Relative_Distance_target" + str(target_index)).text())*1000,6) #相对本机距离 单位m
+                    if current_type == 4:  #仅tcas
+                        tcas_lng = current_adsb_lng  # TCAS经度坐标
+                        tcas_lat = current_adsb_lat  # TCAS纬度坐标
+                        relative_distance_xyz = round(self.ga.geodistance_with_height(float(tcas_lng), float(tcas_lat),
+                                                                                      float(current_tcas_height) / 1000,
+                                                                                      float(current_own_lng),
+                                                                                      float(current_own_lat),
+                                                                                      float(current_own_height) / 1000),3)
+                        tcas_data_struct.Range = relative_distance_xyz * 1000
+
 
                     # 如果相对距离在0-2海里以内,Warning_Status = 2
                     if relative_distance_xy>0 and relative_distance_xy<= 2 * 1.852:
